@@ -91,7 +91,7 @@ typedef enum {
 typedef struct {
     unsigned int integer;      //Value for processing integer value.
     double decimal;            //Value for processing double value.
-    Allocation *String;        //Array for processing strings.
+    str_t *String;        //Array for processing strings.
     Keywords keyword;          //Keyword.
     Token_types type_of_token; //Type of token.
 } Token;
@@ -102,7 +102,7 @@ void scanner_init();
 void scanner_reset();
 void scanner_set_file(FILE* fptr);
 //Comparing string we've gotten and compares with KW. In case it isn't a KW -> it's an ID.
-bool determine_type(Allocation *String, Token *Token);
+bool determine_type(str_t *String, Token *Token);
 
 //Gets a character from stdin and track location of lines and signs.
 int getchar_modified();

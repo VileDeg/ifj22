@@ -1,105 +1,87 @@
-
-#include <stdlib.h>
-#include <string.h>
-
 #include "scanner_dynamic_string.h"
 
 //Allocation size.
-#define dynamic_str_length 10
+#define ALLOCATION_STEP 16
 
 //Free memory that was allocated for string. 
-void string_free(Allocation *String)
+void str_dest(str_t *str)
 {
-    free(String->string);
+    free(str->ptr);
 }
 
 //Delete data from string.
-void string_clear(Allocation *String)
+void str_clear(str_t* str)
 {
-    if (!String) return;
-    //Zeroes str_length.
-    String->str_length = 0;	
-    
+    if (!str) return;
+    //Zeroes len.
+    str->len = 0;	
     //Add end of line.
-	String->string[String->str_length] = '\0';
+	str->ptr[str->len] = '\0';
 }
 
 //Initialization of string.
-bool string_init(Allocation *String)
+void str_const(str_t* str)
 {   
     //Allocates memory.
-    String->string = malloc(dynamic_str_length*sizeof(char));
-    
-    //Сheck if allocation was successful.
-    if(String->string == NULL)
-    {
-        string_free(String);
-        return false;
-    }
-    else
-    {
-        //Delete data from string.
-        string_clear(String);
-
-        //Updates allocation size information.
-        String->allocated_size = dynamic_str_length;
-        return true;
-    }
+    str->ptr = s_calloc(ALLOCATION_STEP);
+    //Delete data from string.
+    str_clear(str);
+    //Updates allocation size information.
+    str->cap = ALLOCATION_STEP;
 }
-Allocation * string_set(char * txt){
-    Allocation *tmp = malloc(sizeof(struct dyn_str));
-    unsigned int str_length = strlen(txt);
-    tmp->str_length = str_length;
-    tmp->allocated_size = str_length;
-    tmp->string = calloc(str_length, sizeof(char));
-    strcpy(tmp->string,txt);
+
+str_t* str_set(const char* txt)
+{
+    str_t *tmp = s_calloc(sizeof(str_t));
+    size_t len = strlen(txt);
+
+    tmp->len = len;
+    tmp->cap = len+1;
+    tmp->ptr = s_calloc(tmp->cap);
+
+    strncpy(tmp->ptr, txt, tmp->len);
     return tmp;
 }
 
 //Add char to end of string.
-bool string_add_sign(Allocation *String, char new_char)
+void str_add_sign(str_t *str, char new_char)
 {
     //Checks if the allocated memory is enough.
-    if ((String->str_length + 1) < (String->allocated_size))
+    if ((str->len + 1) < (str->cap))
     {
         //Writes a new character to end of line.
-        String->string[String->str_length] = new_char;
+        str->ptr[str->len] = new_char;
         //Increments length of the string.
-        String->str_length++;
+        str->len++;
         //Add end of the line.
-        String->string[String->str_length] = '\0';
+        str->ptr[str->len] = '\0';
     }
     else
     {
         //Creates a new size for allocation.
-        int new_allocate_size = String->str_length + dynamic_str_length;
+        int new_allocate_size = str->len + ALLOCATION_STEP;
 
         //Сhanges size of allocated memory block.
-        if ((String->string = (char*) realloc(String->string, new_allocate_size)) == NULL)
-            return false;
+        str->ptr = s_realloc(str->ptr, new_allocate_size);
         
         //Updates allocation size information.
-        String->allocated_size = new_allocate_size;
-        string_add_sign(String, new_char);
+        str->cap = new_allocate_size;
+        str_add_sign(str, new_char);
     }
-    return true;
 }
 
-bool string_copy(Allocation *source, Allocation *destination)
+void str_copy(str_t *source, str_t *destination)
 {
-    if(source->str_length >= destination->allocated_size)
+    if(source->len >= destination->cap)
     {
-        if(!(destination->string = (char *) realloc(destination->string, source->str_length + 1)))
-            return false;
-        destination->allocated_size = source->str_length + 1;
+        destination->cap = source->len + 1;
+        destination->ptr = s_realloc(destination->ptr, destination->cap);
     }
-    strcpy(destination->string, source->string);
-    destination->str_length = source->str_length;
-    return true;
+    destination->len = source->len;
+    strncpy(destination->ptr, source->ptr, destination->len);
 }
 
-bool string_cmp(Allocation *first, char *second)
+bool str_cmp(str_t *first, const char *second)
 {
-    if (strcmp(first->string, second) == 0) return true;
-	return false;
+    return !strcmp(first->ptr, second);
 }

@@ -11,7 +11,7 @@
 static FILE* s_fptr;
 
 // Creates dynamic string.
-static Allocation *String;
+static str_t *String;
 
 static unsigned int sign_counter = 0;
 static unsigned int line_counter = 1;
@@ -29,11 +29,13 @@ void scanner_set_file(FILE* fptr)
 void scanner_init()
 {
     s_fptr = stdin;
-    CALLOC(String, sizeof(struct dyn_str));
-    if (string_init(String) == false)
-    {
-        MEMFAIL;
-    }
+    String = s_calloc(sizeof(*String));
+    //CALLOC(String, sizeof(*String));
+    str_const(String);
+    // if (str_init(String) == false)
+    // {
+    //     MEMFAIL;
+    // }
 }
 
 void scanner_reset()
@@ -44,47 +46,45 @@ void scanner_reset()
 
 void scanner_terminate()
 {
-    string_free(String);
-    FREE(String);
+    str_dest(String);
+    S_FREE(String);
 }
 
-
-
 //Comparing string we've gotten and compares with KW. In case it isn't a KW -> it's an ID.
-bool determine_type(Allocation *String, Token *Token)
+bool determine_type(str_t *String, Token *Token)
 {
     //Whether an identifier has been set.
     bool flag_id = false;
 
-    if (string_cmp(String, "do"))
+    if (str_cmp(String, "do"))
         Token->keyword = keyword_do;
-    else if (string_cmp(String, "else"))
+    else if (str_cmp(String, "else"))
         Token->keyword = keyword_else;  
-    else if (string_cmp(String, "end"))
+    else if (str_cmp(String, "end"))
         Token->keyword = keyword_end;
-    else if (string_cmp(String, "function"))
+    else if (str_cmp(String, "function"))
         Token->keyword = keyword_function;
-    else if (string_cmp(String, "global"))
+    else if (str_cmp(String, "global"))
         Token->keyword = keyword_global;
-    else if (string_cmp(String, "if"))
+    else if (str_cmp(String, "if"))
         Token->keyword = keyword_if;
-    else if (string_cmp(String, "integer"))
+    else if (str_cmp(String, "integer"))
         Token->keyword = keyword_integer;
-    else if (string_cmp(String, "local"))
+    else if (str_cmp(String, "local"))
         Token->keyword = keyword_local;
-    else if (string_cmp(String, "nil"))
+    else if (str_cmp(String, "nil"))
         Token->keyword = keyword_nil;
-    else if (string_cmp(String, "number"))
+    else if (str_cmp(String, "number"))
         Token->keyword = keyword_number;
-    else if (string_cmp(String, "require"))
+    else if (str_cmp(String, "require"))
         Token->keyword = keyword_require;
-    else if (string_cmp(String, "return"))
+    else if (str_cmp(String, "return"))
         Token->keyword = keyword_return;
-    else if (string_cmp(String, "string"))
+    else if (str_cmp(String, "string"))
         Token->keyword = keyword_string;
-    else if (string_cmp(String, "then"))
+    else if (str_cmp(String, "then"))
         Token->keyword = keyword_then;
-    else if (string_cmp(String, "while"))
+    else if (str_cmp(String, "while"))
         Token->keyword = keyword_while;
     else
     {
@@ -122,7 +122,7 @@ int getchar_modified()
 int next_token(Token *Token)
 {
     //Dynamic string declaration.  
-    //Allocation *String = calloc(1, sizeof(struct dyn_str));
+    //str_t *String = calloc(1, sizeof(struct dyn_str));
     
     // if(String == NULL)
     // {
@@ -139,7 +139,7 @@ int next_token(Token *Token)
     //     return ERROR_INTERNAL;
     // }
     //string_free(String);
-    string_clear(String);
+    str_clear(String);
     Token->String = String;   
     
     int current_state = STATE_START; 
@@ -166,7 +166,7 @@ int next_token(Token *Token)
 
                 if (sign == '_' || isalpha(sign))
                 {
-                    string_add_sign(String, sign);
+                    str_add_sign(String, sign);
                     current_state = STATE_ID_OR_KEYWORD; 
                     break;
                 }
@@ -174,7 +174,7 @@ int next_token(Token *Token)
 
                 if (isdigit(sign))
                 {
-                    string_add_sign(String, sign);
+                    str_add_sign(String, sign);
                     current_state = STATE_NUMBER;
                     break;
                 }
@@ -321,7 +321,7 @@ int next_token(Token *Token)
                 while(true)
                 {
                     if (isalpha(sign) || isdigit(sign) || sign == '_')
-                        string_add_sign(String, sign);
+                        str_add_sign(String, sign);
                     else
                         break;
                     sign = getchar_modified();
@@ -337,17 +337,17 @@ int next_token(Token *Token)
                 while(true)
                 {
                     if (isdigit(sign))
-                        string_add_sign(String, sign);
+                        str_add_sign(String, sign);
                     else if ( sign == '.')
                     {
-                        string_add_sign(String, sign);
+                        str_add_sign(String, sign);
                         is_sign = true;
                         current_state = STATE_NUMBER_POINT;
                         break;
                     }
                     else if (sign == 'E' || sign == 'e')
                     {
-                        string_add_sign(String, sign);
+                        str_add_sign(String, sign);
                         current_state = STATE_NUMBER_EXPONENT_START;
                         is_sign = true;
                         break;
@@ -360,8 +360,8 @@ int next_token(Token *Token)
                     else if (!isdigit(sign))
                     {
                         //Error handling. 
-                        string_add_sign(String, sign);
-                        fprintf(stderr, "[LEXICAL ERROR]:%d:%d: wrong form of integer: \"%s\"\n", line_counter, sign_counter, Token->String->string);
+                        str_add_sign(String, sign);
+                        fprintf(stderr, "[LEXICAL ERROR]:%d:%d: wrong form of integer: \"%s\"\n", line_counter, sign_counter, Token->String->ptr);
                         //string_free(String);
                         return ERROR_LEXICAL; 
                     }
@@ -373,7 +373,7 @@ int next_token(Token *Token)
                     break;
 
                 //Converts string to int. 
-                Token->integer = atoi(String->string);
+                Token->integer = atoi(String->ptr);
                 Token->type_of_token = token_integer;
                 current_state = STATE_START;
                 ungetc(sign, s_fptr);
@@ -384,13 +384,13 @@ int next_token(Token *Token)
             case(STATE_NUMBER_EXPONENT_START):
                 if ( sign == '+' || sign == '-' )
                 {
-                    string_add_sign(String, sign);
+                    str_add_sign(String, sign);
                     current_state = STATE_NUMBER_EXPONENT_SIGN;
                     break;
                 } 
                 else if ( isdigit(sign) )
                 {
-                    string_add_sign(String, sign);
+                    str_add_sign(String, sign);
                     current_state = STATE_NUMBER_EXPONENT;
                     break;
                 }
@@ -402,8 +402,8 @@ int next_token(Token *Token)
                 }
                 else 
                 {
-                    string_add_sign(String, sign);
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: wrong form of exponent: \"%s\"\n", line_counter, sign_counter, Token->String->string);
+                    str_add_sign(String, sign);
+                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: wrong form of exponent: \"%s\"\n", line_counter, sign_counter, Token->String->ptr);
                     //string_free(String);
                     return ERROR_LEXICAL;
                 }
@@ -412,7 +412,7 @@ int next_token(Token *Token)
             case(STATE_NUMBER_EXPONENT_SIGN):
                 if ( isdigit(sign) )
                 {
-                    string_add_sign(String, sign);
+                    str_add_sign(String, sign);
                     current_state = STATE_NUMBER_EXPONENT;
                     break;
                 } 
@@ -424,8 +424,8 @@ int next_token(Token *Token)
                 }
                 else
                 {
-                    string_add_sign(String, sign);
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: wrong form of exponent: \"%s\"\n", line_counter, sign_counter, Token->String->string);
+                    str_add_sign(String, sign);
+                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: wrong form of exponent: \"%s\"\n", line_counter, sign_counter, Token->String->ptr);
                     //string_free(String);
                     return ERROR_LEXICAL;
                 }
@@ -435,13 +435,13 @@ int next_token(Token *Token)
                 while(true)
                 {
                     if (isdigit(sign))
-                        string_add_sign(String, sign);
+                        str_add_sign(String, sign);
                     else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t')
                         break;
                     else
                     {
-                        string_add_sign(String, sign);
-                        fprintf(stderr, "[LEXICAL ERROR]:%d:%d: wrong form of exponent: \"%s\"\n", line_counter, sign_counter, Token->String->string);
+                        str_add_sign(String, sign);
+                        fprintf(stderr, "[LEXICAL ERROR]:%d:%d: wrong form of exponent: \"%s\"\n", line_counter, sign_counter, Token->String->ptr);
                         //string_free(String);
                         return ERROR_LEXICAL; 
                     }
@@ -450,7 +450,7 @@ int next_token(Token *Token)
                 }
                 Token->type_of_token = token_exponent;
                 //Converts string to a floating-point number (decimal).
-                Token->decimal = atof(String->string);
+                Token->decimal = atof(String->ptr);
                 ungetc(sign, s_fptr);
                 //string_free(String);
                 return 0;
@@ -460,13 +460,13 @@ int next_token(Token *Token)
 
                 if (isdigit(sign)) 
                 {
-                    string_add_sign(String, sign);
+                    str_add_sign(String, sign);
                     current_state = STATE_NUMBER_DOUBLE;
                 }
                 else
                 {
-                    string_add_sign(String, sign);
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: wrong form of decimal: \"%s\"\n", line_counter, sign_counter, Token->String->string);
+                    str_add_sign(String, sign);
+                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: wrong form of decimal: \"%s\"\n", line_counter, sign_counter, Token->String->ptr);
                     //string_free(String);
                     return ERROR_LEXICAL; 
                 }
@@ -477,10 +477,10 @@ int next_token(Token *Token)
             while(true)
             {
                 if (isdigit(sign))
-                    string_add_sign(String, sign);
+                    str_add_sign(String, sign);
                 else if (sign == 'E' || sign == 'e')
                 {
-                    string_add_sign(String, sign);
+                    str_add_sign(String, sign);
                     current_state = STATE_NUMBER_EXPONENT_START;
                     is_exponent = true;
                     break;
@@ -492,8 +492,8 @@ int next_token(Token *Token)
                     break;
                 else if (!isdigit(sign))
                 {
-                    string_add_sign(String, sign);
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: wrong form of decimal: \"%s\"\n", line_counter, sign_counter, Token->String->string);
+                    str_add_sign(String, sign);
+                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: wrong form of decimal: \"%s\"\n", line_counter, sign_counter, Token->String->ptr);
                     //string_free(String);
                     return ERROR_LEXICAL; 
                 }
@@ -501,7 +501,7 @@ int next_token(Token *Token)
                 sign = getchar_modified();
             }        
             if (is_exponent == true) break;
-            Token->decimal = atof(String->string);
+            Token->decimal = atof(String->ptr);
             Token->type_of_token = token_double;
 
             current_state = STATE_START;
@@ -597,9 +597,9 @@ int next_token(Token *Token)
                     current_state = STATE_NOT_EQUAL;
                 else
                 {
-                    string_add_sign(String,'~');
-                    string_add_sign(String,sign);
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: unsuitable combination of characters: \"%s\"\n", line_counter, sign_counter, Token->String->string);
+                    str_add_sign(String,'~');
+                    str_add_sign(String,sign);
+                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: unsuitable combination of characters: \"%s\"\n", line_counter, sign_counter, Token->String->ptr);
                     //string_free(String);
                     return ERROR_LEXICAL;
                 }
@@ -707,7 +707,7 @@ int next_token(Token *Token)
                         //string_free(String);
                         return ERROR_LEXICAL;
                     }
-                    string_add_sign(String, sign);
+                    str_add_sign(String, sign);
                     sign = getchar_modified();
                 }
                 break;
@@ -717,25 +717,25 @@ int next_token(Token *Token)
                 if (sign == '\"')
                 {
                     current_state = STATE_STRING_START;
-                    string_add_sign(String, sign);
+                    str_add_sign(String, sign);
                     break;
                 }
                 else if (sign == 'n')
                 {
                     current_state = STATE_STRING_START;
-                    string_add_sign(String, '\n'); 
+                    str_add_sign(String, '\n'); 
                     break;
                 }
                 else if (sign == 't')
                 {
                     current_state = STATE_STRING_START;
-                    string_add_sign(String, '\t');
+                    str_add_sign(String, '\t');
                     break;
                 }
                 else if (sign == '\\')
                 {
                     current_state = STATE_STRING_START;
-                    string_add_sign(String, '\\');
+                    str_add_sign(String, '\\');
                     break;
                 }
                 else if (sign == '0' || sign == '1')
@@ -752,9 +752,9 @@ int next_token(Token *Token)
                 }
                 else 
                 {
-                    string_add_sign(String, '\\');
-                    string_add_sign(String, sign);
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid escape sequence: \"%s\"\n", line_counter, sign_counter, Token->String->string);
+                    str_add_sign(String, '\\');
+                    str_add_sign(String, sign);
+                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid escape sequence: \"%s\"\n", line_counter, sign_counter, Token->String->ptr);
                     //string_free(String);
                     return ERROR_LEXICAL;
                 }
@@ -782,7 +782,7 @@ int next_token(Token *Token)
                     //[x][y][z].
                     current_state = STATE_STRING_START;
                     ascii_number[2] = sign;
-                    string_add_sign(String, atoi(ascii_number));
+                    str_add_sign(String, atoi(ascii_number));
                     break;
                 }
                 else 
@@ -820,7 +820,7 @@ int next_token(Token *Token)
                     //[x][y][z].
                     current_state = STATE_STRING_START;
                     ascii_number[2] = sign;
-                    string_add_sign(String, atoi(ascii_number));
+                    str_add_sign(String, atoi(ascii_number));
                     break;
                 }
                 else 
@@ -844,9 +844,9 @@ int next_token(Token *Token)
                     current_state = STATE_CONCATENATION;
                 else
                 {
-                    string_add_sign(String,'.');
-                    string_add_sign(String,sign);
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: unsuitable combination of characters: \"%s\"\n", line_counter, sign_counter, Token->String->string);
+                    str_add_sign(String,'.');
+                    str_add_sign(String,sign);
+                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: unsuitable combination of characters: \"%s\"\n", line_counter, sign_counter, Token->String->ptr);
                     //string_free(String);
                     return ERROR_LEXICAL;
                 }

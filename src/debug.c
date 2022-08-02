@@ -1,4 +1,5 @@
 #include "debug.h"
+#include "base.h"
 
 static int max_kw = 14;
 static const char* kw_str[] =
@@ -66,7 +67,7 @@ void reset_token(Token* tk)
     tk->decimal = 0.f;
     tk->keyword = 1000;
     tk->type_of_token = 1000;
-    string_clear(tk->String);
+    str_clear(tk->String);
 }
 
 static const char* s_TokenDebugFormat = "%-4.4s %-4.4s %-12.12s %-12.12s %-16.16s\n";
@@ -79,7 +80,7 @@ void debug_token(Token tk)
     char fstr[mxlen];
     snprintf(fstr, mxlen, "%g", tk.decimal);
     printf(s_TokenDebugFormat, istr, fstr,
-        tk.String->string, debug_kw(tk.keyword), debug_tk_type(tk.type_of_token));
+        tk.String->ptr, debug_kw(tk.keyword), debug_tk_type(tk.type_of_token));
 }
 
 void lexical_test(const char* filename)
@@ -108,8 +109,7 @@ void lexical_test(const char* filename)
     scanner_reset();
     scanner_set_file(fptr);
 
-    Token* tk;
-    CALLOC(tk, sizeof(*tk));
+    Token* tk = s_calloc(sizeof(*tk));
 
     reset_token(tk);
     while (!next_token(tk))
@@ -118,6 +118,6 @@ void lexical_test(const char* filename)
         reset_token(tk);
     }
 
-    FREE(tk);
+    S_FREE(tk);
     fclose(fptr);
 }
