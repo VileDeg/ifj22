@@ -2,7 +2,7 @@
 #define _SCANNER
 
 #include <stdio.h>
-#include "scanner_dynamic_string.h"
+#include "string_t.h"
 
 //FSM states.
 #define STATE_START 100
@@ -95,8 +95,6 @@ typedef struct {
     Keywords keyword;          //Keyword.
     Token_types type_of_token; //Type of token.
 } Token;
-
-
 
 void scanner_init();
 void scanner_reset();

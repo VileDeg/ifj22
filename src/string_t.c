@@ -1,4 +1,4 @@
-#include "scanner_dynamic_string.h"
+#include "string_t.h"
 
 //Allocation size.
 #define ALLOCATION_STEP 16

@@ -36,6 +36,6 @@ $(OUTDIR)/%.o: $(CODEDIR)/%.c $(HEADERS)
 # 	gcc -MM $(CFILES) > $@
 
 clean:
-	rm -rf $(BIN) $(OBJ) $(DEPLIST)
+	rm -rf $(BIN) $(wildcard $(OUTDIR)/*.o)
 
 #-include $(DEPLIST)
