@@ -16,6 +16,7 @@ void string_free(Allocation *String)
 //Delete data from string.
 void string_clear(Allocation *String)
 {
+    if (!String) return;
     //Zeroes str_length.
     String->str_length = 0;	
     

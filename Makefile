@@ -6,7 +6,7 @@ BIN=$(OUTDIR)/ifj21
 DEPLIST=$(OUTDIR)/dep.list
 
 CC=gcc
-OPT=-O4
+OPT=-O0
 
 PLATFORM=-m64
 
@@ -16,13 +16,12 @@ LDFLAGS=
 
 CFILES=$(wildcard $(CODEDIR)/*.c)
 OBJ=$(patsubst $(CODEDIR)/%.c,$(OUTDIR)/%.o,$(CFILES))
+HEADERS=$(wildcard $(INCDIR)/*.h)
 
 COMPILE_BIN=$(CC) $(PLATFORM) $^ -o $(strip $@ $(LDFLAGS))
 
-
-
-.PHONY: all clean 
-all: $(BIN) out/dep.list
+.PHONY: all clean
+all: $(BIN)
 
 $(BIN): $(OBJ)
 	$(COMPILE_BIN)
@@ -30,13 +29,13 @@ $(BIN): $(OBJ)
 $(CFILES): Makefile
 	@touch $@
 
-$(OUTDIR)/%.o: $(CODEDIR)/%.c
+$(OUTDIR)/%.o: $(CODEDIR)/%.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-out/dep.list:
-	$(CC) -MM $(CFILES) > out/dep.list
+# $(DEPLIST):
+# 	gcc -MM $(CFILES) > $@
 
 clean:
-	rm -rf $(BIN) $(OBJ)
+	rm -rf $(BIN) $(OBJ) $(DEPLIST)
 
--include out/dep.list
+#-include $(DEPLIST)

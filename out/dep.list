@@ -1,4 +1,0 @@
-main.o: src/main.c src/scanner.h src/scanner_dynamic_string.h
-scanner_dynamic_string.o: src/scanner_dynamic_string.c \
- src/scanner_dynamic_string.h
-scanner.o: src/scanner.c src/scanner.h src/scanner_dynamic_string.h

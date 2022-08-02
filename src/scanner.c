@@ -1,17 +1,54 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <ctype.h>
+#include "base.h"
+
 #include "scanner.h"
 #include "scanner_dynamic_string.h"
-#include "base.h"
 //#include "errors.h"          
 
 #define ERROR_INTERNAL -11
 #define ERROR_LEXICAL  -111
 
+// File to read from
+static FILE* s_fptr;
+
 // Creates dynamic string.
 static Allocation *String;
+
+static unsigned int sign_counter = 0;
+static unsigned int line_counter = 1;
+
+void scanner_set_file(FILE* fptr)
+{
+    if (!fptr)
+    {
+        ERRPR("File pointer is NULL.");
+        return;
+    }
+    s_fptr = fptr;
+}
+
+void scanner_init()
+{
+    s_fptr = stdin;
+    CALLOC(String, sizeof(struct dyn_str));
+    if (string_init(String) == false)
+    {
+        MEMFAIL;
+    }
+}
+
+void scanner_reset()
+{
+    sign_counter = 0;
+    line_counter = 1;
+}
+
+void scanner_terminate()
+{
+    string_free(String);
+    FREE(String);
+}
+
+
 
 //Comparing string we've gotten and compares with KW. In case it isn't a KW -> it's an ID.
 bool determine_type(Allocation *String, Token *Token)
@@ -63,13 +100,10 @@ bool determine_type(Allocation *String, Token *Token)
     return 0; //Scanner token was successful.
 }
 
-static unsigned int sign_counter = 0;
-static unsigned int line_counter = 1;
-
 //Gets a character from stdin and track location of lines and signs.
 int getchar_modified()
 {
-    int term_sign = getchar();
+    int term_sign = getc(s_fptr);
 
     if (term_sign != '\n')
         sign_counter++;
@@ -82,20 +116,7 @@ int getchar_modified()
     return term_sign;
 }
 
-void scanner_init()
-{
-    CALLOC(String, sizeof(struct dyn_str));
-    if (string_init(String) == false)
-    {
-        MEMFAIL;
-    }
-}
 
-void scanner_terminate()
-{
-    string_free(String);
-    FREE(String);
-}
 
 //Function for reading string from stdin and converting into token.
 int next_token(Token *Token)
@@ -307,7 +328,7 @@ int next_token(Token *Token)
                 }
                 determine_type(String, Token); 
                 //Returns the sign back to stream. 
-                ungetc(sign, stdin);
+                ungetc(sign, s_fptr);
 
                 return 0;
 
@@ -355,7 +376,7 @@ int next_token(Token *Token)
                 Token->integer = atoi(String->string);
                 Token->type_of_token = token_integer;
                 current_state = STATE_START;
-                ungetc(sign, stdin);
+                ungetc(sign, s_fptr);
                 //string_free(String);
                 return 0;
 
@@ -376,7 +397,7 @@ int next_token(Token *Token)
                 else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t')
                 {
                     current_state = STATE_NUMBER_EXPONENT;
-                    ungetc(sign, stdin);
+                    ungetc(sign, s_fptr);
                     break;
                 }
                 else 
@@ -398,7 +419,7 @@ int next_token(Token *Token)
                 else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t')
                 {
                     current_state = STATE_NUMBER_EXPONENT;
-                    ungetc(sign, stdin);
+                    ungetc(sign, s_fptr);
                     break;
                 }
                 else
@@ -430,7 +451,7 @@ int next_token(Token *Token)
                 Token->type_of_token = token_exponent;
                 //Converts string to a floating-point number (decimal).
                 Token->decimal = atof(String->string);
-                ungetc(sign, stdin);
+                ungetc(sign, s_fptr);
                 //string_free(String);
                 return 0;
 
@@ -484,7 +505,7 @@ int next_token(Token *Token)
             Token->type_of_token = token_double;
 
             current_state = STATE_START;
-            ungetc(sign, stdin);
+            ungetc(sign, s_fptr);
             //string_free(String);
             return 0;
             
@@ -494,7 +515,7 @@ int next_token(Token *Token)
                     current_state = STATE_DIVISION_INTEGER;
                 else
                     {
-                        ungetc(sign, stdin);
+                        ungetc(sign, s_fptr);
                         Token->type_of_token = token_divide;
                         //string_free(String);
                         return 0;
@@ -504,7 +525,7 @@ int next_token(Token *Token)
             //Handling a situation with division integer "//".
             case(STATE_DIVISION_INTEGER):
                 Token->type_of_token = token_divide_integer;
-                ungetc(sign, stdin);
+                ungetc(sign, s_fptr);
                 //string_free(String);
                 return 0;
             
@@ -514,7 +535,7 @@ int next_token(Token *Token)
                     current_state = STATE_LESS_OR_EQUAL;
                 else
                     {
-                        ungetc(sign, stdin);
+                        ungetc(sign, s_fptr);
                         Token->type_of_token = token_less;
                         //string_free(String);
                         return 0;
@@ -524,7 +545,7 @@ int next_token(Token *Token)
             //Handling a situation with relation operator "<=".
             case(STATE_LESS_OR_EQUAL):
                 Token->type_of_token = token_less_or_equal;
-                ungetc(sign, stdin);
+                ungetc(sign, s_fptr);
                 //string_free(String);
                 return 0;
 
@@ -535,7 +556,7 @@ int next_token(Token *Token)
                     current_state = STATE_GREATER_OR_EQUAL;
                 else
                     {
-                        ungetc(sign, stdin);
+                        ungetc(sign, s_fptr);
                         Token->type_of_token = token_greater;
                         //string_free(String);
                         return 0;
@@ -545,7 +566,7 @@ int next_token(Token *Token)
             //Handling a situation with relation operator ">=".
             case(STATE_GREATER_OR_EQUAL):
                 Token->type_of_token = token_greater_or_equal;
-                ungetc(sign, stdin);
+                ungetc(sign, s_fptr);
                 //string_free(String);
                 return 0;
 
@@ -556,7 +577,7 @@ int next_token(Token *Token)
                     current_state = STATE_IS_EQUAL;
                 else
                     {
-                        ungetc(sign, stdin);
+                        ungetc(sign, s_fptr);
                         Token->type_of_token = token_equal_sign; 
                         //string_free(String);
                         return 0;
@@ -566,7 +587,7 @@ int next_token(Token *Token)
             //Handling a situation with relation operator "==".
             case(STATE_IS_EQUAL):
                 Token->type_of_token = token_equal; 
-                ungetc(sign, stdin);
+                ungetc(sign, s_fptr);
                 //string_free(String);
                 return 0;
             
@@ -587,7 +608,7 @@ int next_token(Token *Token)
             //Handling a situation with relation operator "~=".
             case(STATE_NOT_EQUAL):
                 Token->type_of_token = token_not_equal;
-                ungetc(sign, stdin);
+                ungetc(sign, s_fptr);
                 //string_free(String);
                 return 0;
 
@@ -597,7 +618,7 @@ int next_token(Token *Token)
                     current_state = STATE_COMMENT;
                 else 
                 {
-                    ungetc(sign, stdin);
+                    ungetc(sign, s_fptr);
                     Token->type_of_token = token_minus;
                     //string_free(String);
                     return 0; 
@@ -615,7 +636,7 @@ int next_token(Token *Token)
                 {
                     if (sign == EOF || sign == '\n')
                     {
-                        ungetc(sign, stdin);
+                        ungetc(sign, s_fptr);
                         break;
                     }
                     else if (sign != '\n')
@@ -642,7 +663,7 @@ int next_token(Token *Token)
                     if (sign == EOF)
                     {
                         current_state = STATE_START;
-                        ungetc(sign, stdin);
+                        ungetc(sign, s_fptr);
                         break;
                     }
                     else if (sign != ']') 
@@ -662,7 +683,7 @@ int next_token(Token *Token)
                 else 
                 {
                     current_state = STATE_COMMENT_BLOCK_CONTINUE;
-                    ungetc(sign, stdin);
+                    ungetc(sign, s_fptr);
                 }
                 break;
 
@@ -813,7 +834,7 @@ int next_token(Token *Token)
             case(STATE_STRING):
                 Token->type_of_token = token_string;
                 current_state = STATE_START;
-                ungetc(sign, stdin);
+                ungetc(sign, s_fptr);
                 
                 return 0;
 

@@ -1,14 +1,22 @@
 #ifndef __BASE_H__
 #define __BASE_H__
 
-#include "stdio.h"
-#include "stdlib.h"
-#include "errno.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <errno.h>
 
-typedef enum errcode
+typedef enum 
 {
     MEMERR=-1
-};
+}errcode;
+
+#define ERRPR(msg)\
+    do{\
+        fprintf(stderr, "[%s]::ERROR on line: %d, in function: %s\n\t%s\n",\
+            __FILE__, __LINE__, __func__, msg);\
+    } while(0)
 
 #define MEMFAIL \
     do{\
