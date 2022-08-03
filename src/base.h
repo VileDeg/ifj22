@@ -19,25 +19,8 @@ typedef enum
             __FILE__, __LINE__, __func__, msg);\
     } while(0)
 
-// #define MEMFAIL \
-//     do{\
-//         perror("Memory allocation failed!");\
-//         exit(MEMERR);\
-//     } while(0)
-
 void* s_calloc(size_t size);
 void* s_realloc(void* ptr, size_t size);
-
-
-
-
-// #define CALLOC(p, bytes) \
-//     do {\
-//         if (!(p = calloc(1, bytes)))\
-//         {\
-//             MEMFAIL;\
-//         }\
-//     } while(0)
 
 #define S_FREE(p)\
     do {\
