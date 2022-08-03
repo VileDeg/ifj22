@@ -121,3 +121,11 @@ void lexical_test(const char* filename)
     S_FREE(tk);
     fclose(fptr);
 }
+
+void stack_print_int(stack_t* st)
+{
+    for (int i = 0; !stack_empty(st); ++i)
+    {
+        printf("%d:\t%d\n", i, (int)stack_pop(st));
+    }
+}
