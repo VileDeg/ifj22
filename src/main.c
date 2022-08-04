@@ -1,33 +1,72 @@
 #include "base.h"
 #include "debug.h"
 #include "stack_t.h"
+#include "vector_t.h"
 
-GENERATE_STACK(int, i)
-GENERATE_STACK(float, f)
+GENERATE_STACK_DEFINITION(int, i)
+GENERATE_STACK_DEFINITION(float, f)
 
-int main(int argc, char** argv)
+GENERATE_VECTOR_DEFINITION(int, i)
+GENERATE_VECTOR_DEFINITION(float, f)
+
+int main(void)
 {
-    stack_i* sti = stack_const_i();
+    veci* vi = veci_const();
 
-    stack_push_i(sti, 1);
-    stack_push_i(sti, 14);
-    stack_push_i(sti, 7);
-    stack_push_i(sti, -5);
+    for (int i = 0; i < 17; ++i)
+    {
+        veci_push_back(vi, i);
+    }
 
-    stack_print_i(sti);
+    veci_print(vi);
+    int sumi = 0;
 
-    stack_dest_i(sti);
+    iterate(i, vi)
+    {
+        sumi += veci_get(vi, i);
+    }
+    printf("Sum is: %d\n", sumi);
 
-    stack_f* stf = stack_const_f();
+    veci_dest(vi);
 
-    stack_push_f(stf, 5.5f);
-    stack_push_f(stf, 11.34f);
-    stack_push_f(stf, 0.f);
-    stack_push_f(stf, -5666.42f);
+    vecf* vf = vecf_const();
 
-    stack_print_f(stf);
+    for (int i = 0; i < 17; ++i)
+    {
+        vecf_push_back(vf, i*1.1f);
+    }
 
-    stack_dest_f(stf);
+    vecf_print(vf);
+    int sumf = 0;
+
+    iterate(i, vf)
+    {
+        sumf += vecf_get(vf, i);
+    }
+    printf("Sum is: %d\n", sumf);
+
+    vecf_dest(vf);
+    stacki* sti = stacki_const();
+
+    stacki_push(sti, 1);
+    stacki_push(sti, 14);
+    stacki_push(sti, 7);
+    stacki_push(sti, -5);
+
+    stacki_print(sti);
+
+    stacki_dest(sti);
+
+    stackf* stf = stackf_const();
+
+    stackf_push(stf, 5.5f);
+    stackf_push(stf, 11.34f);
+    stackf_push(stf, 0.f);
+    stackf_push(stf, -5666.42f);
+
+    stackf_print(stf);
+
+    stackf_dest(stf);
 
     // scanner_init();
 
