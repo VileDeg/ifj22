@@ -41,6 +41,11 @@ To generate a vector data structure definition use "GENERATE_VECTOR_DEFINITION" 
 GENERATE_VECTOR_DEFINITION(int, i)   //generates 'veci' type that corresponds to vector holding integer items.
 GENERATE_VECTOR_DEFINITION(float, f) //generates 'vecf' type that corresponds to vector holding float items.
 ```
+There is also a utility macro "iterate" that lets you iterate through all items of a vector.
+```c
+#define iterate(i, vec)\
+    for (size_t i = 0; i < vec->size; ++i)
+```
 ### Stack
 To generate a stack data structure definition use "GENERATE_STACK_DEFINITION" macro.
 ```c
