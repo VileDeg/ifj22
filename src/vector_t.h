@@ -101,9 +101,4 @@ void vec##NAME##_print(vec##NAME* v)\
     }\
 }
 
-//for (size_t i = 0; i < v->size; ++i)
-// {
-//     printf("%ld: %d\n", i, v->arr[i]);
-// }
-
 #endif //_VECTOR_T_
