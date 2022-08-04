@@ -1,10 +1,12 @@
 # IFJ21
 ## Source files
-- base.h - includes all used standard library headers and declared utility functions/macros. Should be included in every header file.
-- debug.h - declares functions for testing/debugging.
-- scanner.h - scanner.
+- base.h     - includes all used standard library headers and declared utility functions/macros. Should be included in every header file.
+- debug.h    - declares functions for testing/debugging.
+- scanner.h  - scanner.
 - string_t.h - dynamic string class.
-- main.c - program entry point.
+- vector_t.h - generic vector class.
+- stack_t.h  - generic stack class.
+- main.c     - program entry point.
 ## Build and run
 ```sh
 make ; out/ifj21
