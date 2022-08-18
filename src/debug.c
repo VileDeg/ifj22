@@ -1,7 +1,7 @@
 #include "debug.h"
 #include "base.h"
 
-static int max_kw = 14;
+static uint32_t max_kw = 14;
 static const char* kw_str[] =
 {
     "do",
@@ -61,26 +61,47 @@ const char* debug_tk_type(Token_types tt)
    return tt < max_kw_type ? tk_types_str[tt] : "**NIL**";
 }
 
+//Token now contains union. Don't use this function
 void reset_token(Token* tk)
 {
-    tk->integer = 0;
-    tk->decimal = 0.f;
-    tk->keyword = 1000;
-    tk->type_of_token = 1000;
-    str_clear(tk->String);
+    tk->value.integer = 0;
+    tk->value.decimal = 0.f;
+    tk->value.keyword = 1000;
+    tk->type = 1000;
+    
+    str_clear(tk->value.String);
 }
 
 static const char* s_TokenDebugFormat = "%-4.4s %-4.4s %-12.12s %-12.12s %-16.16s\n";
 
 void debug_token(Token tk)
 {
-    size_t mxlen = 16;
-    char istr[mxlen];
-    snprintf(istr, mxlen, "%d", tk.integer);
-    char fstr[mxlen];
-    snprintf(fstr, mxlen, "%g", tk.decimal);
-    printf(s_TokenDebugFormat, istr, fstr,
-        tk.String->ptr, debug_kw(tk.keyword), debug_tk_type(tk.type_of_token));
+    size_t mxlen = 64;
+    char str[mxlen];
+    memset(str, '\0', mxlen);
+    switch (tk.type)
+    {
+        case token_integer:
+            snprintf(str, mxlen, "%d", tk.value.integer);
+            printf(s_TokenDebugFormat, str, "",
+                "", "", debug_tk_type(tk.type));
+            break;
+        case token_double:
+        case token_exponent:
+            snprintf(str, mxlen, "%g", tk.value.decimal);
+            printf(s_TokenDebugFormat, "", str,
+                "", "", debug_tk_type(tk.type));
+            break;
+        case token_keyword:
+            printf(s_TokenDebugFormat, "", "",
+                "", debug_kw(tk.value.keyword), debug_tk_type(tk.type));
+            break;
+        default:
+            ASSERT(tk.value.String != NULL, "");
+            ASSERT(tk.value.String->ptr != NULL, "");
+            printf(s_TokenDebugFormat, "", "",
+                tk.value.String->ptr, "", debug_tk_type(tk.type));
+    }
 }
 
 void lexical_test(const char* filename)
@@ -111,11 +132,11 @@ void lexical_test(const char* filename)
 
     Token* tk = s_calloc(sizeof(*tk));
 
-    reset_token(tk);
+    //reset_token(tk);
     while (!next_token(tk))
     {
         debug_token(*tk);
-        reset_token(tk);
+        //reset_token(tk);
     }
 
     S_FREE(tk);

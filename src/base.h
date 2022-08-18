@@ -7,15 +7,23 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
-
-
-
+#include <assert.h>
+#include <inttypes.h>
 
 typedef enum 
 {
     MEMERR=-1111
 } errcode;
 
+#define ASSERT(val, msg)\
+    do{\
+    if (!val)\
+    {\
+        fprintf(stderr, "[%s]::ASSERT on line: %d, in function: %s\n\t%s\n",\
+            __FILE__, __LINE__, __func__, msg);\
+        assert(val);\
+    }\
+    } while(0)
 #define ERRPR(msg)\
     do{\
         fprintf(stderr, "[%s]::ERROR on line: %d, in function: %s\n\t%s\n",\

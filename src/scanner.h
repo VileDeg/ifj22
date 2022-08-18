@@ -40,7 +40,7 @@
 
 //Enumeration of keywords.
 typedef enum {
-    keyword_do,
+    keyword_do=0,
     keyword_else,
     keyword_end,
     keyword_function,
@@ -59,14 +59,18 @@ typedef enum {
 
 //Enumeration of Token_types.
 typedef enum {
-    token_EOL,              // End of line.
+    token_EOL=0,              // End of line.
     token_EOF,              // End of file.
+
     token_ID,               //Identificator.           
     token_keyword,          //Keyword.
+
     token_integer,          //Number (type integer).
     token_double,           //Number (type double).
     token_exponent,         //Number (type exponent).
+
     token_string,           //String.
+
     token_minus,            // "-"
     token_plus,             // "+"
     token_multiply,         // "*"
@@ -87,13 +91,19 @@ typedef enum {
     token_concatination     // ".."
 } Token_types;
 
+typedef union
+{
+    unsigned integer;      //Value for processing integer value.
+    double   decimal;            //Value for processing double value.
+    str_t*   String;        //Array for processing strings.
+    Keywords keyword;          //Keyword.
+} Token_value;
+
+
 //Structure of token characteristics.
 typedef struct {
-    unsigned int integer;      //Value for processing integer value.
-    double decimal;            //Value for processing double value.
-    str_t *String;        //Array for processing strings.
-    Keywords keyword;          //Keyword.
-    Token_types type_of_token; //Type of token.
+    Token_value value;
+    Token_types type; //Type of token.
 } Token;
 
 void scanner_init();
