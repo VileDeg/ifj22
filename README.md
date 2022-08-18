@@ -1,4 +1,10 @@
 # IFJ21
+## Clone
+To clone the repo type
+```sh
+git clone https://username@github.com/VileDeg/ifj21
+```
+where username is your github username.
 ## Source files
 - base.h     - includes all used standard library headers and declared utility functions/macros. Should be included in every header file.
 - debug.h    - declares functions for testing/debugging.
