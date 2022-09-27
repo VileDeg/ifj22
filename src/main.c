@@ -71,9 +71,9 @@ int main(void)
     scanner_init();
 
     //lexical_test("../tests/lex/factorial.php");
-    //lexical_test("../tests/lex/factorial_rek.php");
+    lexical_test("../tests/lex/factorial_rek.php");
     //lexical_test("../tests/lex/string.php");
-    lexical_test("../tests/lex/eol.php");
+    //lexical_test("../tests/lex/eol.php");
 
     scanner_terminate();
     return 0;
