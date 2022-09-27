@@ -54,3 +54,5 @@ dkms.conf
 # Vs code
 .vscode
 out/
+out/base.o
+out/base.o

@@ -1,12 +1,9 @@
 #include "base.h"
 
 #include "scanner.h"
-//#include "errors.h"          
+#include "errors.h"          
 
 #define END_OF_FILE 42
-
-#define ERROR_INTERNAL -11
-#define ERROR_LEXICAL  -111
 
 // File to read from
 static FILE* s_fptr;
@@ -759,7 +756,7 @@ int next_token(Token *Token)
                 else if (sign == '$')
                 {
                     current_state = STATE_STRING_START;
-                    str_add_sign(String, '\$');         //!!перепроверить
+                    str_add_sign(String, '\\$');         //!!перепроверить
                     break;
                 }
                 else if (sign == '0' || sign == '1')
