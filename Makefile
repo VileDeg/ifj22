@@ -2,7 +2,7 @@ CODEDIR=src
 INCDIR=src
 OUTDIR=out
 
-BIN=$(OUTDIR)/ifj21
+BIN=$(OUTDIR)/ifj22
 DEPLIST=$(OUTDIR)/dep.list
 
 CC=gcc
@@ -11,7 +11,7 @@ OPT=-O0
 PLATFORM=-m64
 
 WARNINGS=-Wall -Wextra -pedantic
-CFLAGS=-std=c11 -g3 $(WARNINGS) -I$(INCDIR) $(OPT) $(PLATFORM)
+CFLAGS=-std=c11 -g3 -I$(INCDIR) $(OPT) $(PLATFORM)
 LDFLAGS=
 
 CFILES=$(wildcard $(CODEDIR)/*.c)
@@ -23,7 +23,7 @@ COMPILE_BIN=$(CC) $(PLATFORM) $^ -o $(strip $@ $(LDFLAGS))
 .PHONY: all clean
 all: $(BIN)
 
-$(BIN): $(OBJ)
+$(BIN): $(OBJ) 
 	$(COMPILE_BIN)
 
 $(CFILES): Makefile

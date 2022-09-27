@@ -37,24 +37,21 @@
 #define STATE_IS_EQUAL 129                      // '=='
 #define STATE_NOT_EQUAL_START 130               // '~'    P15
 #define STATE_NOT_EQUAL 131                     // '~='
+#define STATE_IS_EQUAL_END 132                  // '===' //!!
+#define STATE_NOT_EQUAL_END 133                 // '!==' //!!
 
 //Enumeration of keywords.
 typedef enum {
-    keyword_do=0,
-    keyword_else,
-    keyword_end,
+    keyword_else=0,
+    keyword_float,
     keyword_function,
-    keyword_global,
     keyword_if,
-    keyword_integer,
-    keyword_local,
-    keyword_nil,
-    keyword_number,
-    keyword_require,
+    keyword_int,
+    keyword_null,
     keyword_return,
     keyword_string,
-    keyword_then,
-    keyword_while,
+    keyword_void,
+    keyword_while
 } Keywords;
 
 //Enumeration of Token_types.
@@ -88,7 +85,13 @@ typedef enum {
     token_comma,            // ","
     token_colon,            // ":"
     token_length,           // "#"
-    token_concatination     // ".."
+    token_concatination,    // ".."
+
+    token_question_mark,    // "?"
+    token_semicolon,         // ";"
+    token_left_curly_bracket, // "{"
+    token_right_curly_bracket, // "}"
+    token_point                // "."
 } Token_types;
 
 typedef union

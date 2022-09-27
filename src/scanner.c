@@ -50,34 +50,24 @@ bool determine_type(str_t *String, Token *Token)
     //Whether an identifier has been set.
     bool flag_id = false;
     
-    if (str_cmp(String, "do"))
-        Token->value.keyword = keyword_do;
-    else if (str_cmp(String, "else"))
-        Token->value.keyword = keyword_else;  
-    else if (str_cmp(String, "end"))
-        Token->value.keyword = keyword_end;
+    if (str_cmp(String, "else"))
+        Token->value.keyword = keyword_else;
+    else if (str_cmp(String, "float"))
+        Token->value.keyword = keyword_float;  
     else if (str_cmp(String, "function"))
         Token->value.keyword = keyword_function;
-    else if (str_cmp(String, "global"))
-        Token->value.keyword = keyword_global;
     else if (str_cmp(String, "if"))
         Token->value.keyword = keyword_if;
-    else if (str_cmp(String, "integer"))
-        Token->value.keyword = keyword_integer;
-    else if (str_cmp(String, "local"))
-        Token->value.keyword = keyword_local;
-    else if (str_cmp(String, "nil"))
-        Token->value.keyword = keyword_nil;
-    else if (str_cmp(String, "number"))
-        Token->value.keyword = keyword_number;
-    else if (str_cmp(String, "require"))
-        Token->value.keyword = keyword_require;
+    else if (str_cmp(String, "int"))
+        Token->value.keyword = keyword_int;
+    else if (str_cmp(String, "null"))
+        Token->value.keyword = keyword_null;
     else if (str_cmp(String, "return"))
         Token->value.keyword = keyword_return;
     else if (str_cmp(String, "string"))
         Token->value.keyword = keyword_string;
-    else if (str_cmp(String, "then"))
-        Token->value.keyword = keyword_then;
+    else if (str_cmp(String, "void"))
+        Token->value.keyword = keyword_void;
     else if (str_cmp(String, "while"))
         Token->value.keyword = keyword_while;
     else
@@ -123,6 +113,7 @@ int next_token(Token *Token)
     while(true)
     {
         sign = getchar_modified();
+
         switch(current_state)
         {
             //Handling a situation with a coincidence of signs.
@@ -135,7 +126,7 @@ int next_token(Token *Token)
                 }
 
 
-                if (sign == '_' || isalpha(sign))
+                if (sign == '_' || isalpha(sign) || sign == '$')
                 {
                     str_add_sign(String, sign);
                     current_state = STATE_ID_OR_KEYWORD; 
@@ -158,10 +149,9 @@ int next_token(Token *Token)
                     return 0;
                 }
 
-
-                if (sign == '*')
+                if (sign == '-')
                 {
-                    Token->type = token_multiply;
+                    Token->type = token_minus;
                     
                     return 0;
                 }
@@ -213,7 +203,42 @@ int next_token(Token *Token)
                     
                     return 0;
                 }
+
+                if (sign == '?')
+                {
+                    Token->type = token_question_mark;
+
+                    return 0;
+                }
+
+                if (sign == ';')
+                {
+                    Token->type = token_semicolon;
+
+                    return 0;
+                }
                     
+                if (sign == '{')
+                {
+                    Token->type = token_left_curly_bracket;
+
+                    return 0;
+                }
+
+                if (sign == '}')
+                {
+                    Token->type = token_right_curly_bracket;
+
+                    return 0;
+                }
+
+                if (sign == '.')
+                {
+                    Token->type = token_point;
+
+                    return 0;
+                }
+                
 
                 if (sign == '.')
                 {
@@ -222,7 +247,7 @@ int next_token(Token *Token)
                 }
                 
 
-                if (sign == '~')
+                if (sign == '!')
                 {
                     current_state = STATE_NOT_EQUAL_START;
                     break;
@@ -257,13 +282,6 @@ int next_token(Token *Token)
                 }
 
 
-                if (sign == '-')
-                {
-                    current_state = STATE_MINUS;
-                    break;
-                }
-
-
                 if (sign == '\"')
                 {
                     current_state = STATE_STRING_START;
@@ -273,6 +291,11 @@ int next_token(Token *Token)
                 
                 if (isspace(sign) || sign == '\t')
                     break;
+
+                
+                
+
+
 
 
                 if (sign == EOF)
@@ -326,7 +349,7 @@ int next_token(Token *Token)
                     else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t')
                         break;
                     else if (sign == '-' || sign == '+' || sign == '*' || sign == '/' || sign == '<' || sign == '>' || 
-                             sign == '=' || sign == '~' || sign == '(' || sign == ')' || sign == ',')
+                             sign == '=' || sign == '~' || sign == '(' || sign == ')' || sign == ',' || sign == ';')
                         break;
                     else if (!isdigit(sign))
                     {
@@ -479,7 +502,7 @@ int next_token(Token *Token)
             ungetc(sign, s_fptr);
             
             return 0;
-            
+/*    
             //Handling a situation with division sign '/'.
             case(STATE_DIVISION):
                 if (sign == '/')
@@ -499,6 +522,8 @@ int next_token(Token *Token)
                 ungetc(sign, s_fptr);
                 
                 return 0;
+
+*/
             
             //Handling a situation with relation operator '<'.
             case(STATE_LESS):
@@ -555,20 +580,32 @@ int next_token(Token *Token)
                     }
                 break;
             
-            //Handling a situation with relation operator "==".
+            //Handling a situation with relation operator "==". //!!
             case(STATE_IS_EQUAL):
+                if(sign == '=')
+                    current_state = STATE_IS_EQUAL_END;
+                else
+                {
+                    //!!
+                }
+                
+                break;
+
+            //Handling a situation with relation operator '==='.
+            case(STATE_IS_EQUAL_END):
                 Token->type = token_equal; 
                 ungetc(sign, s_fptr);
-                
+
                 return 0;
+
             
-            //Handling a situation with start of relation operator "~=".
+            //Handling a situation with start of relation operator "!=".
             case(STATE_NOT_EQUAL_START):
                 if (sign == '=')
                     current_state = STATE_NOT_EQUAL;
                 else
                 {
-                    str_add_sign(String,'~');
+                    str_add_sign(String,'!');
                     str_add_sign(String,sign);
                     fprintf(stderr, "[LEXICAL ERROR]:%d:%d: unsuitable combination of characters: \"%s\"\n", line_counter, sign_counter, Token->value.String->ptr);
                     
@@ -576,33 +613,49 @@ int next_token(Token *Token)
                 }
                 break;
             
-            //Handling a situation with relation operator "~=".
+            //Handling a situation with relation operator "!=".
             case(STATE_NOT_EQUAL):
+                if(sign == '=')
+                     current_state = STATE_NOT_EQUAL_END;
+                else
+                {
+                    str_add_sign(String,'!');
+                    str_add_sign(String,sign);
+                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: unsuitable combination of characters: \"%s\"\n", line_counter, sign_counter, Token->value.String->ptr);
+                    
+                    return ERROR_LEXICAL;
+                }
+                break;
+
+            //Handling a situation with relation operator "!==".
+            case(STATE_NOT_EQUAL_END):    
                 Token->type = token_not_equal;
                 ungetc(sign, s_fptr);
                 
                 return 0;
 
-            //Handling a situation with minus sign '-'.
-            case(STATE_MINUS):
-                if (sign == '-') 
+            //Handling a situation with minus sign '-'.     //!!Блочный комментарий!!
+            case(STATE_DIVISION):
+                if (sign == '/') //значит это однострочный комментарий 
                     current_state = STATE_COMMENT;
-                else 
+                else if (sign == '*') //значит это многострочный комментарий
+                    current_state = STATE_COMMENT_BLOCK_START;
+                else
                 {
                     ungetc(sign, s_fptr);
-                    Token->type = token_minus;
+                    Token->type = token_divide;
                     
                     return 0; 
                 }
                 break;
 
-            //Handling a situation with line comment "--".
+            //Handling a situation with line comment "//".
             case(STATE_COMMENT):
-                if (sign == '[')
-                {
-                    current_state = STATE_COMMENT_BLOCK_START;
-                    break;
-                }
+                // if (sign == '[')
+                // {
+                //     current_state = STATE_COMMENT_BLOCK_START;
+                //     break;
+                // }
                 while(true)
                 {
                     if (sign == EOF || sign == '\n')
@@ -619,16 +672,8 @@ int next_token(Token *Token)
                 current_state = STATE_START;
                 break;
 
-            //Handling a situation with start of block comment "--[".
-            case(STATE_COMMENT_BLOCK_START):
-                if (sign == '[')
-                    current_state = STATE_COMMENT_BLOCK_CONTINUE;
-                else
-                    current_state = STATE_COMMENT;
-                break;
-
-            //Handling a situation with block comment "--[[".
-            case(STATE_COMMENT_BLOCK_CONTINUE):
+            //Handling a situation with start of block comment "/*".
+            case(STATE_COMMENT_BLOCK_START): //!!перепроверить 
                 while(true)
                 {
                     if (sign == EOF)
@@ -637,7 +682,7 @@ int next_token(Token *Token)
                         ungetc(sign, s_fptr);
                         break;
                     }
-                    else if (sign != ']') 
+                    else if (sign != '*') 
                         sign = getchar_modified();
                     else
                     {
@@ -647,9 +692,9 @@ int next_token(Token *Token)
                 }
                 break;
 
-            //Handling a situation with end of block comment "--[[]]".
+            //Handling a situation with end of block comment "--[[]]". //!! если /* fdfdfdfdf * fdfdfdf */
             case(STATE_COMMENT_BLOCK_END):
-                if (sign == ']')
+                if (sign == '/')
                     current_state = STATE_START;
                 else 
                 {
@@ -707,6 +752,12 @@ int next_token(Token *Token)
                 {
                     current_state = STATE_STRING_START;
                     str_add_sign(String, '\\');
+                    break;
+                }
+                else if (sign == '$')
+                {
+                    current_state = STATE_STRING_START;
+                    str_add_sign(String, '\$');         //!!перепроверить
                     break;
                 }
                 else if (sign == '0' || sign == '1')

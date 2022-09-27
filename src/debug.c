@@ -1,27 +1,22 @@
 #include "debug.h"
 #include "base.h"
 
-static uint32_t max_kw = 14;
+static uint32_t max_kw = 10;
 static const char* kw_str[] =
 {
-    "do",
     "else",
-    "end",
+    "float",
     "function",
-    "global",
     "if",
-    "integer",
-    "local",
-    "nil",
-    "number",
-    "require",
+    "int",
+    "null",
     "return",
     "string",
-    "then",
+    "void",
     "while"
 };
 
-static int max_kw_type = 25;
+static int max_kw_type = 31;
 static const char* tk_types_str[] = {
     "EOL              ",
     "EOF              ",
@@ -48,7 +43,12 @@ static const char* tk_types_str[] = {
     "comma            ",
     "colon            ",
     "length           ",
-    "concatination    "
+    "concatination    ",
+    "question_mark    ",
+    "semicolon        ",
+    "left_curly_bracket",
+    "right_curly_bracket",
+    "point            "
 };
 
 const char* debug_kw(Keywords kw)
@@ -60,7 +60,7 @@ const char* debug_tk_type(Token_types tt)
 {
    return tt < max_kw_type ? tk_types_str[tt] : "**NIL**";
 }
-
+ 
 //Token now contains union. Don't use this function
 void reset_token(Token* tk)
 {

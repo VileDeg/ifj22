@@ -1,4 +1,4 @@
-# IFJ21
+# IFJ22
 ## Clone
 To clone the repo type
 ```sh
@@ -15,14 +15,14 @@ where username is your github username.
 - main.c     - program entry point.
 ## Build and run
 ```sh
-make ; out/ifj21
+make ; out/ifj22
 ```
 or
 ```sh
-make clean ; make ; out/ifj21
+make clean ; make ; out/ifj22
 ```
 ## Testing
-Folder tests has some examples of "ifj21" language.
+Folder tests has some examples of "ifj22" language.
 Example of a program to test the scanner:
 ```c
 #include "base.h"

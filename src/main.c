@@ -70,9 +70,10 @@ int main(void)
 
     scanner_init();
 
-    lexical_test("../tests/lex/characters/amp.tl");
-    lexical_test("../tests/lex/characters/bracket.tl");
-    lexical_test("../tests/lex/characters/bracket2.tl");
+    //lexical_test("../tests/lex/factorial.php");
+    //lexical_test("../tests/lex/factorial_rek.php");
+    //lexical_test("../tests/lex/string.php");
+    lexical_test("../tests/lex/eol.php");
 
     scanner_terminate();
     return 0;
