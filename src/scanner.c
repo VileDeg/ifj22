@@ -3,6 +3,8 @@
 #include "scanner.h"
 //#include "errors.h"          
 
+#define END_OF_FILE 42
+
 #define ERROR_INTERNAL -11
 #define ERROR_LEXICAL  -111
 
@@ -302,7 +304,7 @@ int next_token(Token *Token)
                 {
                     Token->type = token_EOF;
                     
-                    return 0;
+                    return END_OF_FILE;
                 }
 
                 //If there were no signs matches, then a lexical error is written out.

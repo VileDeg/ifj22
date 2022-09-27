@@ -5,7 +5,7 @@
 #include "scanner.h"
 #include "stack_t.h"
 
-void lexical_test(const char* filename);
+void lexical_test(const char* filename, bool show_contents);
 
 
 

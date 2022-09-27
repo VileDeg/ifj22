@@ -104,7 +104,7 @@ void debug_token(Token tk)
     }
 }
 
-void lexical_test(const char* filename)
+void lexical_test(const char* filename, bool show_contents)
 {
     FILE* fptr = fopen(filename, "r");
     if (fptr == NULL)
@@ -112,18 +112,20 @@ void lexical_test(const char* filename)
         ERRPR("File pointer is null.");
         return;
     }
-
-    printf("***File contents: ***\n");
-
-    char line[1000];
-    while(fgets(line, 1000, fptr)!= NULL)
+    if (show_contents)
     {
-        printf("%s", line);
-    }
-    if (fptr != stdin)
-        rewind(fptr);
+        printf("***File contents: ***\n");
 
-    printf("\n");
+        char line[1000];
+        while(fgets(line, 1000, fptr)!= NULL)
+        {
+            printf("%s", line);
+        }
+        if (fptr != stdin)
+            rewind(fptr);
+
+        printf("\n");
+    }
     printf("***List of tokens: ***\n");
     printf(s_TokenDebugFormat, "int", "deci", "string", "keyword", "type");
 
@@ -133,11 +135,14 @@ void lexical_test(const char* filename)
     Token* tk = s_calloc(sizeof(*tk));
 
     //reset_token(tk);
-    while (!next_token(tk))
+    bool eof = false;
+    
+    while (!eof)
     {
+        eof = next_token(tk);
         debug_token(*tk);
-        //reset_token(tk);
     }
+    printf("\n\n");
 
     S_FREE(tk);
     fclose(fptr);
