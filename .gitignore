@@ -56,3 +56,6 @@ dkms.conf
 out/
 out/base.o
 out/base.o
+out/ifj22
+out/scanner.o
+.gitignore

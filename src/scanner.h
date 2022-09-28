@@ -25,8 +25,6 @@
 #define STATE_COMMENT_BLOCK_START 117           // '['    P11
 #define STATE_COMMENT_BLOCK_CONTINUE 118        // '[['   P12
 #define STATE_COMMENT_BLOCK_END 119             // ']'    P13
-#define STATE_CONCATENATION_START 120           // '.'    P14
-#define STATE_CONCATENATION 121                 // '..'
 #define STATE_DIVISION 122                      // '/'
 #define STATE_DIVISION_INTEGER 123              // '//'
 #define STATE_LESS 124                          // '<'
@@ -39,6 +37,8 @@
 #define STATE_NOT_EQUAL 131                     // '~='
 #define STATE_IS_EQUAL_END 132                  // '===' //!!
 #define STATE_NOT_EQUAL_END 133                 // '!==' //!!
+#define STATE_STRING_BACKSLASH_HEX 134          // 'x'    
+#define STATE_STRING_BACKSLASH_HEX_FIRST 135    // '0..9, A..F, a..f'
 
 //Enumeration of keywords.
 typedef enum {
@@ -84,14 +84,12 @@ typedef enum {
     token_right_bracket,    // ")"
     token_comma,            // ","
     token_colon,            // ":"
-    token_length,           // "#"
-    token_concatination,    // ".."
 
-    token_question_mark,    // "?"
-    token_semicolon,         // ";"
-    token_left_curly_bracket, // "{"
+    token_question_mark,       // "?"
+    token_semicolon,           // ";"
+    token_left_curly_bracket,  // "{"
     token_right_curly_bracket, // "}"
-    token_point                // "."
+    token_dot                  // "."
 } Token_types;
 
 typedef union

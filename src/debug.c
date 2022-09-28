@@ -16,7 +16,7 @@ static const char* kw_str[] =
     "while"
 };
 
-static int max_kw_type = 31;
+static int max_kw_type = 30;
 static const char* tk_types_str[] = {
     "EOL              ",
     "EOF              ",
@@ -42,13 +42,12 @@ static const char* tk_types_str[] = {
     "right_bracket    ",
     "comma            ",
     "colon            ",
-    "length           ",
     "concatination    ",
     "question_mark    ",
     "semicolon        ",
     "left_curly_bracket",
     "right_curly_bracket",
-    "point            "
+    "dot            "
 };
 
 const char* debug_kw(Keywords kw)
@@ -147,4 +146,3 @@ void lexical_test(const char* filename, bool show_contents)
     S_FREE(tk);
     fclose(fptr);
 }
-

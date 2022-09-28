@@ -97,6 +97,8 @@ int getchar_modified()
     return term_sign;
 }
 
+
+
 //Function for reading string from stdin and converting into token.
 int next_token(Token *Token)
 {
@@ -107,7 +109,8 @@ int next_token(Token *Token)
     int sign;                 //Sign which is taken one by one from the input string.
     bool is_sign = false;     //For STATE_NUMBER case.
     bool is_exponent = false; //For STATE_NUMBER_DOUBLE case.
-    char ascii_number[3];     //For working with numbers in escape sequences.
+    char ascii_dex[3];     //For working with numbers in escape sequences.
+    char ascii_hex[2];        //For working with hex numbers in escape sequences.
     
     while(true)
     {
@@ -125,7 +128,7 @@ int next_token(Token *Token)
                 }
 
 
-                if (sign == '_' || isalpha(sign) || sign == '$')
+                if (sign == '_' || isalpha(sign) || sign == '$' || sign == '?')
                 {
                     str_add_sign(String, sign);
                     current_state = STATE_ID_OR_KEYWORD; 
@@ -194,14 +197,7 @@ int next_token(Token *Token)
                     
                     return 0;
                 }
-                
-
-                if (sign == '#')
-                {
-                    Token->type = token_length;
-                    
-                    return 0;
-                }
+            
 
                 if (sign == '?')
                 {
@@ -233,25 +229,16 @@ int next_token(Token *Token)
 
                 if (sign == '.')
                 {
-                    Token->type = token_point;
+                    Token->type = token_dot;
 
                     return 0;
                 }
                 
-
-                if (sign == '.')
-                {
-                    current_state = STATE_CONCATENATION_START;
-                    break;
-                }
-                
-
                 if (sign == '!')
                 {
                     current_state = STATE_NOT_EQUAL_START;
                     break;
                 }
-
 
                 if (sign == '/')
                 {
@@ -291,11 +278,6 @@ int next_token(Token *Token)
                 if (isspace(sign) || sign == '\t')
                     break;
 
-                
-                
-
-
-
 
                 if (sign == EOF)
                 {
@@ -305,8 +287,10 @@ int next_token(Token *Token)
                 }
 
                 //If there were no signs matches, then a lexical error is written out.
+                fprintf(stderr, "\033[1;31m");  //!! Color of the error message.
                 fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid sign: \"%c\"\n", line_counter, sign_counter, sign);
-                
+                fprintf(stderr, "\033[0m");
+
                 return ERROR_LEXICAL;
                                     
             //Handle a word and sorting it by ID or keyword.
@@ -762,15 +746,20 @@ int next_token(Token *Token)
                 else if (sign == '0' || sign == '1')
                 {
                     current_state = STATE_STRING_BACKSLASH_ZERO_TO_ONE;
-                    ascii_number[0] = sign; 
+                    ascii_dex[0] = sign; 
                     break;
                 }
                 else if (sign == '2')
                 {
                     current_state = STATE_STRING_BACKSLASH_TWO;   
-                    ascii_number[0] = sign; 
+                    ascii_dex[0] = sign; 
                     break;
                 }
+                else if (sign == 'x')
+                {
+                    current_state = STATE_STRING_BACKSLASH_HEX;
+                    break;
+                }    
                 else 
                 {
                     str_add_sign(String, '\\');
@@ -780,12 +769,12 @@ int next_token(Token *Token)
                     return ERROR_LEXICAL;
                 }
                     
-            //Handling a situation with escape sequence ascii[x][][].
+            //Handling a situation with escape sequence ascii[d][][].
             case(STATE_STRING_BACKSLASH_ZERO_TO_ONE):
                 if (sign >= '0' && sign <= '9')
                 {
                     current_state = STATE_STRING_BACKSLASH_ZERO_TO_NINE;
-                    ascii_number[1] = sign;
+                    ascii_dex[1] = sign;
                     break;
                 }
                 else 
@@ -796,14 +785,14 @@ int next_token(Token *Token)
                 }
                     
 
-            //Handling a situation with escape sequence ascii[x][y][].
+            //Handling a situation with escape sequence ascii[d][d][].
             case(STATE_STRING_BACKSLASH_ZERO_TO_NINE):
                 if (sign >= '0' && sign <= '9')
                 {   
-                    //[x][y][z].
+                    //[d][d][d].
                     current_state = STATE_STRING_START;
-                    ascii_number[2] = sign;
-                    str_add_sign(String, atoi(ascii_number));
+                    ascii_dex[2] = sign;
+                    str_add_sign(String, atoi(ascii_dex));
                     break;
                 }
                 else 
@@ -813,18 +802,18 @@ int next_token(Token *Token)
                     return ERROR_LEXICAL;
                 }
 
-            //Handling a situation with escape sequence ascii[x][][].
+            //Handling a situation with escape sequence ascii[d][][].
             case(STATE_STRING_BACKSLASH_TWO):
                 if (sign >= '0' && sign <= '4')
                 {
                     current_state = STATE_STRING_BACKSLASH_ZERO_TO_NINE;
-                    ascii_number[1] = sign;
+                    ascii_dex[1] = sign;
                     break;
                 }
                 if (sign == '5')
                 {
                     current_state = STATE_STRING_BACKSLASH_FIVE;
-                    ascii_number[1] = sign;
+                    ascii_dex[1] = sign;
                     break;
                 }
                 else 
@@ -834,14 +823,14 @@ int next_token(Token *Token)
                     return ERROR_LEXICAL;
                 }
                 
-            //Handling a situation with escape sequence ascii[x][y][].
+            //Handling a situation with escape sequence ascii[d][d][].
             case(STATE_STRING_BACKSLASH_FIVE):
                 if (sign >= '0' && sign <= '5')
                 {
-                    //[x][y][z].
+                    //[d][d][d].
                     current_state = STATE_STRING_START;
-                    ascii_number[2] = sign;
-                    str_add_sign(String, atoi(ascii_number));
+                    ascii_dex[2] = sign;
+                    str_add_sign(String, atoi(ascii_dex));
                     break;
                 }
                 else 
@@ -850,6 +839,44 @@ int next_token(Token *Token)
                     
                     return ERROR_LEXICAL;
                 }
+
+            //Handling a situation with escape sequence ascii[d][].
+            case(STATE_STRING_BACKSLASH_HEX):   
+                
+                if (sign >= '0' && sign <= '9' || sign >= 'a' && sign <= 'f' || sign >= 'A' && sign <= 'F')
+                {
+                    current_state = STATE_STRING_BACKSLASH_HEX_FIRST;
+                    ascii_hex[0] = sign;
+                    break;
+                }
+                else 
+                {
+                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid escape sequence\n", line_counter, sign_counter);
+                    
+                    return ERROR_LEXICAL;
+                }
+
+            //Handling a situation with escape sequence ascii[d][d].
+            case(STATE_STRING_BACKSLASH_HEX_FIRST):
+                if (sign >= '0' && sign <= '9' || sign >= 'a' && sign <= 'f' || sign >= 'A' && sign <= 'F')
+                {
+                    current_state = STATE_STRING_START;
+                    ascii_hex[1] = sign;
+                    str_add_sign(String, strtol(ascii_hex, NULL, 16));
+                    printf("%d\n", strtol(ascii_hex, NULL, 16));
+                    printf("%s\n", ascii_hex);
+
+                    
+
+                    break;
+                }
+                else 
+                {
+                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid escape sequence\n", line_counter, sign_counter);
+                    
+                    return ERROR_LEXICAL;
+                }
+
 
             //Handling a situation with end of string '"'.
             case(STATE_STRING):
@@ -859,25 +886,6 @@ int next_token(Token *Token)
                 
                 return 0;
 
-            //Handling a situation with start of concatenation "..".
-            case(STATE_CONCATENATION_START):
-                if (sign == '.')
-                    current_state = STATE_CONCATENATION;
-                else
-                {
-                    str_add_sign(String,'.');
-                    str_add_sign(String,sign);
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: unsuitable combination of characters: \"%s\"\n", line_counter, sign_counter, Token->value.String->ptr);
-                    
-                    return ERROR_LEXICAL;
-                }
-                break;
-
-            //Handling a situation with concatenation "..".
-            case(STATE_CONCATENATION):
-                Token->type = token_concatination;
-                
-                return 0;
         }
     }
 }
