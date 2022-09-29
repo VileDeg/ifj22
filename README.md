@@ -2,7 +2,7 @@
 ## Clone
 To clone the repo type
 ```sh
-git clone https://username@github.com/VileDeg/ifj21
+git clone https://username@github.com/VileDeg/ifj22
 ```
 where username is your github username.
 ## Source files
