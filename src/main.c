@@ -21,12 +21,18 @@ void test_scanner()
     //scanner_terminate();
 }
 
+void test_parser()
+{
+    parser_test("../tests/lex/string.php", true);
+    
+}
+
 int main(void)
 {
-    
+    populate_rule_definitions();
+    //print_rule_definitions();
 
-    test_scanner();
-
-    
-    return 0;
+    //test_scanner();
+    test_parser();
+    return 0;    
 }

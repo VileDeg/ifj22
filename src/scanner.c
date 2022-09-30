@@ -21,6 +21,11 @@ void scanner_set_file(FILE* fptr)
     s_fptr = fptr;
 }
 
+FILE* scanner_get_file()
+{
+    return s_fptr;
+}
+
 void scanner_set_string(str_t* str)
 {
     String = str;

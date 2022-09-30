@@ -135,9 +135,8 @@ void lexical_test(const char* filename, bool show_contents)
     scanner_set_file(fptr);
     scanner_set_string(string);
     if (show_contents)
-    {
         print_file_contents(fptr);
-    }
+
     printf("***List of tokens: ***\n");
     printf(s_TokenDebugFormat, "int", "deci", "string", "keyword", "type");
 
@@ -174,14 +173,96 @@ void parser_test(const char* filename, bool show_contents)
     scanner_set_file(fptr);
     scanner_set_string(string);
     if (show_contents)
-    {
         print_file_contents(fptr);
+
+    int result;
+    if ((result = parser_parse()) != 0)
+    {
+        fprintf(stderr, "\033[1;31m");  //!! Color of the error message.
+        fprintf(stderr, "[SYNTAX_ERROR]\n");
+        fprintf(stderr, "\033[0m");
     }
-    parser_parse();
 
     printf("\n\n");
 
     scanner_free();
     
     fclose(fptr);
+}
+
+static const char* rules_filepath = "../ifj22-ED-LL-gramatika.txt";
+#define rule_exp_maxlen 256
+#define numofrules 45
+static struct 
+{
+    char rule_name[numofrules][rule_exp_maxlen];;
+    char exp_string[numofrules][rule_exp_maxlen];
+} RuleInfo;
+
+
+void populate_rule_definitions()
+{
+    FILE* fptr = fopen(rules_filepath, "r");
+    uint64_t rule = 0;
+    
+    for (uint64_t rule = 0; rule < numofrules; rule++)
+    {
+        fgetc(fptr); //skip <
+        int c;
+        uint64_t letter = 0;
+        //Read rule name
+        while ((c = fgetc(fptr)) != '>')
+        {
+            RuleInfo.rule_name[rule][letter] = c;
+            ++letter;
+            ASSERT(letter < rule_exp_maxlen, "");
+        }
+        letter = 0;
+        //Skip to after ->
+        while (fgetc(fptr) != '>')
+            continue;
+        //Skip whitespace
+        fgetc(fptr);
+        //Read rule expansion string
+        while (true)
+        {
+            c = fgetc(fptr);
+            if (c == '\n' || c == '\r' || c == EOF)
+                break;
+            RuleInfo.exp_string[rule][letter] = c;
+            ++letter;
+            ASSERT(letter < rule_exp_maxlen, "");
+        }
+
+        do
+        {
+            c = fgetc(fptr);
+        }
+        while (c == '\n' || c == '\r');
+        ungetc(c, fptr);
+    }
+
+    fclose(fptr);
+}
+
+void print_rule_definitions()
+{
+    for (uint64_t rule = 0; rule < numofrules; rule++)
+    {
+        printf("%s -> %s\n", RuleInfo.rule_name[rule], RuleInfo.exp_string[rule]);
+    }
+}
+
+const char* get_rule_expansion_by_name(const char* rulename, int expnum)
+{
+    for (uint64_t i = 0; i < numofrules; i++)
+    {
+        if (!strcmp(RuleInfo.rule_name[i], rulename))
+        {
+            if (expnum == 0)
+                return RuleInfo.exp_string[i];
+            --expnum;
+        }
+    }
+    ASSERT(false, "Rule not found.");
 }
