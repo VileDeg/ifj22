@@ -1,5 +1,6 @@
 #include "string_t.h"
 #include <stdlib.h>
+#include <string.h>
 
 //Allocation size.
 #define INITIAL_CAPACITY 16
