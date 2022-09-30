@@ -41,7 +41,12 @@
 #define STATE_NOT_EQUAL_END 133                 // '!==' //!!
 #define STATE_STRING_BACKSLASH_HEX 134          // 'x'    
 #define STATE_STRING_BACKSLASH_HEX_FIRST 135    // '0..9, A..F, a..f'
-
+#define STATE_QUESTION_MARK 136                 // '?'
+#define STATE_PROLOG_ONE 138                    // '<?'
+#define STATE_PROLOG_TWO 139                    // '<?p'
+#define STATE_PROLOG_THREE 140                  // '<?ph'
+#define STATE_PROLOG 141                        // '<?php'
+#define STATE_END 142                           // '?>'
 //Enumeration of keywords.
 typedef enum {
     keyword_else=0,
@@ -65,7 +70,7 @@ typedef enum {
     token_keyword,          //Keyword.
 
     token_integer,          //Number (type integer).
-    token_double,           //Number (type double).
+    token_float,           //Number (type float).
     token_exponent,         //Number (type exponent).
 
     token_string,           //String.
@@ -88,10 +93,13 @@ typedef enum {
     token_colon,            // ":"
 
     token_semicolon,           // ";"
-    token_question_mark,       // "?"
     token_left_curly_bracket,  // "{"
     token_right_curly_bracket, // "}"
-    token_dot                  // "."
+    token_dot,                 // "."
+    token_prolog,              // "<?php"
+    token_end                  // "?<"
+
+
 } Token_types;
 
 typedef union

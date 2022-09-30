@@ -15,15 +15,15 @@ void test_scanner()
 
     lexical_test("../tests/lex/eol.php", false);
     lexical_test("../tests/lex/string.php", false);
-    // lexical_test("../tests/lex/factorial.php", false);
-    // lexical_test("../tests/lex/factorial_rek.php", false);
+    lexical_test("../tests/lex/factorial.php", false);
+    lexical_test("../tests/lex/factorial_rek.php", false);
 
     //scanner_terminate();
 }
 
 void test_parser()
 {
-    parser_test("../tests/lex/string.php", true);
+    //parser_test("../tests/lex/string.php", true);
     
 }
 
@@ -32,7 +32,7 @@ int main(void)
     populate_rule_definitions();
     //print_rule_definitions();
 
-    //test_scanner();
+    test_scanner();
     test_parser();
     return 0;    
 }

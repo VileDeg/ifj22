@@ -128,17 +128,22 @@ int scanner_get_next_token(Token *Token)
             //Handling a situation with a coincidence of signs.
             case(STATE_START):
 
-                if (sign == '\n')
-                {
-                    Token->type = token_EOL;
-                    return 0;
-                }
+                // if (sign == '\n')
+                // {
+                //     Token->type = token_EOL;
+                //     return 0;
+                // }
 
-
-                if (sign == '_' || isalpha(sign) || sign == '$' || sign == '?')
+                if (sign == '_' || isalpha(sign))
                 {
                     str_add_sign(String, sign);
                     current_state = STATE_ID_OR_KEYWORD; 
+                    break;
+                }
+
+                if (sign == '$')
+                {
+                    current_state = STATE_ID_OR_KEYWORD;
                     break;
                 }
                 
@@ -206,13 +211,6 @@ int scanner_get_next_token(Token *Token)
                 }
             
 
-                if (sign == '?')
-                {
-                    Token->type = token_question_mark;
-
-                    return 0;
-                }
-
                 if (sign == ';')
                 {
                     Token->type = token_semicolon;
@@ -241,6 +239,12 @@ int scanner_get_next_token(Token *Token)
                     return 0;
                 }
                 
+                if (sign == '?')
+                {  
+                    current_state = STATE_QUESTION_MARK;
+                    break;
+                }
+
                 if (sign == '!')
                 {
                     current_state = STATE_NOT_EQUAL_START;
@@ -299,7 +303,99 @@ int scanner_get_next_token(Token *Token)
                 fprintf(stderr, "\033[0m");
 
                 return ERROR_LEXICAL;
+
+            case(STATE_PROLOG_ONE):
+                if (sign == 'p')
+                {
+                    current_state = STATE_PROLOG_TWO;
+                }
+                else
+                {
+                    //Error handling. 
+                    str_add_sign(String, sign);
+                    fprintf(stderr, "[LEXICAL ERROR]: wrong prolog \n");
+                    
+                    return ERROR_LEXICAL; 
+                }
+                break;
+            
+            case(STATE_PROLOG_TWO):
+                if (sign == 'h')
+                {
+                    current_state = STATE_PROLOG_THREE;
+                }
+                else
+                {
+                    //Error handling. 
+                    str_add_sign(String, sign);
+                    fprintf(stderr, "[LEXICAL ERROR]: wrong prolog \n");
+                    
+                    return ERROR_LEXICAL; 
+                }
+                break;
+
+            case(STATE_PROLOG_THREE):
+                if (sign == 'p')
+                {
+                    current_state = STATE_PROLOG;
+                }
+                else
+                {
+                    //Error handling. 
+                    str_add_sign(String, sign);
+                    fprintf(stderr, "[LEXICAL ERROR]: wrong prolog \n");
+                    
+                    return ERROR_LEXICAL; 
+                }
+                break;
+
+            case(STATE_PROLOG):
+                Token->type = token_prolog;
+                return 0;
                                     
+            case(STATE_QUESTION_MARK):
+                if (sign == '>')
+                {
+                    current_state = STATE_END;
+                }
+                else if (sign == 'f' || sign == 'i' || sign == 's')
+                {
+                    current_state = STATE_ID_OR_KEYWORD;
+                    str_add_sign(String, sign);
+                    break;
+                }
+                else
+                {
+                    //Error handling. 
+                    str_add_sign(String, sign);
+                    fprintf(stderr, "[LEXICAL ERROR]: wrong character after '?'\n");
+                    
+                    return ERROR_LEXICAL; 
+                }
+
+                break;
+
+            case(STATE_END):
+
+                //проверка следующего символа(его не должно быть)
+                if (sign == EOF)
+                {
+                    Token->type = token_end;
+                    ungetc(sign, s_fptr);
+                }
+                else
+                {
+                    //Error handling. 
+                    str_add_sign(String, sign);
+                    fprintf(stderr, "[LEXICAL ERROR]: character after the closing character '?>'\n");
+                    
+                    return ERROR_LEXICAL; 
+                }
+                
+                return 0;
+
+
+            
             //Handle a word and sorting it by ID or keyword.
             case(STATE_ID_OR_KEYWORD):
                 while(true)
@@ -486,7 +582,7 @@ int scanner_get_next_token(Token *Token)
             }        
             if (is_exponent == true) break;
             Token->value.decimal = atof(String->ptr);
-            Token->type = token_double;
+            Token->type = token_float;
 
             current_state = STATE_START;
             ungetc(sign, s_fptr);
@@ -519,13 +615,17 @@ int scanner_get_next_token(Token *Token)
             case(STATE_LESS):
                 if (sign == '=')
                     current_state = STATE_LESS_OR_EQUAL;
+                else if (sign == '?')
+                {
+                    current_state = STATE_PROLOG_ONE;
+                }
                 else
-                    {
-                        ungetc(sign, s_fptr);
-                        Token->type = token_less;
-                        
-                        return 0;
-                    }
+                {
+                    ungetc(sign, s_fptr);
+                    Token->type = token_less;
+                    
+                    return 0;
+                }
                 break;
             
             //Handling a situation with relation operator "<=".
@@ -576,7 +676,11 @@ int scanner_get_next_token(Token *Token)
                     current_state = STATE_IS_EQUAL_END;
                 else
                 {
-                    //!!
+                    //Error handling. 
+                    str_add_sign(String, sign);
+                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: wrong сharacter \"%s\"\n", line_counter, sign_counter, Token->value.String->ptr);
+                    
+                    return ERROR_LEXICAL; 
                 }
                 
                 break;

@@ -20,7 +20,7 @@ static const char* kw_str[] =
     "while"
 };
 
-static int max_kw_type = 30;
+static int max_kw_type = 31;
 static const char* tk_types_str[] = {
     "EOL              ",
     "EOF              ",
@@ -46,12 +46,12 @@ static const char* tk_types_str[] = {
     "right_bracket    ",
     "comma            ",
     "colon            ",
-    //"concatination    ",
     "semicolon        ",
-    "question_mark    ",
     "left_curly_bracket",
     "right_curly_bracket",
-    "dot              "
+    "dot              ",
+    "prolog           ",
+    "end"
 };
 
 
@@ -90,7 +90,7 @@ void debug_token(Token tk)
             printf(s_TokenDebugFormat, str, "",
                 "", "", debug_tk_type(tk.type));
             break;
-        case token_double:
+        case token_float:
         case token_exponent:
             snprintf(str, mxlen, "%g", tk.value.decimal);
             printf(s_TokenDebugFormat, "", str,
