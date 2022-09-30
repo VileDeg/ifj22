@@ -1,7 +1,11 @@
-#include "debug.h"
-#include "base.h"
+#include <stdlib.h>
+#include <string.h>
 
-static uint32_t max_kw = 10;
+#include "debug.h"
+#include "scanner.h"
+#include "parser.h"
+
+static uint64_t max_kw = 10;
 static const char* kw_str[] =
 {
     "else",
@@ -42,13 +46,14 @@ static const char* tk_types_str[] = {
     "right_bracket    ",
     "comma            ",
     "colon            ",
-    "concatination    ",
-    "question_mark    ",
+    //"concatination    ",
     "semicolon        ",
+    "question_mark    ",
     "left_curly_bracket",
     "right_curly_bracket",
-    "dot            "
+    "dot              "
 };
+
 
 const char* debug_kw(Keywords kw)
 {
@@ -103,6 +108,20 @@ void debug_token(Token tk)
     }
 }
 
+void print_file_contents(FILE* fptr)
+{
+    printf("***File contents: ***\n");
+    uint64_t maxlen = 1024;
+    char line[maxlen];
+    while(fgets(line, maxlen, fptr)!= NULL)
+    {
+        printf("%s", line);
+    }
+    ASSERT(fptr != stdin, "");
+    rewind(fptr);
+    printf("\n");
+}
+
 void lexical_test(const char* filename, bool show_contents)
 {
     FILE* fptr = fopen(filename, "r");
@@ -111,19 +130,13 @@ void lexical_test(const char* filename, bool show_contents)
         ERRPR("File pointer is null.");
         return;
     }
+    str_t* string = calloc(1, sizeof(str_t));
+    str_const(string);
+    scanner_set_file(fptr);
+    scanner_set_string(string);
     if (show_contents)
     {
-        printf("***File contents: ***\n");
-
-        char line[1000];
-        while(fgets(line, 1000, fptr)!= NULL)
-        {
-            printf("%s", line);
-        }
-        if (fptr != stdin)
-            rewind(fptr);
-
-        printf("\n");
+        print_file_contents(fptr);
     }
     printf("***List of tokens: ***\n");
     printf(s_TokenDebugFormat, "int", "deci", "string", "keyword", "type");
@@ -131,18 +144,44 @@ void lexical_test(const char* filename, bool show_contents)
     scanner_reset();
     scanner_set_file(fptr);
 
-    Token* tk = s_calloc(sizeof(*tk));
+    Token* tk = calloc(1, sizeof(*tk));
 
     //reset_token(tk);
     bool eof = false;
     
     while (!eof)
     {
-        eof = next_token(tk);
+        eof = scanner_get_next_token(tk);
         debug_token(*tk);
     }
     printf("\n\n");
 
-    S_FREE(tk);
+    scanner_free();
+    free(tk);
+    fclose(fptr);
+}
+
+void parser_test(const char* filename, bool show_contents)
+{
+    FILE* fptr = fopen(filename, "r");
+    if (fptr == NULL)
+    {
+        ERRPR("File pointer is null.");
+        return;
+    }
+    str_t* string = calloc(1, sizeof(str_t));
+    str_const(string);
+    scanner_set_file(fptr);
+    scanner_set_string(string);
+    if (show_contents)
+    {
+        print_file_contents(fptr);
+    }
+    parser_parse();
+
+    printf("\n\n");
+
+    scanner_free();
+    
     fclose(fptr);
 }

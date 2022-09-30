@@ -1,7 +1,9 @@
-#include "base.h"
+//#include "base.h"
 
 #include "scanner.h"
-#include "errors.h"          
+#include "errors.h"
+#include <stdlib.h>
+#include <ctype.h>          
 
 #define END_OF_FILE 42
 
@@ -9,27 +11,27 @@
 static FILE* s_fptr;
 
 // Creates dynamic string.
-static str_t *String;
+static str_t* String;
 
 static unsigned int sign_counter = 0;
 static unsigned int line_counter = 1;
 
 void scanner_set_file(FILE* fptr)
 {
-    if (!fptr)
-    {
-        ERRPR("File pointer is NULL.");
-        return;
-    }
     s_fptr = fptr;
 }
 
-void scanner_init()
+void scanner_set_string(str_t* str)
 {
-    s_fptr = stdin;
-    String = s_calloc(sizeof(*String));
-    str_const(String);
+    String = str;
 }
+
+// void scanner_init()
+// {
+//     s_fptr = stdin;
+//     String = calloc(1, sizeof(*String));
+//     str_const(String);
+// }
 
 void scanner_reset()
 {
@@ -37,10 +39,10 @@ void scanner_reset()
     line_counter = 1;
 }
 
-void scanner_terminate()
+void scanner_free()
 {
     str_dest(String);
-    S_FREE(String);
+    free(String);
 }
 
 //Comparing string we've gotten and compares with KW. In case it isn't a KW -> it's an ID.
@@ -100,7 +102,7 @@ int getchar_modified()
 
 
 //Function for reading string from stdin and converting into token.
-int next_token(Token *Token)
+int scanner_get_next_token(Token *Token)
 {
     str_clear(String);
     Token->value.String = String;
@@ -743,9 +745,15 @@ int next_token(Token *Token)
                     str_add_sign(String, '\\$');         //!!перепроверить
                     break;
                 }
-                else if (sign == '0' || sign == '1')
+                else if (sign == '0')
                 {
-                    current_state = STATE_STRING_BACKSLASH_ZERO_TO_ONE;
+                    current_state = STATE_STRING_BACKSLASH_ZERO;
+                    ascii_dex[0] = sign; 
+                    break;
+                }
+                else if (sign == '1')
+                {
+                    current_state = STATE_STRING_BACKSLASH_ONE;
                     ascii_dex[0] = sign; 
                     break;
                 }
@@ -768,9 +776,46 @@ int next_token(Token *Token)
                     
                     return ERROR_LEXICAL;
                 }
-                    
             //Handling a situation with escape sequence ascii[d][][].
-            case(STATE_STRING_BACKSLASH_ZERO_TO_ONE):
+            case(STATE_STRING_BACKSLASH_ZERO):
+                if (sign >= '1' && sign <= '9')
+                {
+                    current_state = STATE_STRING_BACKSLASH_ZERO_TO_NINE;
+                    ascii_dex[1] = sign;
+                    break;
+                }
+                else if (sign == '0')
+                {
+                    current_state = STATE_STRING_BACKSLASH_ZERO_ZERO;
+                    ascii_dex[1] = sign;
+                    break;
+                }
+                else
+                {
+                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid escape sequence\n", line_counter, sign_counter);
+
+                    return ERROR_LEXICAL;
+                }
+
+            case(STATE_STRING_BACKSLASH_ZERO_ZERO):
+                if (sign >= '1' && sign <= '9')
+                {
+                    //[d][d][d].
+                    current_state = STATE_STRING_START;
+                    ascii_dex[2] = sign;
+                    str_add_sign(String, atoi(ascii_dex));
+                    break;
+                }
+                else
+                {
+                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid escape sequence\n", line_counter, sign_counter);
+
+                    return ERROR_LEXICAL;
+                }
+
+
+            //Handling a situation with escape sequence ascii[d][][].
+            case(STATE_STRING_BACKSLASH_ONE):
                 if (sign >= '0' && sign <= '9')
                 {
                     current_state = STATE_STRING_BACKSLASH_ZERO_TO_NINE;

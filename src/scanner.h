@@ -15,7 +15,9 @@
 #define STATE_NUMBER_EXPONENT 107               // '0..9'
 #define STATE_STRING_START 108                  // '"'    P4
 #define STATE_STRING_BACKSLASH 109              // '\'    P5 
-#define STATE_STRING_BACKSLASH_ZERO_TO_ONE 110  // '0, 1' P6
+#define STATE_STRING_BACKSLASH_ZERO 200         // '0'   //!! цифры
+#define STATE_STRING_BACKSLASH_ZERO_ZERO 201    // '00'   
+#define STATE_STRING_BACKSLASH_ONE 110          // '1' P6
 #define STATE_STRING_BACKSLASH_TWO 111          // '2'    P7
 #define STATE_STRING_BACKSLASH_ZERO_TO_NINE 112 // '0..9' P8 
 #define STATE_STRING_BACKSLASH_FIVE 113         // '5'    P9
@@ -85,8 +87,8 @@ typedef enum {
     token_comma,            // ","
     token_colon,            // ":"
 
-    token_question_mark,       // "?"
     token_semicolon,           // ";"
+    token_question_mark,       // "?"
     token_left_curly_bracket,  // "{"
     token_right_curly_bracket, // "}"
     token_dot                  // "."
@@ -107,9 +109,10 @@ typedef struct {
     Token_types type; //Type of token.
 } Token;
 
-void scanner_init();
+//void scanner_init();
 void scanner_reset();
 void scanner_set_file(FILE* fptr);
+void scanner_set_string(str_t* str);
 //Comparing string we've gotten and compares with KW. In case it isn't a KW -> it's an ID.
 bool determine_type(str_t *String, Token *Token);
 
@@ -117,8 +120,8 @@ bool determine_type(str_t *String, Token *Token);
 int getchar_modified();
 
 //Function for reading string from stdin and converting into token.
-int next_token(Token *token);
+int scanner_get_next_token(Token *token);
 
-void scanner_terminate();
+void scanner_free();
 
 #endif

@@ -1,0 +1,60 @@
+<prolog> -> <?php declare ( strict_types = 1 ) ; <prog>
+
+<prog> -> function ID ( <params> ) : <rettype> { <statement> } <prog> <end>
+<prog> -> <statement> <end>
+
+<end> -> ?>
+<end> -> eps
+
+<statement> -> $ ID <def_var>; <statement>
+<statement> -> if ( <expression> ) { <statement> } else { <statement> } <statement>
+<statement> -> while ( <expression> ) { <statement> } <statement>
+<statement> -> return <expression>
+<statement> -> eps
+
+<params> -> <type> $ ID <param_n>
+<params> -> eps
+
+<param_n> -> , <type> $ ID <param_n>
+<param_n> -> eps
+
+<def_var> -> = <expr_val>
+<def_var> -> eps
+
+<expr_val> -> <expression>
+<expr_val> -> ID ( <arg> )
+<expr_val> -> reads ( <arg> )
+<expr_val> -> readi ( <arg> )
+<expr_val> -> readf ( <arg> )
+<expr_val> -> write ( <arg> )
+<expr_val> -> floatval ( <arg> )
+<expr_val> -> intval ( <arg> )
+<expr_val> -> strval ( <arg> )
+<expr_val> -> strlen ( <arg> )
+<expr_val> -> substring ( <arg> )
+<expr_val> -> ord ( <arg> )
+<expr_val> -> chr ( <arg> )
+
+<arg> -> <value> <arg_n>
+<arg> -> eps
+
+<arg_n> -> , <value> <arg_n>
+<arg_n> -> eps
+
+<value> -> INT_VALUE
+<value> -> FLOAT_VALUE
+<value> -> STRING_VALUE
+<value> -> ID
+
+<rettype> -> <type>
+<rettype> -> void
+
+<type> -> float
+<type> -> int
+<type> -> string
+<type> -> ? float
+<type> -> ? int
+<type> -> ? string
+
+
+

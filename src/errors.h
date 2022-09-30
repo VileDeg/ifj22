@@ -1,6 +1,8 @@
 #ifndef __ERRORS__
 #define __ERRORS__
 
+#define TOKEN_OK 0
+
 #define ERROR_LEXICAL 1               //Error in lexical analyse (chybná struktura aktuálního lexému).       
 #define ERROR_SYNTAX 2                //Error in syntax analyse.
 #define ERROR_SEMANTIC_UNDEFINED_FUNCTION 3    //Error in semantic analyse (undefined function).
