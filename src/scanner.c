@@ -134,18 +134,18 @@ int scanner_get_next_token(Token *Token)
                 //     return 0;
                 // }
 
-                if (sign == '_' || isalpha(sign))
+                if (sign == '_' || isalpha(sign) || sign == '$')
                 {
                     str_add_sign(String, sign);
                     current_state = STATE_ID_OR_KEYWORD; 
                     break;
                 }
 
-                if (sign == '$')
-                {
-                    current_state = STATE_ID_OR_KEYWORD;
-                    break;
-                }
+                // if (sign == '$')
+                // {
+                //     current_state = STATE_ID_OR_KEYWORD;
+                //     break;
+                // }
                 
 
                 if (isdigit(sign))
@@ -298,9 +298,11 @@ int scanner_get_next_token(Token *Token)
                 }
 
                 //If there were no signs matches, then a lexical error is written out.
-                fprintf(stderr, "\033[1;31m");  //!! Color of the error message.
-                fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid sign: \"%c\"\n", line_counter, sign_counter, sign);
-                fprintf(stderr, "\033[0m");
+                //PRINT_ERROR("[LEXICAL ERROR]:%d:%d: invalid sign: \"%c\"\n", line_counter, sign_counter, sign);
+                ERROR_LEX("%d:%d: invalid sign: \"%c\"", line_counter, sign_counter, sign);
+                // fprintf(stderr, "\033[1;31m");  //!! Color of the error message.
+                // fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid sign: \"%c\"\n", line_counter, sign_counter, sign);
+                // fprintf(stderr, "\033[0m");
 
                 return ERROR_LEXICAL;
 
@@ -313,7 +315,7 @@ int scanner_get_next_token(Token *Token)
                 {
                     //Error handling. 
                     str_add_sign(String, sign);
-                    fprintf(stderr, "[LEXICAL ERROR]: wrong prolog \n");
+                    ERROR_LEX("wrong prolog");
                     
                     return ERROR_LEXICAL; 
                 }
@@ -328,7 +330,7 @@ int scanner_get_next_token(Token *Token)
                 {
                     //Error handling. 
                     str_add_sign(String, sign);
-                    fprintf(stderr, "[LEXICAL ERROR]: wrong prolog \n");
+                    ERROR_LEX("wrong prolog");
                     
                     return ERROR_LEXICAL; 
                 }
@@ -343,7 +345,7 @@ int scanner_get_next_token(Token *Token)
                 {
                     //Error handling. 
                     str_add_sign(String, sign);
-                    fprintf(stderr, "[LEXICAL ERROR]: wrong prolog \n");
+                    ERROR_LEX("wrong prolog");
                     
                     return ERROR_LEXICAL; 
                 }
@@ -368,7 +370,7 @@ int scanner_get_next_token(Token *Token)
                 {
                     //Error handling. 
                     str_add_sign(String, sign);
-                    fprintf(stderr, "[LEXICAL ERROR]: wrong character after '?'\n");
+                    ERROR_LEX("wrong character after '?'");
                     
                     return ERROR_LEXICAL; 
                 }
@@ -387,7 +389,7 @@ int scanner_get_next_token(Token *Token)
                 {
                     //Error handling. 
                     str_add_sign(String, sign);
-                    fprintf(stderr, "[LEXICAL ERROR]: character after the closing character '?>'\n");
+                    ERROR_LEX("Character after the closing character '?>'");
                     
                     return ERROR_LEXICAL; 
                 }
@@ -441,7 +443,7 @@ int scanner_get_next_token(Token *Token)
                     {
                         //Error handling. 
                         str_add_sign(String, sign);
-                        fprintf(stderr, "[LEXICAL ERROR]:%d:%d: wrong form of integer: \"%s\"\n", line_counter, sign_counter, Token->value.String->ptr);
+                        ERROR_LEX("%d:%d: wrong form of integer: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                         
                         return ERROR_LEXICAL; 
                     }
@@ -483,7 +485,7 @@ int scanner_get_next_token(Token *Token)
                 else 
                 {
                     str_add_sign(String, sign);
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: wrong form of exponent: \"%s\"\n", line_counter, sign_counter, Token->value.String->ptr);
+                    ERROR_LEX("%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
                     return ERROR_LEXICAL;
                 }
@@ -505,7 +507,7 @@ int scanner_get_next_token(Token *Token)
                 else
                 {
                     str_add_sign(String, sign);
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: wrong form of exponent: \"%s\"\n", line_counter, sign_counter, Token->value.String->ptr);
+                    ERROR_LEX("%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
                     return ERROR_LEXICAL;
                 }
@@ -521,7 +523,7 @@ int scanner_get_next_token(Token *Token)
                     else
                     {
                         str_add_sign(String, sign);
-                        fprintf(stderr, "[LEXICAL ERROR]:%d:%d: wrong form of exponent: \"%s\"\n", line_counter, sign_counter, Token->value.String->ptr);
+                        ERROR_LEX("%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                         
                         return ERROR_LEXICAL; 
                     }
@@ -546,7 +548,7 @@ int scanner_get_next_token(Token *Token)
                 else
                 {
                     str_add_sign(String, sign);
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: wrong form of decimal: \"%s\"\n", line_counter, sign_counter, Token->value.String->ptr);
+                    ERROR_LEX("%d:%d: wrong form of decimal: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
                     return ERROR_LEXICAL; 
                 }
@@ -573,7 +575,7 @@ int scanner_get_next_token(Token *Token)
                 else if (!isdigit(sign))
                 {
                     str_add_sign(String, sign);
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: wrong form of decimal: \"%s\"\n", line_counter, sign_counter, Token->value.String->ptr);
+                    ERROR_LEX("%d:%d: wrong form of decimal: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
                     return ERROR_LEXICAL; 
                 }
@@ -678,7 +680,7 @@ int scanner_get_next_token(Token *Token)
                 {
                     //Error handling. 
                     str_add_sign(String, sign);
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: wrong сharacter \"%s\"\n", line_counter, sign_counter, Token->value.String->ptr);
+                    ERROR_LEX("%d:%d: wrong сharacter \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
                     return ERROR_LEXICAL; 
                 }
@@ -701,7 +703,7 @@ int scanner_get_next_token(Token *Token)
                 {
                     str_add_sign(String,'!');
                     str_add_sign(String,sign);
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: unsuitable combination of characters: \"%s\"\n", line_counter, sign_counter, Token->value.String->ptr);
+                    ERROR_LEX("%d:%d: unsuitable combination of characters: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
                     return ERROR_LEXICAL;
                 }
@@ -715,7 +717,7 @@ int scanner_get_next_token(Token *Token)
                 {
                     str_add_sign(String,'!');
                     str_add_sign(String,sign);
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: unsuitable combination of characters: \"%s\"\n", line_counter, sign_counter, Token->value.String->ptr);
+                    ERROR_LEX("%d:%d: unsuitable combination of characters: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
                     return ERROR_LEXICAL;
                 }
@@ -813,7 +815,7 @@ int scanner_get_next_token(Token *Token)
                     }
                     else if (sign == '\n' || sign == EOF)
                     {
-                        fprintf(stderr, "[LEXICAL ERROR]:%d:%d: no end of string\n", line_counter, sign_counter);
+                        ERROR_LEX("%d:%d: no end of string", line_counter, sign_counter);
                         
                         return ERROR_LEXICAL;
                     }
@@ -881,7 +883,7 @@ int scanner_get_next_token(Token *Token)
                 {
                     str_add_sign(String, '\\');
                     str_add_sign(String, sign);
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid escape sequence: \"%s\"\n", line_counter, sign_counter, Token->value.String->ptr);
+                    ERROR_LEX("%d:%d: invalid escape sequence: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
                     return ERROR_LEXICAL;
                 }
@@ -901,7 +903,7 @@ int scanner_get_next_token(Token *Token)
                 }
                 else
                 {
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid escape sequence\n", line_counter, sign_counter);
+                    ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
 
                     return ERROR_LEXICAL;
                 }
@@ -917,7 +919,7 @@ int scanner_get_next_token(Token *Token)
                 }
                 else
                 {
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid escape sequence\n", line_counter, sign_counter);
+                    ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
 
                     return ERROR_LEXICAL;
                 }
@@ -933,7 +935,7 @@ int scanner_get_next_token(Token *Token)
                 }
                 else 
                 {
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid escape sequence\n", line_counter, sign_counter);
+                    ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
                     
                     return ERROR_LEXICAL;
                 }
@@ -951,7 +953,7 @@ int scanner_get_next_token(Token *Token)
                 }
                 else 
                 {
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid escape sequence\n", line_counter, sign_counter);
+                    ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
                     
                     return ERROR_LEXICAL;
                 }
@@ -972,7 +974,7 @@ int scanner_get_next_token(Token *Token)
                 }
                 else 
                 {
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid escape sequence\n", line_counter, sign_counter);
+                    ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
                     
                     return ERROR_LEXICAL;
                 }
@@ -989,7 +991,7 @@ int scanner_get_next_token(Token *Token)
                 }
                 else 
                 {
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid escape sequence\n", line_counter, sign_counter);
+                    ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
                     
                     return ERROR_LEXICAL;
                 }
@@ -1005,7 +1007,7 @@ int scanner_get_next_token(Token *Token)
                 }
                 else 
                 {
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid escape sequence\n", line_counter, sign_counter);
+                    ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
                     
                     return ERROR_LEXICAL;
                 }
@@ -1017,8 +1019,8 @@ int scanner_get_next_token(Token *Token)
                     current_state = STATE_STRING_START;
                     ascii_hex[1] = sign;
                     str_add_sign(String, strtol(ascii_hex, NULL, 16));
-                    printf("%d\n", strtol(ascii_hex, NULL, 16));
-                    printf("%s\n", ascii_hex);
+                    // printf("%d\n", strtol(ascii_hex, NULL, 16));
+                    // printf("%s\n", ascii_hex);
 
                     
 
@@ -1026,7 +1028,7 @@ int scanner_get_next_token(Token *Token)
                 }
                 else 
                 {
-                    fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid escape sequence\n", line_counter, sign_counter);
+                    ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
                     
                     return ERROR_LEXICAL;
                 }

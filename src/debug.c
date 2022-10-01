@@ -4,6 +4,7 @@
 #include "debug.h"
 #include "scanner.h"
 #include "parser.h"
+#include "errors.h"
 
 static uint64_t max_kw = 10;
 static const char* kw_str[] =
@@ -175,12 +176,13 @@ void parser_test(const char* filename, bool show_contents)
     if (show_contents)
         print_file_contents(fptr);
 
+    printf("\n\n");
+    printf("***Rules triggered: ***\n\n");
+
     int result;
     if ((result = parser_parse()) != 0)
     {
-        fprintf(stderr, "\033[1;31m");  //!! Color of the error message.
-        fprintf(stderr, "[SYNTAX_ERROR]\n");
-        fprintf(stderr, "\033[0m");
+        ERROR_SYNT(" :(");
     }
 
     printf("\n\n");
@@ -192,7 +194,7 @@ void parser_test(const char* filename, bool show_contents)
 
 static const char* rules_filepath = "../ifj22-ED-LL-gramatika.txt";
 #define rule_exp_maxlen 256
-#define numofrules 45
+#define numofrules 48
 static struct 
 {
     char rule_name[numofrules][rule_exp_maxlen];;
