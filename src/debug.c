@@ -21,9 +21,8 @@ static const char* kw_str[] =
     "while"
 };
 
-static int max_kw_type = 31;
+static int max_kw_type = 29;
 static const char* tk_types_str[] = {
-    "EOL              ",
     "EOF              ",
     "ID               ",
     "keyword          ",
@@ -35,7 +34,6 @@ static const char* tk_types_str[] = {
     "plus             ",
     "multiply         ",
     "divide           ",
-    "divide_integer   ",
     "less             ",
     "less_or_equal    ",
     "greater          ",

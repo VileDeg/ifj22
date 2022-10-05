@@ -116,7 +116,7 @@ int scanner_get_next_token(Token *Token)
     int sign;                 //Sign which is taken one by one from the input string.
     bool is_sign = false;     //For STATE_NUMBER case.
     bool is_exponent = false; //For STATE_NUMBER_DOUBLE case.
-    char ascii_dex[3];     //For working with numbers in escape sequences.
+    char ascii_oct[3];        //For working with octal numbers in escape sequences.
     char ascii_hex[2];        //For working with hex numbers in escape sequences.
     
     while(true)
@@ -664,15 +664,15 @@ int scanner_get_next_token(Token *Token)
                 if (sign == '=')
                     current_state = STATE_IS_EQUAL;
                 else
-                    {
-                        ungetc(sign, s_fptr);
-                        Token->type = token_equal_sign; 
-                        
-                        return 0;
-                    }
+                {
+                    ungetc(sign, s_fptr);
+                    Token->type = token_equal_sign; 
+                    
+                    return 0;
+                }
                 break;
             
-            //Handling a situation with relation operator "==". //!!
+            //Handling a situation with relation operator "==". 
             case(STATE_IS_EQUAL):
                 if(sign == '=')
                     current_state = STATE_IS_EQUAL_END;
@@ -730,7 +730,7 @@ int scanner_get_next_token(Token *Token)
                 
                 return 0;
 
-            //Handling a situation with minus sign '-'.     //!!Блочный комментарий!!
+            //Handling a situation with minus sign '/'.    
             case(STATE_DIVISION):
                 if (sign == '/') //значит это однострочный комментарий 
                     current_state = STATE_COMMENT;
@@ -769,7 +769,7 @@ int scanner_get_next_token(Token *Token)
                 break;
 
             //Handling a situation with start of block comment "/*".
-            case(STATE_COMMENT_BLOCK_START): //!!перепроверить 
+            case(STATE_COMMENT_BLOCK_START): 
                 while(true)
                 {
                     if (sign == EOF)
@@ -788,7 +788,7 @@ int scanner_get_next_token(Token *Token)
                 }
                 break;
 
-            //Handling a situation with end of block comment "--[[]]". //!! если /* fdfdfdfdf * fdfdfdf */
+            //Handling a situation with end of block comment "/**/". 
             case(STATE_COMMENT_BLOCK_END):
                 if (sign == '/')
                     current_state = STATE_START;
@@ -853,25 +853,19 @@ int scanner_get_next_token(Token *Token)
                 else if (sign == '$')
                 {
                     current_state = STATE_STRING_START;
-                    str_add_sign(String, '\\$');         //!!перепроверить
+                    str_add_sign(String, '$');    
                     break;
                 }
                 else if (sign == '0')
                 {
                     current_state = STATE_STRING_BACKSLASH_ZERO;
-                    ascii_dex[0] = sign; 
+                    ascii_oct[0] = sign; 
                     break;
                 }
-                else if (sign == '1')
+                else if (sign == '1' || sign == '2' || sign == '3')
                 {
-                    current_state = STATE_STRING_BACKSLASH_ONE;
-                    ascii_dex[0] = sign; 
-                    break;
-                }
-                else if (sign == '2')
-                {
-                    current_state = STATE_STRING_BACKSLASH_TWO;   
-                    ascii_dex[0] = sign; 
+                    current_state = STATE_STRING_BACKSLASH_ONE_TWO_THREE;
+                    ascii_oct[0] = sign; 
                     break;
                 }
                 else if (sign == 'x')
@@ -887,18 +881,20 @@ int scanner_get_next_token(Token *Token)
                     
                     return ERROR_LEXICAL;
                 }
+
+
             //Handling a situation with escape sequence ascii[d][][].
             case(STATE_STRING_BACKSLASH_ZERO):
-                if (sign >= '1' && sign <= '9')
+                if (sign >= '1' && sign <= '7')
                 {
-                    current_state = STATE_STRING_BACKSLASH_ZERO_TO_NINE;
-                    ascii_dex[1] = sign;
+                    current_state = STATE_STRING_BACKSLASH_ZERO_TO_SEVEN;
+                    ascii_oct[1] = sign;
                     break;
                 }
                 else if (sign == '0')
                 {
                     current_state = STATE_STRING_BACKSLASH_ZERO_ZERO;
-                    ascii_dex[1] = sign;
+                    ascii_oct[1] = sign;
                     break;
                 }
                 else
@@ -909,12 +905,13 @@ int scanner_get_next_token(Token *Token)
                 }
 
             case(STATE_STRING_BACKSLASH_ZERO_ZERO):
-                if (sign >= '1' && sign <= '9')
+                if (sign >= '1' && sign <= '7')
                 {
                     //[d][d][d].
                     current_state = STATE_STRING_START;
-                    ascii_dex[2] = sign;
-                    str_add_sign(String, atoi(ascii_dex));
+                    ascii_oct[2] = sign;
+                    //str_add_sign(String, atoi(ascii_oct));
+                    str_add_sign(String, strtol(ascii_oct, NULL, 8));
                     break;
                 }
                 else
@@ -926,11 +923,11 @@ int scanner_get_next_token(Token *Token)
 
 
             //Handling a situation with escape sequence ascii[d][][].
-            case(STATE_STRING_BACKSLASH_ONE):
-                if (sign >= '0' && sign <= '9')
+            case(STATE_STRING_BACKSLASH_ONE_TWO_THREE):
+                if (sign >= '0' && sign <= '7')
                 {
-                    current_state = STATE_STRING_BACKSLASH_ZERO_TO_NINE;
-                    ascii_dex[1] = sign;
+                    current_state = STATE_STRING_BACKSLASH_ZERO_TO_SEVEN;
+                    ascii_oct[1] = sign;
                     break;
                 }
                 else 
@@ -942,13 +939,14 @@ int scanner_get_next_token(Token *Token)
                     
 
             //Handling a situation with escape sequence ascii[d][d][].
-            case(STATE_STRING_BACKSLASH_ZERO_TO_NINE):
-                if (sign >= '0' && sign <= '9')
+            case(STATE_STRING_BACKSLASH_ZERO_TO_SEVEN):
+                if (sign >= '0' && sign <= '7')
                 {   
                     //[d][d][d].
                     current_state = STATE_STRING_START;
-                    ascii_dex[2] = sign;
-                    str_add_sign(String, atoi(ascii_dex));
+                    ascii_oct[2] = sign;
+                    //str_add_sign(String, atoi(ascii_oct));
+                    str_add_sign(String, strtol(ascii_oct, NULL, 8));
                     break;
                 }
                 else 
@@ -958,48 +956,17 @@ int scanner_get_next_token(Token *Token)
                     return ERROR_LEXICAL;
                 }
 
-            //Handling a situation with escape sequence ascii[d][][].
-            case(STATE_STRING_BACKSLASH_TWO):
-                if (sign >= '0' && sign <= '4')
-                {
-                    current_state = STATE_STRING_BACKSLASH_ZERO_TO_NINE;
-                    ascii_dex[1] = sign;
-                    break;
-                }
-                if (sign == '5')
-                {
-                    current_state = STATE_STRING_BACKSLASH_FIVE;
-                    ascii_dex[1] = sign;
-                    break;
-                }
-                else 
-                {
-                    ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
-                    
-                    return ERROR_LEXICAL;
-                }
-                
-            //Handling a situation with escape sequence ascii[d][d][].
-            case(STATE_STRING_BACKSLASH_FIVE):
-                if (sign >= '0' && sign <= '5')
-                {
-                    //[d][d][d].
-                    current_state = STATE_STRING_START;
-                    ascii_dex[2] = sign;
-                    str_add_sign(String, atoi(ascii_dex));
-                    break;
-                }
-                else 
-                {
-                    ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
-                    
-                    return ERROR_LEXICAL;
-                }
 
             //Handling a situation with escape sequence ascii[d][].
             case(STATE_STRING_BACKSLASH_HEX):   
                 
-                if (sign >= '0' && sign <= '9' || sign >= 'a' && sign <= 'f' || sign >= 'A' && sign <= 'F')
+                if (sign == '0')
+                {
+                    current_state = STATE_STRING_BACKSLASH_HEX_ZERO;;
+                    ascii_hex[0] = sign;
+                    break;
+                }
+                else if (sign >= '1' && sign <= '9' || sign >= 'a' && sign <= 'f' || sign >= 'A' && sign <= 'F')
                 {
                     current_state = STATE_STRING_BACKSLASH_HEX_FIRST;
                     ascii_hex[0] = sign;
@@ -1019,10 +986,22 @@ int scanner_get_next_token(Token *Token)
                     current_state = STATE_STRING_START;
                     ascii_hex[1] = sign;
                     str_add_sign(String, strtol(ascii_hex, NULL, 16));
-                    // printf("%d\n", strtol(ascii_hex, NULL, 16));
-                    // printf("%s\n", ascii_hex);
 
+                    break;
+                }
+                else 
+                {
+                    ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
                     
+                    return ERROR_LEXICAL;
+                }
+
+            case(STATE_STRING_BACKSLASH_HEX_ZERO):
+                if (sign >= '1' && sign <= '9' || sign >= 'a' && sign <= 'f' || sign >= 'A' && sign <= 'F')
+                {
+                    current_state = STATE_STRING_START;
+                    ascii_hex[1] = sign;
+                    str_add_sign(String, strtol(ascii_hex, NULL, 16));
 
                     break;
                 }

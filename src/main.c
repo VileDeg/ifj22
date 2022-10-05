@@ -13,10 +13,10 @@ void test_scanner()
 {
     //scanner_init();
 
-    lexical_test("../tests/lex/eol.php", false);
-    lexical_test("../tests/lex/string.php", false);
-    lexical_test("../tests/lex/factorial.php", false);
-    lexical_test("../tests/lex/factorial_rek.php", false);
+    //lexical_test("../tests/lex/eol.php", false);
+     lexical_test("../tests/lex/string.php", false);
+    // lexical_test("../tests/lex/factorial.php", false);
+    // lexical_test("../tests/lex/factorial_rek.php", false);
 
     //scanner_terminate();
 }
@@ -32,7 +32,7 @@ int main(void)
 {
     
 
-    //test_scanner();
-    test_parser();
+    test_scanner();
+    //test_parser();
     return 0;    
 }
