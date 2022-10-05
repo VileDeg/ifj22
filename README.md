@@ -9,7 +9,8 @@ where username is your github username.
 - Всегда использовать int64_t вместо int, uint64_t вместо unsigned
 - Информативные названия функций
 ## TODO
-- Изменить 001 do 377
+- Протестировать scanner 
+- Закончить КА (после тестов) 
 - Имплементировать грамматику
 - Таблица символов в файле symtable.c/h
 - Таблица для precedenční analýzy výrazů
