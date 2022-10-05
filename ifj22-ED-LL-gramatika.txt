@@ -1,45 +1,48 @@
-<prolog> -> <?php declare ( strict_types = 1 ) ; <prog>
-<prog> -> function ID ( <params> ) : <rettype> { <statement> } <prog> <end>
-<prog> -> <statement> <end>
-<end> -> ?>
-<end> -> eps
-<statement> -> $ ID <def_var>; <statement>
-<statement> -> if ( <expression> ) { <statement> } else { <statement> } <statement>
-<statement> -> while ( <expression> ) { <statement> } <statement>
+<prolog> -> <?php declare ( strict_types = 1 ) ; <prog> <end>
+<prog> -> function ID ( <params> ) : <rettype> <scoped_stat> <prog>
+<prog> -> <statement>
+<statement> -> $ID <def_var> ; <statement>
+<statement> -> if <compound_stat> else <scoped_stat> <statement>
+<statement> -> while <compound_stat> <statement>
 <statement> -> return <expression>
-<statement> -> eps
-<params> -> <type> $ ID <param_n>
-<params> -> eps
-<param_n> -> , <type> $ ID <param_n>
-<param_n> -> eps
-<def_var> -> = <expr_val>
-<def_var> -> eps
-<expr_val> -> <expression>
-<expr_val> -> ID ( <arg> )
-<expr_val> -> reads ( <arg> )
-<expr_val> -> readi ( <arg> )
-<expr_val> -> readf ( <arg> )
-<expr_val> -> write ( <arg> )
-<expr_val> -> floatval ( <arg> )
-<expr_val> -> intval ( <arg> )
-<expr_val> -> strval ( <arg> )
-<expr_val> -> strlen ( <arg> )
-<expr_val> -> substring ( <arg> )
-<expr_val> -> ord ( <arg> )
-<expr_val> -> chr ( <arg> )
-<arg> -> <value> <arg_n>
-<arg> -> eps
-<arg_n> -> , <value> <arg_n>
-<arg_n> -> eps
+<statement> -> ε
+<scoped_stat> -> { <statement> }
+<compound_stat> -> ( <expression> ) <scoped_stat>
+<params> -> <type> $ID <param_n>
+<params> -> ε
+<param_n> -> , <params>
+<param_n> -> ε
+<def_var> -> = <rhs_value>
+<def_var> -> ε
+<rhs_value> -> <value>
+<rhs_value> -> ID ( <args> )
+<rhs_value> -> reads ( <args> )
+<rhs_value> -> readi ( <args> )
+<rhs_value> -> readf ( <args> )
+<rhs_value> -> write ( <args> )
+<rhs_value> -> floatval ( <args> )
+<rhs_value> -> intval ( <args> )
+<rhs_value> -> strval ( <args> )
+<rhs_value> -> strlen ( <args> )
+<rhs_value> -> substring ( <args> )
+<rhs_value> -> ord ( <args> )
+<rhs_value> -> chr ( <args> )
+<rhs_value> -> <expression>
+<args> -> <value> <arg_n>
+<args> -> ε
+<arg_n> -> , <args>
+<arg_n> -> ε
 <value> -> INT_VALUE
 <value> -> FLOAT_VALUE
 <value> -> STRING_VALUE
-<value> -> ID
-<rettype> -> <type>
+<value> -> $ID
 <rettype> -> void
+<rettype> -> <type>
 <type> -> float
 <type> -> int
 <type> -> string
 <type> -> ? float
 <type> -> ? int
 <type> -> ? string
+<end> -> ?>
+<end> -> ε
