@@ -182,7 +182,7 @@ void parser_test(const char* filename, bool show_contents)
     int result;
     if ((result = parser_parse()) != 0)
     {
-        ERROR_SYNT(" :(");
+        PRINT_ERROR_SYNT(" :(");
     }
 
     printf("\n\n");

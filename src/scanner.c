@@ -299,7 +299,7 @@ int scanner_get_next_token(Token *Token)
 
                 //If there were no signs matches, then a lexical error is written out.
                 //PRINT_ERROR("[LEXICAL ERROR]:%d:%d: invalid sign: \"%c\"\n", line_counter, sign_counter, sign);
-                ERROR_LEX("%d:%d: invalid sign: \"%c\"", line_counter, sign_counter, sign);
+                PRINT_ERROR_LEX("%d:%d: invalid sign: \"%c\"", line_counter, sign_counter, sign);
                 // fprintf(stderr, "\033[1;31m");  //!! Color of the error message.
                 // fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid sign: \"%c\"\n", line_counter, sign_counter, sign);
                 // fprintf(stderr, "\033[0m");
@@ -315,7 +315,7 @@ int scanner_get_next_token(Token *Token)
                 {
                     //Error handling. 
                     str_add_sign(String, sign);
-                    ERROR_LEX("wrong prolog");
+                    PRINT_ERROR_LEX("wrong prolog");
                     
                     return ERROR_LEXICAL; 
                 }
@@ -330,7 +330,7 @@ int scanner_get_next_token(Token *Token)
                 {
                     //Error handling. 
                     str_add_sign(String, sign);
-                    ERROR_LEX("wrong prolog");
+                    PRINT_ERROR_LEX("wrong prolog");
                     
                     return ERROR_LEXICAL; 
                 }
@@ -345,7 +345,7 @@ int scanner_get_next_token(Token *Token)
                 {
                     //Error handling. 
                     str_add_sign(String, sign);
-                    ERROR_LEX("wrong prolog");
+                    PRINT_ERROR_LEX("wrong prolog");
                     
                     return ERROR_LEXICAL; 
                 }
@@ -370,7 +370,7 @@ int scanner_get_next_token(Token *Token)
                 {
                     //Error handling. 
                     str_add_sign(String, sign);
-                    ERROR_LEX("wrong character after '?'");
+                    PRINT_ERROR_LEX("wrong character after '?'");
                     
                     return ERROR_LEXICAL; 
                 }
@@ -389,7 +389,7 @@ int scanner_get_next_token(Token *Token)
                 {
                     //Error handling. 
                     str_add_sign(String, sign);
-                    ERROR_LEX("Character after the closing character '?>'");
+                    PRINT_ERROR_LEX("Character after the closing character '?>'");
                     
                     return ERROR_LEXICAL; 
                 }
@@ -443,7 +443,7 @@ int scanner_get_next_token(Token *Token)
                     {
                         //Error handling. 
                         str_add_sign(String, sign);
-                        ERROR_LEX("%d:%d: wrong form of integer: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
+                        PRINT_ERROR_LEX("%d:%d: wrong form of integer: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                         
                         return ERROR_LEXICAL; 
                     }
@@ -485,7 +485,7 @@ int scanner_get_next_token(Token *Token)
                 else 
                 {
                     str_add_sign(String, sign);
-                    ERROR_LEX("%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
+                    PRINT_ERROR_LEX("%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
                     return ERROR_LEXICAL;
                 }
@@ -507,7 +507,7 @@ int scanner_get_next_token(Token *Token)
                 else
                 {
                     str_add_sign(String, sign);
-                    ERROR_LEX("%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
+                    PRINT_ERROR_LEX("%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
                     return ERROR_LEXICAL;
                 }
@@ -523,7 +523,7 @@ int scanner_get_next_token(Token *Token)
                     else
                     {
                         str_add_sign(String, sign);
-                        ERROR_LEX("%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
+                        PRINT_ERROR_LEX("%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                         
                         return ERROR_LEXICAL; 
                     }
@@ -548,7 +548,7 @@ int scanner_get_next_token(Token *Token)
                 else
                 {
                     str_add_sign(String, sign);
-                    ERROR_LEX("%d:%d: wrong form of decimal: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
+                    PRINT_ERROR_LEX("%d:%d: wrong form of decimal: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
                     return ERROR_LEXICAL; 
                 }
@@ -575,7 +575,7 @@ int scanner_get_next_token(Token *Token)
                 else if (!isdigit(sign))
                 {
                     str_add_sign(String, sign);
-                    ERROR_LEX("%d:%d: wrong form of decimal: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
+                    PRINT_ERROR_LEX("%d:%d: wrong form of decimal: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
                     return ERROR_LEXICAL; 
                 }
@@ -680,7 +680,7 @@ int scanner_get_next_token(Token *Token)
                 {
                     //Error handling. 
                     str_add_sign(String, sign);
-                    ERROR_LEX("%d:%d: wrong сharacter \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
+                    PRINT_ERROR_LEX("%d:%d: wrong сharacter \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
                     return ERROR_LEXICAL; 
                 }
@@ -703,7 +703,7 @@ int scanner_get_next_token(Token *Token)
                 {
                     str_add_sign(String,'!');
                     str_add_sign(String,sign);
-                    ERROR_LEX("%d:%d: unsuitable combination of characters: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
+                    PRINT_ERROR_LEX("%d:%d: unsuitable combination of characters: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
                     return ERROR_LEXICAL;
                 }
@@ -717,7 +717,7 @@ int scanner_get_next_token(Token *Token)
                 {
                     str_add_sign(String,'!');
                     str_add_sign(String,sign);
-                    ERROR_LEX("%d:%d: unsuitable combination of characters: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
+                    PRINT_ERROR_LEX("%d:%d: unsuitable combination of characters: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
                     return ERROR_LEXICAL;
                 }
@@ -815,7 +815,7 @@ int scanner_get_next_token(Token *Token)
                     }
                     else if (sign == '\n' || sign == EOF)
                     {
-                        ERROR_LEX("%d:%d: no end of string", line_counter, sign_counter);
+                        PRINT_ERROR_LEX("%d:%d: no end of string", line_counter, sign_counter);
                         
                         return ERROR_LEXICAL;
                     }
@@ -883,7 +883,7 @@ int scanner_get_next_token(Token *Token)
                 {
                     str_add_sign(String, '\\');
                     str_add_sign(String, sign);
-                    ERROR_LEX("%d:%d: invalid escape sequence: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
+                    PRINT_ERROR_LEX("%d:%d: invalid escape sequence: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
                     return ERROR_LEXICAL;
                 }
@@ -903,7 +903,7 @@ int scanner_get_next_token(Token *Token)
                 }
                 else
                 {
-                    ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
+                    PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
 
                     return ERROR_LEXICAL;
                 }
@@ -919,7 +919,7 @@ int scanner_get_next_token(Token *Token)
                 }
                 else
                 {
-                    ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
+                    PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
 
                     return ERROR_LEXICAL;
                 }
@@ -935,7 +935,7 @@ int scanner_get_next_token(Token *Token)
                 }
                 else 
                 {
-                    ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
+                    PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
                     
                     return ERROR_LEXICAL;
                 }
@@ -953,7 +953,7 @@ int scanner_get_next_token(Token *Token)
                 }
                 else 
                 {
-                    ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
+                    PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
                     
                     return ERROR_LEXICAL;
                 }
@@ -974,7 +974,7 @@ int scanner_get_next_token(Token *Token)
                 }
                 else 
                 {
-                    ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
+                    PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
                     
                     return ERROR_LEXICAL;
                 }
@@ -991,7 +991,7 @@ int scanner_get_next_token(Token *Token)
                 }
                 else 
                 {
-                    ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
+                    PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
                     
                     return ERROR_LEXICAL;
                 }
@@ -1007,7 +1007,7 @@ int scanner_get_next_token(Token *Token)
                 }
                 else 
                 {
-                    ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
+                    PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
                     
                     return ERROR_LEXICAL;
                 }
@@ -1028,7 +1028,7 @@ int scanner_get_next_token(Token *Token)
                 }
                 else 
                 {
-                    ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
+                    PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
                     
                     return ERROR_LEXICAL;
                 }

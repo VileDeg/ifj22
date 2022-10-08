@@ -1,15 +1,18 @@
+#include <string.h>
+
 #include "parser.h"
 #include "errors.h"
 #include "debug.h"
-#include <string.h>
+#include "scanner.h"
+#include "symtable.h"
 
-#define DEBUG_PRINT_RULE(expnum)\
+#define _DPRNR(_n)\
     do{\
-        printf("%s -> %s\n", __func__, get_rule_expansion_by_name(__func__, (expnum)));\
+        printf("%s -> %s\n", __func__, get_rule_expansion_by_name(__func__, (_n)));\
     }while(0)
 
 //#define DEF_RLNM int _RLNM = -1
-#define _DPRNR(_n) DEBUG_PRINT_RULE(_n)
+//#define _DPRNR(_n) DEBUG_PRINT_RULE(_n)
 
 #define RES result
 #define DEF_RES int RES
@@ -24,8 +27,9 @@
 
 #define KEYWORD_IS(kw) (pd->token.type == token_keyword && pd->token.value.keyword == keyword_##kw)
 
-#define CHECK_TYPE(_type_postfix)\
-	if (!TYPE_IS(_type_postfix)) return ERROR_SYNTAX
+//Never use with more than 1 argument!
+#define CHECK_TYPE(_type_postfix, ...)\ 
+	if (!TYPE_IS(_type_postfix##__VA_ARGS__)) return ERROR_SYNTAX
 	
 #define CHECK_KEYWORD(_kw)\
 	if (KEYWORD_IS(_kw)) return ERROR_SYNTAX
@@ -67,9 +71,17 @@
 
 #define GET_N_CHECK_VAR_ID GET_N_CHECK_TYPE(ID); CHECK_DOLLAR
 
+typedef struct 
+{
+    TSymtable globalTable;
+	TSymtable localTable;
+    Token token;
+} ParserData;
+
 static int init_data(ParserData* pd)
 {
-    
+    symtable_init(&pd->globalTable);
+	symtable_init(&pd->localTable);
 }
 
 static bool is_void_type(ParserData* pd)
@@ -93,7 +105,7 @@ static int prog(ParserData* pd);
 static int prolog(ParserData* pd);
 static int scoped_stat(ParserData* pd);
 static int compound_stat(ParserData* pd);
-//static int end(ParserData* pd);
+static int end(ParserData* pd);
 
 static int expression(ParserData* pd)
 {
@@ -167,20 +179,23 @@ static int type(ParserData* pd)
 	return RULE_OK;
 }
 
-//TODO: end useless???
 static int end(ParserData* pd)
 {
 	RULE_OPEN;
 
-	//<end> -> ?>
+	//<end> -> ?> EOF
+	GET_NEXT_TOKEN();
 	if (TYPE_IS(end))
 	{
 		_DPRNR(0);
-	} //TODO: useless??
+		
+	}
+	//<end> -> EOF
 	else
+	{
 		_DPRNR(1);
-	//<end> -> ε
-
+		CHECK_TYPE(EOF);
+	}
 
 	return RULE_OK;
 }
@@ -219,10 +234,10 @@ static int def_var(ParserData* pd)
 		_DPRNR(0);
 		CHECK_RULE(rhs_value);
 	}
+	//<def_var> -> eps
 	else
 		_DPRNR(1);
 
-	//<def_var> -> eps
 
 	return RULE_OK;
 }
@@ -412,6 +427,14 @@ static int prog(ParserData* pd)
     {
 		_DPRNR(0);
 		GET_N_CHECK_TYPE(ID);
+		// {
+		// 	bool internal_error = false;
+		// 	symtable_add_symbol(&pd->globalTable, pd->token.value.String->ptr, &internal_error);
+		// 	if (internal_error)
+		// 	{
+		// 		return ERROR_INTERNAL;
+		// 	}
+		// }		
 		GET_N_CHECK_TYPE(left_bracket);
 
 		GET_N_CHECK_RULE(params);
@@ -469,9 +492,8 @@ static int prolog(ParserData* pd)
 	GET_N_CHECK_TYPE(semicolon);
 
 	CHECK_RULE(prog);
-
-	//TODO: end useless??
-	//CHECK_RULE(end);
+	
+	CHECK_RULE(end);
 
     return RULE_OK;
 }

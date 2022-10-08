@@ -72,6 +72,8 @@ TData *symtable_add_symbol(TSymtable *st, const char *key, bool *alloc_failed) {
         tmp = tmp->next;
     }
     TItem *new_item = item_const(key, alloc_failed);
+    if (new_item == NULL)
+        return NULL;
     if (last == NULL) {
         st->items[index] = new_item;
     } else {
