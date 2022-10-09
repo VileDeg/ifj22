@@ -2,6 +2,36 @@
 * GENERATOR OF BUILT-IN FUNCTIONS
 */
 
+/// function reads() : ?string
+#define FUNCTION_READS              \
+        "# Function reads\n"        \
+        "LABEL @reads\n"            \
+        "PUSHFRAME\n"               \
+        "DEFVAR LF@return\n"        \
+        "READ LF@return string\n"   \
+        "POPFRAME\n"                \
+        "RETURN\n"
+
+/// function readi() : ?int
+#define FUCNTION_READI          \
+        "# Function readi\n"    \
+        "LABEL @readi\n"        \
+        "PUSHFRAME\n"           \
+        "DEFVAR LF@return\n"    \
+        "READ LF@return int\n"  \
+        "POPFRAME\n"            \
+        "RETURN\n"
+
+/// function readf() : ?float
+#define FUNCTION_READF              \
+        "# Function readf\n"        \
+        "LABEL @readf\n"            \
+        "PUSHFRAME\n"               \
+        "DEFVAR LF@return\n"        \
+        "READ LF@return float\n"    \
+        "POPFRAME\n"                \
+        "RETURN\n"
+
 /// function strlen(string $𝑠) : int
 #define FUNCTION_STRLEN                 \
         "# Function strlen\n"           \
@@ -46,6 +76,6 @@
         "LT LF@cond LF@-0 int@0\n"              \
         "JUMPIFEQ $chr_end LF@cond bool@true\n" \
         "INT2CHAR LF@return LF@-0\n"            \
-        "LABEL @chr_end"                        \
+        "LABEL @chr_end\n"                      \
         "POPFRAME\n"                            \
         "RETURN\n"
