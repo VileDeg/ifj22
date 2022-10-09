@@ -42,6 +42,9 @@
         "POPFRAME\n"                    \
         "RETURN\n"
 
+/// function substring(string $𝑠, int $𝑖, int $𝑗) : ?string
+#define FUNCTION_SUBSTRING \
+
 /// function ord(string $c) : int
 #define FUNCTION_ORD                                \
         "# Function ord\n"                          \

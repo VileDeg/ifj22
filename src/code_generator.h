@@ -1,4 +1,4 @@
-#ifndef IFJ22_CODE_GENERATOR_H
-#define IFJ22_CODE_GENERATOR_H
+#ifndef __CODE_GENERATOR__
+#define __CODE_GENERATOR__
 
-#endif //IFJ22_CODE_GENERATOR_H
+#endif //__CODE_GENERATOR__
