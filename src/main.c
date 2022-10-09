@@ -14,10 +14,12 @@ void test_scanner()
     //scanner_init();
 
     //lexical_test("../tests/lex/eol.php", false);
-     lexical_test("../tests/lex/string.php", false);
+    //lexical_test("../tests/lex/string.php", false);
     // lexical_test("../tests/lex/factorial.php", false);
     // lexical_test("../tests/lex/factorial_rek.php", false);
-
+    //lexical_test("../tests/IFJ22_examples/visibility.php", false);
+    //lexical_test("../tests/IFJ22_examples/substr.php", false);
+    //lexical_test("../tests/IFJ22_examples/fun.php", false);
     //scanner_terminate();
 }
 

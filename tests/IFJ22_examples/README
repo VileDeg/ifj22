@@ -1,0 +1,2 @@
+Tento adresář obsahuje několik příkladů programů napsaných v IFJ22 pro dokreslení zadání a upozornění na některé hůře pochopitelné aspekty IFJ22.
+Pro spuštění všech testů můžete využít dávku ./examples.sh (bash script) a případně si jej upravit/rozšířit pro své potřeby.
