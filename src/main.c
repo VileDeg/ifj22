@@ -28,8 +28,8 @@ int main(void)
     FILE* scanout = open_file("../scanner.txt", "w");
     FILE* parsout = open_file("../parser.txt", "w");
 
-    test_file(src, true, scanout, parsout);
-    //test_file(src, true, stdout, stdout);
+    test_file(src, true, NULL, stdout);
+    //test_file(src, true, scanout, parsout);
 
     close_all_files();
     return 0;    

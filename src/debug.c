@@ -131,6 +131,9 @@ void print_file_contents(FILE* src)
 void test_file(FILE* source, bool show_source_contents, 
     FILE* scan_out, FILE* pars_out)
 {
+    if (!scan_out && !pars_out)
+        return;
+    
     str_t string;
     str_const(&string);
     scanner_set_file(source);
@@ -138,42 +141,49 @@ void test_file(FILE* source, bool show_source_contents,
 
     if (show_source_contents)
     {
-        SET_DEBUG_OUT(scan_out);
-        print_file_contents(source);
-        if (scan_out != pars_out)
+        bool done = false;
+        if (scan_out)
+        {
+            SET_DEBUG_OUT(scan_out);
+            print_file_contents(source);    
+        }
+        if (pars_out && scan_out != pars_out)
         {
             SET_DEBUG_OUT(pars_out);
             print_file_contents(source);
         }
     }
 
-
-
     //Syntax test
-    SET_DEBUG_OUT(pars_out);
-    HEADER("Rules triggered: ");
-
-    int result;
-    if ((result = parser_parse()) != 0)
+    if (pars_out)
     {
-        PRINT_ERROR_SYNT(" :(");
+        SET_DEBUG_OUT(pars_out);
+        HEADER("Rules triggered: ");
+
+        int result;
+        if ((result = parser_parse()) != 0)
+        {
+            PRINT_ERROR_SYNT(" :(");
+        }
+        DEBUGPR(VSPACE);
+        rewind(source);
     }
-    DEBUGPR(VSPACE);
-    rewind(source);
-
-
+    
     //Lexical test
-    SET_DEBUG_OUT(scan_out);
-    HEADER("List of tokens: ");
-    DEBUGPR(s_TokenDebugFormat, "int", "deci", "string", "keyword", "type");
-    Token tk;
-    int eof = 0;
-    while (!eof)
+    if (scan_out)
     {
-        eof = scanner_get_next_token(&tk);
-        debug_token(tk);
+        SET_DEBUG_OUT(scan_out);
+        HEADER("List of tokens: ");
+        DEBUGPR(s_TokenDebugFormat, "int", "deci", "string", "keyword", "type");
+        Token tk;
+        int eof = 0;
+        while (!eof)
+        {
+            eof = scanner_get_next_token(&tk);
+            debug_token(tk);
+        }
+        DEBUGPR(VSPACE);
     }
-    DEBUGPR(VSPACE);
 
     str_dest(&string);
 }
@@ -190,12 +200,13 @@ static struct {
 void populate_rule_definitions()
 {
     FILE* fptr = fopen(s_RulesFilepath, "r");
+    ASSERT(fptr, "");
+
     uint64_t rule = 0;
     
     for (uint64_t rule = 0; rule < NUM_RULES; rule++)
     {
-        fgetc(fptr); //skip <
-        int c;
+        int c = fgetc(fptr); //skip <
         uint64_t letter = 0;
         //Read rule name
         while ((c = fgetc(fptr)) != '>')
@@ -224,8 +235,9 @@ void populate_rule_definitions()
         do
         {
             c = fgetc(fptr);
-        }
+        }        
         while (c == '\n' || c == '\r');
+        
         ungetc(c, fptr);
     }
 
