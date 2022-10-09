@@ -44,11 +44,11 @@ void scanner_reset()
     line_counter = 1;
 }
 
-void scanner_free()
-{
-    str_dest(String);
-    free(String);
-}
+// void scanner_free()
+// {
+//     str_dest(String);
+//     //free(String);
+// }
 
 //Comparing string we've gotten and compares with KW. In case it isn't a KW -> it's an ID.
 bool determine_type(str_t *String, Token *Token)

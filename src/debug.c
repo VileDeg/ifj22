@@ -77,6 +77,7 @@ void reset_token(Token* tk)
 
 static const char* s_TokenDebugFormat = "%-4.4s %-4.4s %-12.12s %-12.12s %-16.16s\n";
 
+
 void debug_token(Token tk)
 {
     size_t mxlen = 64;
@@ -86,126 +87,112 @@ void debug_token(Token tk)
     {
         case token_integer:
             snprintf(str, mxlen, "%d", tk.value.integer);
-            printf(s_TokenDebugFormat, str, "",
+            
+            DEBUGPR(s_TokenDebugFormat, str, "",
                 "", "", debug_tk_type(tk.type));
             break;
         case token_float:
         case token_exponent:
             snprintf(str, mxlen, "%g", tk.value.decimal);
-            printf(s_TokenDebugFormat, "", str,
+            DEBUGPR(s_TokenDebugFormat, "", str,
                 "", "", debug_tk_type(tk.type));
             break;
         case token_keyword:
-            printf(s_TokenDebugFormat, "", "",
+            DEBUGPR(s_TokenDebugFormat, "", "",
                 "", debug_kw(tk.value.keyword), debug_tk_type(tk.type));
             break;
         default:
             ASSERT(tk.value.String != NULL, "");
             ASSERT(tk.value.String->ptr != NULL, "");
-            printf(s_TokenDebugFormat, "", "",
+            DEBUGPR(s_TokenDebugFormat, "", "",
                 tk.value.String->ptr, "", debug_tk_type(tk.type));
     }
 }
 
-void print_file_contents(FILE* fptr)
+#define SEP_LINE "----" "----" "----" "----" "----"
+#define VSPACE   "\n\n"
+#define SEP_BEG SEP_LINE
+#define SEP_END SEP_LINE VSPACE
+#define HEADER(txt) DEBUGPR(SEP_BEG txt SEP_END)
+
+void print_file_contents(FILE* src)
 {
-    printf("***File contents: ***\n");
+    HEADER("File contents: ");
     uint64_t maxlen = 1024;
     char line[maxlen];
-    while(fgets(line, maxlen, fptr)!= NULL)
-    {
-        printf("%s", line);
-    }
-    ASSERT(fptr != stdin, "");
-    rewind(fptr);
-    printf("\n");
+    while(fgets(line, maxlen, src)!= NULL)
+        DEBUGPR("%s", line);
+
+    ASSERT(src != stdin, "");
+    rewind(src);
+    DEBUGPR(VSPACE "\n");
 }
 
-void lexical_test(const char* filename, bool show_contents)
+void test_file(FILE* source, bool show_source_contents, 
+    FILE* scan_out, FILE* pars_out)
 {
-    FILE* fptr = fopen(filename, "r");
-    if (fptr == NULL)
+    str_t string;
+    str_const(&string);
+    scanner_set_file(source);
+    scanner_set_string(&string);
+
+    if (show_source_contents)
     {
-        ERRPR("File pointer is null.");
-        return;
+        SET_DEBUG_OUT(scan_out);
+        print_file_contents(source);
+        if (scan_out != pars_out)
+        {
+            SET_DEBUG_OUT(pars_out);
+            print_file_contents(source);
+        }
     }
-    str_t* string = calloc(1, sizeof(str_t));
-    str_const(string);
-    scanner_set_file(fptr);
-    scanner_set_string(string);
-    if (show_contents)
-        print_file_contents(fptr);
 
-    printf("***List of tokens: ***\n");
-    printf(s_TokenDebugFormat, "int", "deci", "string", "keyword", "type");
 
-    scanner_reset();
-    scanner_set_file(fptr);
 
-    Token* tk = calloc(1, sizeof(*tk));
-
-    //reset_token(tk);
-    bool eof = false;
-    
-    while (!eof)
-    {
-        eof = scanner_get_next_token(tk);
-        debug_token(*tk);
-    }
-    printf("\n\n");
-
-    scanner_free();
-    free(tk);
-    fclose(fptr);
-}
-
-void parser_test(const char* filename, bool show_contents)
-{
-    FILE* fptr = fopen(filename, "r");
-    if (fptr == NULL)
-    {
-        ERRPR("File pointer is null.");
-        return;
-    }
-    str_t* string = calloc(1, sizeof(str_t));
-    str_const(string);
-    scanner_set_file(fptr);
-    scanner_set_string(string);
-    if (show_contents)
-        print_file_contents(fptr);
-
-    printf("\n\n");
-    printf("***Rules triggered: ***\n\n");
+    //Syntax test
+    SET_DEBUG_OUT(pars_out);
+    HEADER("Rules triggered: ");
 
     int result;
     if ((result = parser_parse()) != 0)
     {
         PRINT_ERROR_SYNT(" :(");
     }
+    DEBUGPR(VSPACE);
+    rewind(source);
 
-    printf("\n\n");
 
-    scanner_free();
-    
-    fclose(fptr);
+    //Lexical test
+    SET_DEBUG_OUT(scan_out);
+    HEADER("List of tokens: ");
+    DEBUGPR(s_TokenDebugFormat, "int", "deci", "string", "keyword", "type");
+    Token tk;
+    int eof = 0;
+    while (!eof)
+    {
+        eof = scanner_get_next_token(&tk);
+        debug_token(tk);
+    }
+    DEBUGPR(VSPACE);
+
+    str_dest(&string);
 }
 
-static const char* rules_filepath = "../ifj22-ED-LL-gramatika.txt";
-#define rule_exp_maxlen 256
-#define numofrules 48
-static struct 
-{
-    char rule_name[numofrules][rule_exp_maxlen];;
-    char exp_string[numofrules][rule_exp_maxlen];
-} RuleInfo;
 
+static const char* s_RulesFilepath = "../ifj22-ED-LL-gramatika.txt";
+#define RULE_EXP_MXLEN 256
+#define NUM_RULES 48
+static struct {
+    char rule_name [NUM_RULES][RULE_EXP_MXLEN];
+    char exp_string[NUM_RULES][RULE_EXP_MXLEN];
+} RuleInfo;
 
 void populate_rule_definitions()
 {
-    FILE* fptr = fopen(rules_filepath, "r");
+    FILE* fptr = fopen(s_RulesFilepath, "r");
     uint64_t rule = 0;
     
-    for (uint64_t rule = 0; rule < numofrules; rule++)
+    for (uint64_t rule = 0; rule < NUM_RULES; rule++)
     {
         fgetc(fptr); //skip <
         int c;
@@ -215,7 +202,7 @@ void populate_rule_definitions()
         {
             RuleInfo.rule_name[rule][letter] = c;
             ++letter;
-            ASSERT(letter < rule_exp_maxlen, "");
+            ASSERT(letter < RULE_EXP_MXLEN, "");
         }
         letter = 0;
         //Skip to after ->
@@ -231,7 +218,7 @@ void populate_rule_definitions()
                 break;
             RuleInfo.exp_string[rule][letter] = c;
             ++letter;
-            ASSERT(letter < rule_exp_maxlen, "");
+            ASSERT(letter < RULE_EXP_MXLEN, "");
         }
 
         do
@@ -247,15 +234,15 @@ void populate_rule_definitions()
 
 void print_rule_definitions()
 {
-    for (uint64_t rule = 0; rule < numofrules; rule++)
+    for (uint64_t rule = 0; rule < NUM_RULES; rule++)
     {
-        printf("%s -> %s\n", RuleInfo.rule_name[rule], RuleInfo.exp_string[rule]);
+        DEBUGPR("%s -> %s\n", RuleInfo.rule_name[rule], RuleInfo.exp_string[rule]);
     }
 }
 
 const char* get_rule_expansion_by_name(const char* rulename, int expnum)
 {
-    for (uint64_t i = 0; i < numofrules; i++)
+    for (uint64_t i = 0; i < NUM_RULES; i++)
     {
         if (!strcmp(RuleInfo.rule_name[i], rulename))
         {

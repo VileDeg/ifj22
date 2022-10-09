@@ -8,7 +8,7 @@
 
 #define _DPRNR(_n)\
     do{\
-        printf("%s -> %s\n", __func__, get_rule_expansion_by_name(__func__, (_n)));\
+        DEBUGPR("%s -> %s\n", __func__, get_rule_expansion_by_name(__func__, (_n)));\
     }while(0)
 
 //#define DEF_RLNM int _RLNM = -1
@@ -205,7 +205,7 @@ static int rhs_value(ParserData* pd)
 	RULE_OPEN;
 
 	//GET_N_CHECK_TYPE...
-	printf("%s -> ???\n", __func__);
+	DEBUGPR("%s -> ???\n", __func__);
 	//Will be looked up in symtable
 	//<rhs_value> -> ID ( <args> )
 	//<rhs_value> -> <expression>
@@ -472,7 +472,7 @@ static int prolog(ParserData* pd)
 	
 	//scanner_get_next_token(&pd->token);
 
-	CHECK_TYPE(prolog);
+	GET_N_CHECK_TYPE(prolog);
 
 	GET_N_CHECK_TYPE(ID);
 	if (!str_cmp(pd->token.value.String, "declare"))
@@ -502,11 +502,11 @@ int parser_parse()
 {
     ParserData pd;
     init_data(&pd);
-    int result;
-    if ((result = scanner_get_next_token(&pd.token)) == TOKEN_OK)
-    {
-        result = prolog(&pd);
-    }
+    //int result;
+    // if ((result = scanner_get_next_token(&pd.token)) == TOKEN_OK)
+    // {
+    int result = prolog(&pd);
+    //}
 
     return result;
 }

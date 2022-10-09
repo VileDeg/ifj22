@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+
 #define DEBUGBRK raise(SIGTRAP)
 #define ASSERT(val, msg)\
     do{\
@@ -29,9 +30,12 @@
             __FILE__, __LINE__, __func__, msg);\
     } while(0)
 
+FILE* g_DebugOut;
+#define SET_DEBUG_OUT(fptr) g_DebugOut = (fptr)
+#define DEBUGPR(...) fprintf(g_DebugOut, __VA_ARGS__);
 
-void lexical_test(const char* filename, bool show_contents);
-void parser_test(const char* filename, bool show_contents);
+void test_file(FILE* source, bool show_source_contents, 
+    FILE* scanner_output, FILE* parser_output);
 
 void populate_rule_definitions();
 void print_rule_definitions();

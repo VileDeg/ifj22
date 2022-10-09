@@ -1,40 +1,36 @@
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <stdbool.h>
-// #include <string.h>
-// #include <ctype.h>
-// #include <errno.h>
-// #include <assert.h>
-// #include <inttypes.h>
 #include "debug.h"
-#include "string_t.h"
 
-void test_scanner()
+#define MAX_FILES 16
+static FILE* open_files[MAX_FILES];
+static int filesopened = 0;
+
+static FILE* open_file(const char* filepath, const char* modes)
 {
-    //scanner_init();
-
-    //lexical_test("../tests/lex/eol.php", false);
-    //lexical_test("../tests/lex/string.php", false);
-    // lexical_test("../tests/lex/factorial.php", false);
-    // lexical_test("../tests/lex/factorial_rek.php", false);
-    //lexical_test("../tests/IFJ22_examples/visibility.php", false);
-    //lexical_test("../tests/IFJ22_examples/substr.php", false);
-    //lexical_test("../tests/IFJ22_examples/fun.php", false);
-    //scanner_terminate();
+    ASSERT(filesopened <= MAX_FILES, "");
+    FILE* ret = fopen(filepath, modes);
+    ASSERT(ret != NULL, "");
+    open_files[filesopened] = ret;
+    ++filesopened;
+    return ret;
 }
 
-void test_parser()
+static void close_all_files()
 {
-    populate_rule_definitions();
-    //print_rule_definitions();
-    parser_test("../tests/lex/string.php", true);
+    for (int i = 0; i < filesopened; i++)
+        fclose(open_files[i]);
 }
 
 int main(void)
 {
-    
+    populate_rule_definitions();
 
-    test_scanner();
-    //test_parser();
+    FILE* src     = open_file("../tests/lex/string.php", "r");
+    FILE* scanout = open_file("../scanner.out", "w");
+    FILE* parsout = open_file("../parser.out", "w");
+
+    test_file(src, true, scanout, parsout);
+    //test_file(src, true, stdout, stdout);
+
+    close_all_files();
     return 0;    
 }
