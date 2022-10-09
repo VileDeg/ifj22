@@ -25,8 +25,8 @@ int main(void)
     populate_rule_definitions();
 
     FILE* src     = open_file("../tests/lex/string.php", "r");
-    FILE* scanout = open_file("../scanner.out", "w");
-    FILE* parsout = open_file("../parser.out", "w");
+    FILE* scanout = open_file("../scanner.txt", "w");
+    FILE* parsout = open_file("../parser.txt", "w");
 
     test_file(src, true, scanout, parsout);
     //test_file(src, true, stdout, stdout);

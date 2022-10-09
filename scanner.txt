@@ -1,0 +1,113 @@
+--------------------File contents: --------------------
+
+<?php
+declare(strict_types=1);
+/* Program 3: Prace s retezci 
+
+
+a vestavenymi funkcemi */
+
+$str1 = "Toto je nejaky text v programu jazyka IFJ22";
+$str2 = $str1 . ", ktery jeste trochu obohatime";
+write($str1, "\n", $str2, "\n");
+write("Pozice retezce \"text\" v \$str2: ", 15, "\n"); 
+write("Zadejte serazenou posloupnost vsech malych pismen a-h, "); 
+$str1 = reads();
+if ($str1 !== null) {
+    while ($str1 !== "abcdefgh") {
+        write("Spatne zadana posloupnost, zkuste znovu:\n");
+        $str1 = reads();
+    }
+} else { } 
+?>
+
+
+--------------------List of tokens: --------------------
+
+int  deci string       keyword      type            
+                                    prolog          
+          declare                   ID              
+                                    left_bracket    
+          strict_types              ID              
+                                    equal_sign      
+1                                   integer         
+                                    right_bracket   
+                                    semicolon       
+          $str1                     ID              
+                                    equal_sign      
+          Toto je neja              string          
+                                    semicolon       
+          $str2                     ID              
+                                    equal_sign      
+          $str1                     ID              
+                                    dot             
+          , ktery jest              string          
+                                    semicolon       
+          write                     ID              
+                                    left_bracket    
+          $str1                     ID              
+                                    comma           
+          
+                         string          
+                                    comma           
+          $str2                     ID              
+                                    comma           
+          
+                         string          
+                                    right_bracket   
+                                    semicolon       
+          write                     ID              
+                                    left_bracket    
+          Pozice retez              string          
+                                    comma           
+15                                  integer         
+                                    comma           
+          
+                         string          
+                                    right_bracket   
+                                    semicolon       
+          write                     ID              
+                                    left_bracket    
+          Zadejte sera              string          
+                                    right_bracket   
+                                    semicolon       
+          $str1                     ID              
+                                    equal_sign      
+          reads                     ID              
+                                    left_bracket    
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $str1                     ID              
+                                    not_equal       
+                       null         keyword         
+                                    right_bracket   
+                                    left_curly_brack
+                       while        keyword         
+                                    left_bracket    
+          $str1                     ID              
+                                    not_equal       
+          abcdefgh                  string          
+                                    right_bracket   
+                                    left_curly_brack
+          write                     ID              
+                                    left_bracket    
+          Spatne zadan              string          
+                                    right_bracket   
+                                    semicolon       
+          $str1                     ID              
+                                    equal_sign      
+          reads                     ID              
+                                    left_bracket    
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    end             
+                                    EOF             
+
+
