@@ -52,7 +52,7 @@ typedef struct {
 size_t hash_function(const char *str);
 
 /**
- * Initialisation of symbol table.
+ * Initialization of symbol table.
  * @param st Pointer to symbol table.
  */
 void symtable_init(TSymtable *st);
