@@ -28,7 +28,7 @@
 #define KEYWORD_IS(kw) (pd->token.type == token_keyword && pd->token.value.keyword == keyword_##kw)
 
 //Never use with more than 1 argument!
-#define CHECK_TYPE(_type_postfix, ...)\ 
+#define CHECK_TYPE(_type_postfix, ...)\
 	if (!TYPE_IS(_type_postfix##__VA_ARGS__)) return ERROR_SYNTAX
 	
 #define CHECK_KEYWORD(_kw)\
