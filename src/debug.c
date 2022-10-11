@@ -6,6 +6,8 @@
 #include "parser.h"
 #include "errors.h"
 
+FILE* g_DebugOut = NULL;
+
 static uint64_t max_kw = 10;
 static const char* kw_str[] =
 {

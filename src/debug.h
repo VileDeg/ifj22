@@ -30,9 +30,9 @@
             __FILE__, __LINE__, __func__, msg);\
     } while(0)
 
-FILE* g_DebugOut;
+extern FILE* g_DebugOut;
 #define SET_DEBUG_OUT(fptr) g_DebugOut = (fptr)
-#define DEBUGPR(...) fprintf(g_DebugOut, __VA_ARGS__);
+#define DEBUGPR(...) do{ ASSERT(g_DebugOut != NULL, ""); fprintf(g_DebugOut, __VA_ARGS__); }while(0)
 
 void test_file(FILE* source, bool show_source_contents, 
     FILE* scanner_output, FILE* parser_output);
