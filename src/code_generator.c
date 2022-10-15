@@ -43,7 +43,41 @@
         "RETURN\n"
 
 /// function substring(string $𝑠, int $𝑖, int $𝑗) : ?string
-#define FUNCTION_SUBSTRING \
+#define FUNCTION_SUBSTRING                              \
+        "# Function substring\n"                        \
+        "LABEL @substring\n"                            \
+        "PUSHFRAME\n"                                   \
+        "DEFVAR LF@return\n"                            \
+        "MOVE LF@return string@\n"                      \
+        "DEFVAR LF@length\n"                            \
+        "CREATEFRAME\n"                                 \
+        "DEFVAR TF@-0\n"                                \
+        "MOVE TF@-0 LF@-0\n"                            \
+        "CALL @strlen\n"                                \
+        "MOVE LF@length TF@return\n"                    \
+        "DEFVAR LF@cond\n"                              \
+        "LT LF@cond LF@-1 int@0\n"                      \
+        "JUMPIFEQ @substring_end LF@cond bool@true\n"   \
+        "LT LF@cond LF@-2 int@0\n"                      \
+        "JUMPIFEQ @substring_end LF@cond bool@true\n"   \
+        "GT LF@cond LF@-1 LF@-2\n"                      \
+        "JUMPIFEQ @substring_end LF@cond bool@true\n"   \
+        "LT LF@cond LF@-1 LF@length\n"                  \
+        "JUMPIFEQ @substring_end LF@cond bool@false\n"  \
+        "GT LF@cond LF@-2 LF@length\n"                  \
+        "JUMPIFEQ @substring_end LF@cond bool@true\n"   \
+        "DEFVAR LF@index\n"                             \
+        "MOVE LF@index LF@-1\n"                         \
+        "DEFVAR LF@char\n"                              \
+        "LABEL @substring_loop\n"                       \
+        "GETCHAR LF@char LF@-0 LF@index\n"              \
+        "CONCAT LF@return LF@return LF@char\n"          \
+        "ADD LF@index LF@index int@1\n"                 \
+        "LT LF@cond LF@index LF@-2\n"                   \
+        "JUMPIFEQ @substring_loop LF@cond bool@true\n"  \
+        "LABEL @substring_end\n"                        \
+        "POPFRAME\n"                                    \
+        "RETURN\n"
 
 /// function ord(string $c) : int
 #define FUNCTION_ORD                                \
@@ -60,14 +94,14 @@
         "MOVE LF@length TP@return\n"                \
         "DEFVAR LF@cond\n"                          \
         "GT LF@cond LF@length int@0\n"              \
-        "JUMPIFNEQ @ord_end LF@length bool@true\n"  \
+        "JUMPIFEQ @ord_end LF@cond bool@false\n"    \
         "STRI2INT LF@return LF@-0 int@0\n"          \
         "LABEL @ord_end\n"                          \
         "POPFRAME\n"                                \
         "RETURN\n"
 
 /// function chr(int $i) : string
-#define FUNCTION_CHR \
+#define FUNCTION_CHR                            \
         "# Function chr\n"                      \
         "LABEL @chr\n"                          \
         "PUSHFRAME\n"                           \
