@@ -81,7 +81,7 @@ TData *symtable_add_symbol(TSymtable *st, const char *key, bool *alloc_failed);
  * @param data_type
  * @return True if success.
  */
-bool symtable_add_param(TData *data, int data_type);
+bool symtable_add_param(TData *data, int64_t data_type);
 
 /**
  * Searching for "key" in symtable.

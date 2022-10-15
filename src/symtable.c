@@ -17,7 +17,7 @@ void symtable_init(TSymtable *st) {
     if (st == NULL) {
         return;
     }
-    for (int i = 0; i < MAX_SYMTABLE_SIZE; i++) {
+    for (int64_t i = 0; i < MAX_SYMTABLE_SIZE; i++) {
         st->items[i] = NULL;
     }
 }
@@ -83,7 +83,7 @@ TData *symtable_add_symbol(TSymtable *st, const char *key, bool *alloc_failed) {
 }
 
 
-bool symtable_add_param(TData *data, int data_type) {
+bool symtable_add_param(TData *data, int64_t data_type) {
     if (data == NULL) {
         return false;
     }
@@ -158,7 +158,7 @@ bool symtable_delete_symbol(TSymtable *st, const char *key) {
 
 
 void symtable_clear(TSymtable *st) {
-    for (int i = 0; i < MAX_SYMTABLE_SIZE; i++) {
+    for (int64_t i = 0; i < MAX_SYMTABLE_SIZE; i++) {
         TItem *to_delete = st->items[i];
         TItem *tmp = NULL;
         while (to_delete != NULL) {
