@@ -29,18 +29,23 @@ bool str_const(str_t* str)
     return true;
 }
 
-// str_t* str_set(const char* txt)
-// {
-//     str_t *tmp = s_calloc(sizeof(str_t));
-//     size_t len = strlen(txt);
+bool str_concat(str_t* dst, const char* src)
+{
+    size_t srclen = strlen(src);
+    if (dst->len + srclen > dst->cap - 1)
+    {
+        dst->cap *= ALLOCATION_STEP;
+        
+        if (!(dst->ptr = realloc(dst->ptr, dst->cap)))
+            return false;
+    }
+    
+    strcat(dst->ptr, src);
+    dst->len += srclen;
+    dst->ptr[dst->len] = '\0';
 
-//     tmp->len = len;
-//     tmp->cap = len+1;
-//     tmp->ptr = s_calloc(tmp->cap);
-
-//     strncpy(tmp->ptr, txt, tmp->len);
-//     return tmp;
-// }
+    return true;
+}
 
 //Add char to end of string.
 bool str_add_sign(str_t *str, char new_char)
@@ -63,17 +68,6 @@ bool str_add_sign(str_t *str, char new_char)
     }
     return true;
 }
-
-// void str_copy(str_t *source, str_t *destination)
-// {
-//     if(source->len >= destination->cap)
-//     {
-//         destination->cap = source->len + 1;
-//         destination->ptr = s_realloc(destination->ptr, destination->cap);
-//     }
-//     destination->len = source->len;
-//     strncpy(destination->ptr, source->ptr, destination->len);
-// }
 
 bool str_cmp(str_t *first, const char *second)
 {

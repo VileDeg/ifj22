@@ -16,7 +16,7 @@ typedef struct
 //Free memory that was allocated for the string.
 void str_dest(str_t* str);
 
-//str_t* str_set(const char* txt);
+bool str_concat(str_t* dst, const char* src);
 
 //Preparing to write data.
 void str_clear(str_t* str);
@@ -26,8 +26,6 @@ bool str_const(str_t* str);
 
 //Add char to end of string.
 bool str_add_sign(str_t* str, char new_char); 
-
-//void str_copy(str_t* source, str_t *destination);
 
 bool str_cmp(str_t* first, const char* second);
 
