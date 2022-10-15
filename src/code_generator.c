@@ -1,3 +1,5 @@
+#include "code_generator.h"
+
 /**
 * GENERATOR OF BUILT-IN FUNCTIONS
 */
@@ -116,3 +118,14 @@
         "LABEL @chr_end\n"                      \
         "POPFRAME\n"                            \
         "RETURN\n"
+
+bool add_built_in_funcs() {
+    ADD_CODE(FUNCTION_READS);
+    ADD_CODE(FUCNTION_READI);
+    ADD_CODE(FUNCTION_READF);
+    ADD_CODE(FUNCTION_STRLEN);
+    ADD_CODE(FUNCTION_SUBSTRING);
+    ADD_CODE(FUNCTION_ORD);
+    ADD_CODE(FUNCTION_CHR);
+    return true;
+}
