@@ -123,8 +123,12 @@
 str_t code;
 
 bool generate_header() {
-    ADD_CODE_N(".IFJcode22");
-    ADD_CODE_N("JUMP @main");
+    ADD_CODE_N(".IFJcode22\n"
+               "DEFVAR GF@tmp_op1\n"
+               "DEFVAR GF@tmp_op2\n"
+               "DEFVAR GF@tmp_op3\n"
+               "DEFVAR GF@exp_result\n"
+               "JUMP @main");
     return true;
 }
 
@@ -205,18 +209,23 @@ bool generate_def_val(Data_type type) {
         case TYPE_FLOAT:
             ADD_CODE("float@0.0");
             break;
+
         case TYPE_INT:
             ADD_CODE("int@0");
             break;
+
         case TYPE_STRING:
             ADD_CODE("string@");
             break;
+
         case TYPE_BOOL:
             ADD_CODE("bool@false");
             break;
+
         case TYPE_NIL:
             ADD_CODE("nil@nil");
             break;
+
         default:
             return false;
     }
@@ -254,6 +263,89 @@ bool generate_var_def(Data_type type, char* var) {
 bool generate_function_call(char* name) {
     ADD_CODE("CALL @");
     ADD_CODE(name);
+    ADD_CODE("\n");
+
+    return true;
+}
+
+bool generate_value_from_token(Token token) {
+    char term[MAX_DIGITS];
+    unsigned char c;
+    str_t tmp;
+    if (!str_const(&tmp)) return false;
+    switch (token.type) {
+        case token_integer:
+            sprintf(term, "%d", token.value.integer);
+            ADD_CODE("int@");
+            ADD_CODE(term);
+            break;
+
+        case token_float:
+            sprintf(term, "%f", token.value.decimal);
+            ADD_CODE("float@");
+            ADD_CODE(term);
+            break;
+
+        case token_string:
+            for (int64_t i = 0; (c = (unsigned char) (token.value.String->ptr)[i]) != '\0'; i++) {
+                if (c == '#' || c == '\\' || c <= 32 || !isprint(c)) {
+                    str_add_sign(&tmp, '\\');
+                    sprintf(term, "%03d", c);
+                    str_concat(&tmp, term);
+                } else {
+                    str_add_sign(&tmp, c);
+                }
+            }
+            ADD_CODE("string@");
+            ADD_CODE(tmp.ptr);
+            break;
+
+        case token_ID:
+            ADD_CODE("LF@");
+            ADD_CODE(token.value.String->ptr);
+            break;
+
+        default:
+            str_dest(&tmp);
+            return false;
+    }
+    str_dest(&tmp);
+    return true;
+}
+
+bool generate_function_before_pass_params() {
+    ADD_CODE_N("CREATEFRAME");
+
+    return true;
+}
+
+bool generate_function_pass_param(Token token, int64_t index) {
+    ADD_CODE("DEFVAR TF@-");
+    ADD_NUM(index);
+    ADD_CODE("\n");
+
+    ADD_CODE("MOVE TF@-");
+    ADD_NUM(index);
+    ADD_CODE(" ");
+    if (!generate_value_from_token(token)) return false;
+    ADD_CODE("\n");
+
+    return true;
+}
+
+bool generate_function_return(char* name) {
+    ADD_CODE_N("MOVE LF@res GF@exp_result");
+
+    ADD_CODE("JUMP @");
+    ADD_CODE(name);
+    ADD_CODE_N("_end");
+
+    return true;
+}
+
+bool generate_push(Token token) {
+    ADD_CODE("PUSHS ");
+    if (!generate_value_from_token(token)) return false;
     ADD_CODE("\n");
 
     return true;

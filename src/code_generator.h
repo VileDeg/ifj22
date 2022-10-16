@@ -3,15 +3,26 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <ctype.h>
 
 #include "symtable.h"
 #include "string_t.h"
+#include "scanner.h"
 
 #define ADD_CODE(text)                              \
     if (!str_concat(&code, (text))) return false
 
 #define ADD_CODE_N(text)                            \
     if (!str_concat(&code, (text"\n"))) return false
+
+#define ADD_NUM(number)                 \
+    do {                                \
+        char str[MAX_DIGITS];           \
+        sprintf(str, "%ld", (number));  \
+        ADD_CODE(str);                  \
+    } while (0)
+
+#define MAX_DIGITS 50
 
 /**
  * Generation of header code.
@@ -90,7 +101,7 @@ bool generate_function_res(Data_type type);
 bool generate_defvar(char* var);
 
 /**
- *
+ * Giving a variable default value.
  * @param type
  * @param var
  * @return true if success.
@@ -103,5 +114,40 @@ bool generate_var_def(Data_type type, char* var);
  * @return true if success.
  */
 bool generate_function_call(char* name);
+
+/**
+ * Generation of value from token.
+ * @param token
+ * @return true if success.
+ */
+bool generate_value_from_token(Token token);
+
+/**
+ * Generation of part before passing parameters into function.
+ * @return true if success.
+ */
+bool generate_function_before_pass_params();
+
+/**
+ * Generation of passing parameters into function.
+ * @param token
+ * @param index
+ * @return true if success.
+ */
+bool generate_function_pass_param(Token token, int64_t index);
+
+/**
+ * Generation of returning from function.
+ * @param name
+ * @return true if success.
+ */
+bool generate_function_return(char* name);
+
+/**
+ * Generation of pushing data to data stack.
+ * @param token
+ * @return true if success.
+ */
+bool generate_push(Token token);
 
 #endif //__CODE_GENERATOR__
