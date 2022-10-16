@@ -88,19 +88,19 @@ bool symtable_add_param(TData *data, int64_t data_type) {
         return false;
     }
     switch (data_type) {
-        case (DATA_FLOAT):
+        case (TYPE_FLOAT):
             if (!str_add_sign(data->string, 'f')) {
                 return false;
             }
             break;
 
-        case (DATA_INT):
+        case (TYPE_INT):
             if (!str_add_sign(data->string, 'i')) {
                 return false;
             }
             break;
 
-        case (DATA_STRING):
+        case (TYPE_STRING):
             if (!str_add_sign(data->string, 's')) {
                 return false;
             }

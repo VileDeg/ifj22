@@ -2,6 +2,7 @@
 #define __SYMTABLE__
 
 #include <stdio.h>
+
 #include "string_t.h"
 
 #define MAX_SYMTABLE_SIZE 10007
@@ -10,9 +11,12 @@
  * @enum Data types.
  */
 typedef enum {
-    DATA_FLOAT,
-    DATA_INT,
-    DATA_STRING,
+    TYPE_FLOAT,
+    TYPE_INT,
+    TYPE_STRING,
+
+    TYPE_BOOL,  /// for code-generator
+    TYPE_NIL
 } Data_type;
 
 /**

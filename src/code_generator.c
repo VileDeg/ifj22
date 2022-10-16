@@ -9,8 +9,8 @@
         "# Function reads\n"        \
         "LABEL @reads\n"            \
         "PUSHFRAME\n"               \
-        "DEFVAR LF@return\n"        \
-        "READ LF@return string\n"   \
+        "DEFVAR LF@res\n"           \
+        "READ LF@res string\n"      \
         "POPFRAME\n"                \
         "RETURN\n"
 
@@ -19,8 +19,8 @@
         "# Function readi\n"    \
         "LABEL @readi\n"        \
         "PUSHFRAME\n"           \
-        "DEFVAR LF@return\n"    \
-        "READ LF@return int\n"  \
+        "DEFVAR LF@res\n"       \
+        "READ LF@res int\n"     \
         "POPFRAME\n"            \
         "RETURN\n"
 
@@ -29,8 +29,8 @@
         "# Function readf\n"        \
         "LABEL @readf\n"            \
         "PUSHFRAME\n"               \
-        "DEFVAR LF@return\n"        \
-        "READ LF@return float\n"    \
+        "DEFVAR LF@res\n"           \
+        "READ LF@res float\n"       \
         "POPFRAME\n"                \
         "RETURN\n"
 
@@ -39,8 +39,8 @@
         "# Function strlen\n"           \
         "LABEL @strlen\n"               \
         "PUSHFRAME\n"                   \
-        "DEFVAR LF@return\n"            \
-        "STRLEN LF@return LF@-0\n"      \
+        "DEFVAR LF@res\n"               \
+        "STRLEN LF@res LF@-0\n"         \
         "POPFRAME\n"                    \
         "RETURN\n"
 
@@ -49,14 +49,14 @@
         "# Function substring\n"                        \
         "LABEL @substring\n"                            \
         "PUSHFRAME\n"                                   \
-        "DEFVAR LF@return\n"                            \
-        "MOVE LF@return string@\n"                      \
+        "DEFVAR LF@res\n"                               \
+        "MOVE LF@res string@\n"                         \
         "DEFVAR LF@length\n"                            \
         "CREATEFRAME\n"                                 \
         "DEFVAR TF@-0\n"                                \
         "MOVE TF@-0 LF@-0\n"                            \
         "CALL @strlen\n"                                \
-        "MOVE LF@length TF@return\n"                    \
+        "MOVE LF@length TF@res\n"                       \
         "DEFVAR LF@cond\n"                              \
         "LT LF@cond LF@-1 int@0\n"                      \
         "JUMPIFEQ @substring_end LF@cond bool@true\n"   \
@@ -73,7 +73,7 @@
         "DEFVAR LF@char\n"                              \
         "LABEL @substring_loop\n"                       \
         "GETCHAR LF@char LF@-0 LF@index\n"              \
-        "CONCAT LF@return LF@return LF@char\n"          \
+        "CONCAT LF@res LF@res LF@char\n"                \
         "ADD LF@index LF@index int@1\n"                 \
         "LT LF@cond LF@index LF@-2\n"                   \
         "JUMPIFEQ @substring_loop LF@cond bool@true\n"  \
@@ -86,18 +86,18 @@
         "# Function ord\n"                          \
         "LABEL @ord\n"                              \
         "PUSHFRAME\n"                               \
-        "DEFVAR LF@return\n"                        \
-        "MOVE LF@return int@0\n"                    \
+        "DEFVAR LF@res\n"                           \
+        "MOVE LF@res int@0\n"                       \
         "DEFVAR LF@length\n"                        \
         "CREATEFRAME\n"                             \
         "DEFVAR TF@-0\n"                            \
         "MOVE TF@-0 LF@-0\n"                        \
         "CALL @strlen\n"                            \
-        "MOVE LF@length TP@return\n"                \
+        "MOVE LF@length TP@res\n"                   \
         "DEFVAR LF@cond\n"                          \
         "GT LF@cond LF@length int@0\n"              \
         "JUMPIFEQ @ord_end LF@cond bool@false\n"    \
-        "STRI2INT LF@return LF@-0 int@0\n"          \
+        "STRI2INT LF@res LF@-0 int@0\n"             \
         "LABEL @ord_end\n"                          \
         "POPFRAME\n"                                \
         "RETURN\n"
@@ -107,14 +107,14 @@
         "# Function chr\n"                      \
         "LABEL @chr\n"                          \
         "PUSHFRAME\n"                           \
-        "DEFVAR LF@return\n"                    \
-        "MOVE LF@return string@\n"              \
+        "DEFVAR LF@res\n"                       \
+        "MOVE LF@res string@\n"                 \
         "DEFVAR LF@cond\n"                      \
         "GT LF@cond LF@-0 int@255\n"            \
         "JUMPIFEQ $chr_end LF@cond bool@true\n" \
         "LT LF@cond LF@-0 int@0\n"              \
         "JUMPIFEQ $chr_end LF@cond bool@true\n" \
-        "INT2CHAR LF@return LF@-0\n"            \
+        "INT2CHAR LF@res LF@-0\n"               \
         "LABEL @chr_end\n"                      \
         "POPFRAME\n"                            \
         "RETURN\n"
@@ -164,7 +164,97 @@ bool generate_main_start() {
 }
 
 bool generate_main_end() {
-    ADD_CODE_N("POPFRAME\n"
+    ADD_CODE_N("# main end\n"
+               "POPFRAME\n"
                "CLEARS");
+    return true;
+}
+
+bool generate_function_start(char* name) {
+    ADD_CODE("# Function ");
+    ADD_CODE(name);
+    ADD_CODE("\n");
+
+    ADD_CODE("LABEL @");
+    ADD_CODE(name);
+    ADD_CODE("\n");
+
+    ADD_CODE_N("PUSHFRAME");
+
+    return true;
+}
+
+bool generate_function_end(char* name) {
+    ADD_CODE("# ");
+    ADD_CODE(name);
+    ADD_CODE_N(" end");
+
+    ADD_CODE("LABEL @");
+    ADD_CODE(name);
+    ADD_CODE_N("_end");
+
+    ADD_CODE_N("POPFRAME");
+
+    ADD_CODE_N("RETURN");
+
+    return true;
+}
+
+bool generate_def_val(Data_type type) {
+    switch (type) {
+        case TYPE_FLOAT:
+            ADD_CODE("float@0.0");
+            break;
+        case TYPE_INT:
+            ADD_CODE("int@0");
+            break;
+        case TYPE_STRING:
+            ADD_CODE("string@");
+            break;
+        case TYPE_BOOL:
+            ADD_CODE("bool@false");
+            break;
+        case TYPE_NIL:
+            ADD_CODE("nil@nil");
+            break;
+        default:
+            return false;
+    }
+    return true;
+}
+
+bool generate_function_res(Data_type type) {
+    ADD_CODE_N("DEFVAR LF@res");
+
+    ADD_CODE("MOVE LF@res ");
+    if (!generate_def_val(type)) return false;
+    ADD_CODE("\n");
+
+    return true;
+}
+
+bool generate_defvar(char* var) {
+    ADD_CODE("DEFVAR LF@");
+    ADD_CODE(var);
+    ADD_CODE("\n");
+
+    return true;
+}
+
+bool generate_var_def(Data_type type, char* var) {
+    ADD_CODE("MOVE LF@");
+    ADD_CODE(var);
+    ADD_CODE(" ");
+    if (!generate_def_val(type)) return false;
+    ADD_CODE("\n");
+
+    return true;
+}
+
+bool generate_function_call(char* name) {
+    ADD_CODE("CALL @");
+    ADD_CODE(name);
+    ADD_CODE("\n");
+
     return true;
 }
