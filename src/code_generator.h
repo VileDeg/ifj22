@@ -8,21 +8,8 @@
 #include "symtable.h"
 #include "string_t.h"
 #include "scanner.h"
+#include "precedence_t.h"
 
-#define ADD_CODE(text)                              \
-    if (!str_concat(&code, (text))) return false
-
-#define ADD_CODE_N(text)                            \
-    if (!str_concat(&code, (text"\n"))) return false
-
-#define ADD_NUM(number)                 \
-    do {                                \
-        char str[MAX_DIGITS];           \
-        sprintf(str, "%ld", (number));  \
-        ADD_CODE(str);                  \
-    } while (0)
-
-#define MAX_DIGITS 50
 
 /**
  * Generation of header code.
@@ -149,5 +136,40 @@ bool generate_function_return(char* name);
  * @return true if success.
  */
 bool generate_push(Token token);
+
+/**
+ * Generation of code for stack operation.
+ * @param rule
+ * @return true if success.
+ */
+bool generate_stack_operation(Rule_type rule);
+
+/**
+ * Generation of converting top element
+ * on stack from int to float.
+ * @return true if success.
+ */
+bool generate_stack_top_int2float();
+
+/**
+ * Generation of converting top element
+ * on stack from float to int.
+ * @return true if success.
+ */
+bool generate_stack_top_float2int();
+
+/**
+ * Generation of converting second
+ * element on stack from int to float.
+ * @return true if success.
+ */
+bool generate_stack_sec_int2float();
+
+/**
+ * Generation of converting second
+ * element on stack from float to int.
+ * @return true if success.
+ */
+bool generate_stack_sec_float2int();
 
 #endif //__CODE_GENERATOR__

@@ -1,5 +1,21 @@
 #include "code_generator.h"
 
+#define ADD_CODE(text)                              \
+    if (!str_concat(&code, (text))) return false
+
+#define ADD_CODE_N(text)                            \
+    if (!str_concat(&code, (text"\n"))) return false
+
+#define ADD_NUM(number)                 \
+    do {                                \
+        char str[MAX_DIGITS];           \
+        sprintf(str, "%ld", (number));  \
+        ADD_CODE(str);                  \
+    } while (0)
+
+#define MAX_DIGITS 50
+
+
 /**
 * GENERATOR OF BUILT-IN FUNCTIONS
 */
@@ -347,6 +363,92 @@ bool generate_push(Token token) {
     ADD_CODE("PUSHS ");
     if (!generate_value_from_token(token)) return false;
     ADD_CODE("\n");
+
+    return true;
+}
+
+bool generate_stack_operation(Rule_type rule) {
+    switch (rule) {
+        case RULE_ADD:
+            ADD_CODE_N("ADDS");
+            break;
+
+        case RULE_SUB:
+            ADD_CODE_N("SUBS");
+            break;
+
+        case RULE_DOT:
+            ADD_CODE_N("POPS GF@tmp_op1\n"
+                       "POPS GF@tmp_op2\n"
+                       "CONCAT GF@tmp_op2 GF@tmp_op2 GF@tmp_op1\n"
+                       "PUSHS GF@tmp_op2");
+            break;
+
+        case RULE_MUL:
+            ADD_CODE_N("MULS");
+            break;
+
+        case RULE_DIV:
+            ADD_CODE_N("DIVS");
+            break;
+
+        case RULE_EQ:
+            ADD_CODE_N("EQS");
+            break;
+
+        case RULE_NEQ:
+            ADD_CODE_N("EQS\n"
+                       "NOTS");
+            break;
+
+        case RULE_LT:
+            ADD_CODE_N("LTS");
+            break;
+
+        case RULE_GT:
+            ADD_CODE_N("GTS");
+            break;
+
+        case RULE_LEQ:
+            ADD_CODE_N("GTS\n"
+                       "NOTS");
+            break;
+
+        case RULE_GEQ:
+            ADD_CODE_N("LTS\n"
+                       "NOTS");
+            break;
+
+        default:
+            break;
+    }
+    return true;
+}
+
+bool generate_stack_top_int2float() {
+    ADD_CODE_N("INT2FLOATS");
+
+    return true;
+}
+
+bool generate_stack_top_float2int() {
+    ADD_CODE_N("FLOAT2INTS");
+
+    return true;
+}
+
+bool generate_stack_sec_int2float() {
+    ADD_CODE_N("POPS GF@tmp_op1\n"
+               "INT2FLOATS\n"
+               "PUSHS GF@tmp_op1");
+
+    return true;
+}
+
+bool generate_stack_sec_float2int() {
+    ADD_CODE_N("POPS GF@tmp_op1\n"
+               "FLOAT2INTS\n"
+               "PUSHS GF@tmp_op1");
 
     return true;
 }
