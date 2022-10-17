@@ -90,7 +90,8 @@ typedef enum {
     token_right_curly_bracket, // "}"
     token_dot,                 // "."
     token_prolog,              // "<?php"
-    token_end                  // "?<"
+    token_end,                 // "?<"
+    token_dollar               // $ 
 } Token_types;
 
 typedef union

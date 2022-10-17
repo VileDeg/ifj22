@@ -2,7 +2,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define TAB_SIZE 9
+#define TAB_SIZE 8
+
+/*
+ * Expression parsing.
+ */
+
+void expression_parsing(ParserData* pd);
 
 /**
  * @enum Operators of the precedence table.
@@ -13,7 +19,7 @@ typedef enum {
     OPER_DOT,       // .
     OPER_MUL,       // *
     OPER_DIV,       // /
-    OPER_CAR,       // ^
+    // OPER_CAR,       // ^
     OPER_EQ,        // ===
     OPER_NEQ,       // !==
     OPER_LT,        // <
@@ -24,6 +30,7 @@ typedef enum {
     OPER_RBR,       // )
     OPER_ID,        // id
     OPER_DOLLAR,    // $
+    OPER_E,         // E
     OPER_RED        // Reduce
 } Oper_type;
 
@@ -48,7 +55,7 @@ typedef enum {
     RULE_DOT,       // E -> E . E
     RULE_MUL,       // E -> E * E
     RULE_DIV,       // E -> E / E
-    RULE_CAR,       // E -> E ^ E
+    // RULE_CAR,       // E -> E ^ E
     RULE_EQ,        // E -> E === E
     RULE_NEQ,       // E -> E !== E
     RULE_LT,        // E -> E < E
@@ -61,23 +68,23 @@ typedef enum {
 // Precedence table.
 int64_t precedent_table[TAB_SIZE][TAB_SIZE] = 
 {
-    {SIGN_R, SIGN_L, SIGN_L, SIGN_R, SIGN_R, SIGN_L, SIGN_R, SIGN_L, SIGN_L},
-    {SIGN_R, SIGN_R, SIGN_L, SIGN_R, SIGN_R, SIGN_L, SIGN_R, SIGN_L, SIGN_R},
-    {SIGN_R, SIGN_R, SIGN_L, SIGN_R, SIGN_R, SIGN_L, SIGN_R, SIGN_L, SIGN_R},
-    {SIGN_L, SIGN_L, SIGN_L, SIGN_R, SIGN_L, SIGN_L, SIGN_R, SIGN_L, SIGN_R},
-    {SIGN_L, SIGN_L, SIGN_L, SIGN_R, SIGN_L, SIGN_L, SIGN_R, SIGN_L, SIGN_R},
-    {SIGN_L, SIGN_L, SIGN_L, SIGN_L, SIGN_L, SIGN_L, SIGN_E, SIGN_L, SIGN_N},
-    {SIGN_R, SIGN_R, SIGN_R, SIGN_R, SIGN_R, SIGN_N, SIGN_R, SIGN_N, SIGN_R},
-    {SIGN_R, SIGN_R, SIGN_R, SIGN_R, SIGN_R, SIGN_N, SIGN_R, SIGN_N, SIGN_R},
-    {SIGN_L, SIGN_L, SIGN_L, SIGN_L, SIGN_L, SIGN_L, SIGN_N, SIGN_L, SIGN_N}
+    {SIGN_R, SIGN_L, SIGN_R, SIGN_R, SIGN_L, SIGN_R, SIGN_L, SIGN_L},
+    {SIGN_R, SIGN_R, SIGN_R, SIGN_R, SIGN_L, SIGN_R, SIGN_L, SIGN_R},
+    {SIGN_L, SIGN_L, SIGN_R, SIGN_L, SIGN_L, SIGN_R, SIGN_L, SIGN_R},
+    {SIGN_L, SIGN_L, SIGN_R, SIGN_L, SIGN_L, SIGN_R, SIGN_L, SIGN_R},
+    {SIGN_L, SIGN_L, SIGN_L, SIGN_L, SIGN_L, SIGN_E, SIGN_L, SIGN_N},
+    {SIGN_R, SIGN_R, SIGN_R, SIGN_R, SIGN_N, SIGN_R, SIGN_N, SIGN_R},
+    {SIGN_R, SIGN_R, SIGN_R, SIGN_R, SIGN_N, SIGN_R, SIGN_N, SIGN_R},
+    {SIGN_L, SIGN_L, SIGN_L, SIGN_L, SIGN_L, SIGN_N, SIGN_L, SIGN_N}
 };
 
 /*
- * @struct Stack item representation.
+ * @struct Stack element structure.
  */
-typedef struct symbol {
+typedef struct elementStack {
     Oper_type item;
-    struct symbol *next;
+    struct elementStack *next;
+    //elementType?                                                              //FIX ME
 } *symbolPtr;
 
 /*
@@ -100,14 +107,25 @@ void stack_push(symStack*, Oper_type);
 /**
  * Pop an element from stack.
  */
-Oper_type stack_pop(symStack*);
+void stack_pop(symStack*);
 
 /**
  *  Delete stack.
  */
 void stack_clear(symStack*);
 
-/*
- * Expression parsing.
+/**
+ * @brief Get stack top token.
+ * 
+ * @param stack 
+ * @return symbolPtr 
  */
-//int64_t expression_analysis();
+symbolPtr token_top(symStack* stack);
+
+/**
+ * @brief Get index for precedence table, get token type
+ * 
+ * @param token 
+ * @return Oper_type 
+ */
+Oper_type token_info(Token* token);

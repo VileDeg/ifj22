@@ -71,12 +71,12 @@
 
 #define GET_N_CHECK_VAR_ID GET_N_CHECK_TYPE(ID); CHECK_DOLLAR
 
-typedef struct 
-{
-    TSymtable globalTable;
-	TSymtable localTable;
-    Token token;
-} ParserData;
+// typedef struct 
+// {
+//     TSymtable globalTable;
+// 	TSymtable localTable;
+//     Token token;
+// } ParserData;
 
 static int init_data(ParserData* pd)
 {
