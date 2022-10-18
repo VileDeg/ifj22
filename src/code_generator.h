@@ -172,4 +172,67 @@ bool generate_stack_sec_int2float();
  */
 bool generate_stack_sec_float2int();
 
+/**
+ * Generation of label.
+ * @param name
+ * @param deep
+ * @param index
+ * @return true if success.
+ */
+bool generate_label(char* name, int64_t deep, int64_t index);
+
+/**
+ * Generation of if start.
+ * @param name
+ * @param deep
+ * @param index
+ * @return true if success.
+ */
+bool generate_if_jump(char* name, int64_t deep, int64_t index);
+
+/**
+ * Generation of else start.
+ * @param name
+ * @param deep
+ * @param index
+ * @return true if success.
+ */
+bool generate_else_jump(char* name, int64_t deep, int64_t index);
+
+/**
+ * Generation of if end.
+ * @param name
+ * @param deep
+ * @param index
+ * @return true if success.
+ */
+bool generate_if_end(char* name, int64_t deep, int64_t index);
+
+/**
+ * Generation of while head.
+ * @param name
+ * @param deep
+ * @param index
+ * @return true if success.
+ */
+bool generate_while_head(char* name, int64_t deep, int64_t index);
+
+/**
+ * Generation of while start.
+ * @param name
+ * @param deep
+ * @param index
+ * @return true if success.
+ */
+bool generate_while_start(char* name, int64_t deep, int64_t index);
+
+/**
+ * Generation of while end.
+ * @param name
+ * @param deep
+ * @param index
+ * @return true if success.
+ */
+bool generate_while_end(char* name, int64_t deep, int64_t index);
+
 #endif //__CODE_GENERATOR__

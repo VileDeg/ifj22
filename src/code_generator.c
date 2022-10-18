@@ -309,7 +309,7 @@ bool generate_value_from_token(Token token) {
                     sprintf(term, "%03d", c);
                     str_concat(&tmp, term);
                 } else {
-                    str_add_sign(&tmp, c);
+                    str_add_sign(&tmp, (char) c);
                 }
             }
             ADD_CODE("string@");
@@ -449,6 +449,92 @@ bool generate_stack_sec_float2int() {
     ADD_CODE_N("POPS GF@tmp_op1\n"
                "FLOAT2INTS\n"
                "PUSHS GF@tmp_op1");
+
+    return true;
+}
+
+bool generate_label(char* name, int64_t deep, int64_t index) {
+    ADD_CODE("LABEL @");
+    ADD_CODE(name);
+    ADD_CODE("_");
+    ADD_NUM(deep);
+    ADD_CODE("_");
+    ADD_NUM(index);
+    ADD_CODE("\n");
+
+    return true;
+}
+
+bool generate_if_jump(char* name, int64_t deep, int64_t index) {
+    ADD_CODE_N("# if");
+
+    ADD_CODE("JUMPIGEQ @");
+    ADD_CODE(name);
+    ADD_CODE("_");
+    ADD_NUM(deep);
+    ADD_CODE("_");
+    ADD_NUM(index);
+    ADD_CODE_N(" GF@exp_result bool@false");
+
+    return true;
+}
+
+bool generate_else_jump(char* name, int64_t deep, int64_t index) {
+    ADD_CODE("JUMP @");
+    ADD_CODE(name);
+    ADD_CODE("_");
+    ADD_NUM(deep);
+    ADD_CODE("_");
+    ADD_NUM(index + 1);
+    ADD_CODE("\n");
+
+    ADD_CODE_N("# else");
+
+    if (!generate_label(name, deep, index)) return false;
+
+    return true;
+}
+
+bool generate_if_end(char* name, int64_t deep, int64_t index) {
+    ADD_CODE_N("# if end");
+
+    if (!generate_label(name, deep, index)) return false;
+
+    return true;
+}
+
+bool generate_while_head(char* name, int64_t deep, int64_t index) {
+    ADD_CODE_N("# while");
+
+    if(!generate_label(name, deep, index)) return false;
+
+    return true;
+}
+
+bool generate_while_start(char* name, int64_t deep, int64_t index) {
+    ADD_CODE("JUMPIFEQ @");
+    ADD_CODE(name);
+    ADD_CODE("_");
+    ADD_NUM(deep);
+    ADD_CODE("_");
+    ADD_NUM(index);
+    ADD_CODE_N(" GF@exp_result bool@false");
+
+    return true;
+}
+
+bool generate_while_end(char* name, int64_t deep, int64_t index) {
+    ADD_CODE("JUMP @");
+    ADD_CODE(name);
+    ADD_CODE("_");
+    ADD_NUM(deep);
+    ADD_CODE("_");
+    ADD_NUM(index - 1);
+    ADD_CODE("\n");
+
+    ADD_CODE_N("# loop");
+
+    if(!generate_label(name, deep, index)) return false;
 
     return true;
 }
