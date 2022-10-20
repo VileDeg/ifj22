@@ -814,12 +814,18 @@ int scanner_get_next_token(Token *Token)
                         current_state = STATE_STRING_BACKSLASH;
                         break;
                     }
+                    else if (sign == '$')
+                    {
+                        PRINT_ERROR_LEX("%d:%d: unterminated string", line_counter, sign_counter);
+                        return ERROR_LEXICAL;
+                    }
                     else if (sign == '\n' || sign == EOF)
                     {
                         PRINT_ERROR_LEX("%d:%d: no end of string", line_counter, sign_counter);
                         
                         return ERROR_LEXICAL;
                     }
+                    
                     str_add_sign(String, sign);
                     sign = getchar_modified();
                 }
@@ -831,57 +837,51 @@ int scanner_get_next_token(Token *Token)
                 {
                     current_state = STATE_STRING_START;
                     str_add_sign(String, sign);
-                    break;
                 }
                 else if (sign == 'n')
                 {
                     current_state = STATE_STRING_START;
                     str_add_sign(String, '\n'); 
-                    break;
                 }
                 else if (sign == 't')
                 {
                     current_state = STATE_STRING_START;
                     str_add_sign(String, '\t');
-                    break;
                 }
                 else if (sign == '\\')
                 {
                     current_state = STATE_STRING_START;
                     str_add_sign(String, '\\');
-                    break;
                 }
-                else if (sign == '$')
-                {
-                    current_state = STATE_STRING_START;
-                    str_add_sign(String, '$');    
-                    break;
-                }
+                // else if (sign == '$') //???
+                // {
+                //     current_state = STATE_STRING_START;
+                //     str_add_sign(String, '$');    
+                // }
                 else if (sign == '0')
                 {
                     current_state = STATE_STRING_BACKSLASH_ZERO;
                     ascii_oct[0] = sign; 
-                    break;
                 }
                 else if (sign == '1' || sign == '2' || sign == '3')
                 {
                     current_state = STATE_STRING_BACKSLASH_ONE_TWO_THREE;
                     ascii_oct[0] = sign; 
-                    break;
                 }
                 else if (sign == 'x')
                 {
                     current_state = STATE_STRING_BACKSLASH_HEX;
-                    break;
                 }    
                 else 
                 {
+                    current_state = STATE_STRING_START; 
                     str_add_sign(String, '\\');
                     str_add_sign(String, sign);
-                    PRINT_ERROR_LEX("%d:%d: invalid escape sequence: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
+                    //PRINT_ERROR_LEX("%d:%d: invalid escape sequence: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
-                    return ERROR_LEXICAL;
+                    //return ERROR_LEXICAL;
                 }
+                break;
 
 
             //Handling a situation with escape sequence ascii[d][][].
