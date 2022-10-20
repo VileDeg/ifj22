@@ -23,26 +23,14 @@ static void close_all_files()
 
 int main(void)
 {
-    // populate_rule_definitions();
+    populate_rule_definitions();
 
-    // FILE* src     = open_file("../tests/lex/string.php", "r");
-    // FILE* scanout = open_file("../scanner.txt", "w");
-    // FILE* parsout = open_file("../parser.txt", "w");
+    FILE* src     = open_file("../tests/lex/string.php", "r");
+    FILE* scanout = open_file("../scanner.txt", "w");
+    FILE* parsout = open_file("../parser.txt", "w");
 
-    // test_file(src, true, NULL, stdout);
+    test_file(src, true, NULL, stdout);
     //test_file(src, true, scanout, parsout);
-
-    str_t tstr;
-    str_const(&tstr);
-    const char* one = "bbbbb";
-    const char* two = "aaa";
-    const char* three = "ccccccc";
-    str_concat(&tstr, one);
-    printf("%s\n", tstr.ptr);
-    str_concat(&tstr, two);
-    printf("%s\n", tstr.ptr);
-    str_concat(&tstr, three);
-    printf("%s\n", tstr.ptr);
 
     close_all_files();
     return 0;    
