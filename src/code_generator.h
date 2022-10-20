@@ -103,6 +103,23 @@ bool generate_var_def(Data_type type, char* var);
 bool generate_function_call(char* name);
 
 /**
+ * Generation of function result assignment.
+ * @param var
+ * @param var_type
+ * @param res_type
+ * @return true if success.
+ */
+bool generate_function_res_assign(char* var, Data_type var_type, Data_type res_type);
+
+/**
+ * Generation of local variables from parameters.
+ * @param name
+ * @param index
+ * @return true if success.
+ */
+bool generate_function_param_declare(char* name, int64_t index);
+
+/**
  * Generation of value from token.
  * @param token
  * @return true if success.
@@ -114,6 +131,15 @@ bool generate_value_from_token(Token token);
  * @return true if success.
  */
 bool generate_function_before_pass_params();
+
+/**
+ * Generation of parameter type conversion.
+ * @param from
+ * @param to
+ * @param index
+ * @return true if success.
+ */
+bool generate_function_convert_passed_param(Data_type from, Data_type to, int64_t index);
 
 /**
  * Generation of passing parameters into function.
@@ -131,6 +157,20 @@ bool generate_function_pass_param(Token token, int64_t index);
 bool generate_function_return(char* name);
 
 /**
+ * Generation of input.
+ * @param name
+ * @param type
+ * @return true if success.
+ */
+bool generate_input(char* var, Data_type type);
+
+/**
+ * Generation of writing expression result.
+ * @return true if success.
+ */
+bool generate_exp_res();
+
+/**
  * Generation of pushing data to data stack.
  * @param token
  * @return true if success.
@@ -143,6 +183,22 @@ bool generate_push(Token token);
  * @return true if success.
  */
 bool generate_stack_operation(Rule_type rule);
+
+/**
+ * Generation of stack elements concatenation.
+ * @return true if success.
+ */
+bool generate_stack_concat();
+
+/**
+ * Generation of popping result from stack.
+ * @param var
+ * @param res_type
+ * @param var_type
+ * @param frame
+ * @return true if success.
+ */
+bool generate_stack_pop_res(char* var, Data_type res_type, Data_type var_type, char* frame);
 
 /**
  * Generation of converting top element
