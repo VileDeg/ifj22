@@ -138,6 +138,7 @@
 
 str_t code;
 
+
 bool generate_header() {
     ADD_CODE_N(".IFJcode22\n"
                "DEFVAR GF@tmp_op1\n"
@@ -147,6 +148,7 @@ bool generate_header() {
                "JUMP @main");
     return true;
 }
+
 
 bool generate_built_in_funcs() {
     ADD_CODE(FUNCTION_READS);
@@ -159,6 +161,7 @@ bool generate_built_in_funcs() {
     return true;
 }
 
+
 bool code_generator_start() {
     if (!str_const(&code)) return false;
     if (!generate_header()) return false;
@@ -166,14 +169,17 @@ bool code_generator_start() {
     return true;
 }
 
+
 void code_generator_finish() {
     str_dest(&code);
 }
+
 
 void code_generator_flush(FILE* file) {
     fprintf(file, "%s", code.ptr);
     code_generator_finish();
 }
+
 
 bool generate_main_start() {
     ADD_CODE_N("# MAIN FUNCTION\n"
@@ -183,12 +189,14 @@ bool generate_main_start() {
     return true;
 }
 
+
 bool generate_main_end() {
     ADD_CODE_N("# main end\n"
                "POPFRAME\n"
                "CLEARS");
     return true;
 }
+
 
 bool generate_function_start(char* name) {
     ADD_CODE("# Function ");
@@ -203,6 +211,7 @@ bool generate_function_start(char* name) {
 
     return true;
 }
+
 
 bool generate_function_end(char* name) {
     ADD_CODE("# ");
@@ -219,6 +228,7 @@ bool generate_function_end(char* name) {
 
     return true;
 }
+
 
 bool generate_def_val(Data_type type) {
     switch (type) {
@@ -248,6 +258,7 @@ bool generate_def_val(Data_type type) {
     return true;
 }
 
+
 bool generate_function_res(Data_type type) {
     ADD_CODE_N("DEFVAR LF@res");
 
@@ -258,6 +269,7 @@ bool generate_function_res(Data_type type) {
     return true;
 }
 
+
 bool generate_defvar(char* var) {
     ADD_CODE("DEFVAR LF@");
     ADD_CODE(var);
@@ -265,6 +277,7 @@ bool generate_defvar(char* var) {
 
     return true;
 }
+
 
 bool generate_var_def(Data_type type, char* var) {
     ADD_CODE("MOVE LF@");
@@ -276,6 +289,7 @@ bool generate_var_def(Data_type type, char* var) {
     return true;
 }
 
+
 bool generate_function_call(char* name) {
     ADD_CODE("CALL @");
     ADD_CODE(name);
@@ -283,6 +297,37 @@ bool generate_function_call(char* name) {
 
     return true;
 }
+
+
+bool generate_function_res_assign(char* var, Data_type var_type, Data_type res_type) {
+    if (var_type == TYPE_INT && res_type == TYPE_FLOAT) {
+        ADD_CODE_N("FLOAT2INT TF@res TF@res");
+    } else if (var_type == TYPE_FLOAT && res_type == TYPE_INT) {
+        ADD_CODE_N("INT2FLOAT TF@res TF@res");
+    }
+
+    ADD_CODE("MOVE LF@");
+    ADD_CODE(var);
+    ADD_CODE_N(" TF@res");
+
+    return true;
+}
+
+
+bool generate_function_param_declare(char* name, int64_t index) {
+    ADD_CODE("DEFVAR LF@");
+    ADD_CODE(name);
+    ADD_CODE("\n");
+
+    ADD_CODE("MOVE LF@");
+    ADD_CODE(name);
+    ADD_CODE(" LF@-");
+    ADD_NUM(index);
+    ADD_CODE("\n");
+
+    return true;
+}
+
 
 bool generate_value_from_token(Token token) {
     char term[MAX_DIGITS];
@@ -329,11 +374,32 @@ bool generate_value_from_token(Token token) {
     return true;
 }
 
+
 bool generate_function_before_pass_params() {
     ADD_CODE_N("CREATEFRAME");
 
     return true;
 }
+
+
+bool generate_function_convert_passed_param(Data_type from, Data_type to, int64_t index) {
+    if (to == TYPE_INT && from == TYPE_FLOAT) {
+        ADD_CODE("FLOAT2INT TF@-");
+        ADD_NUM(index);
+        ADD_CODE(" TF@-");
+        ADD_NUM(index);
+        ADD_CODE("\n");
+    } else if (to == TYPE_FLOAT && from == TYPE_INT) {
+        ADD_CODE("INT2FLOAT TF@-");
+        ADD_NUM(index);
+        ADD_CODE(" TF@-");
+        ADD_NUM(index);
+        ADD_CODE("\n");
+    }
+
+    return true;
+}
+
 
 bool generate_function_pass_param(Token token, int64_t index) {
     ADD_CODE("DEFVAR TF@-");
@@ -349,6 +415,7 @@ bool generate_function_pass_param(Token token, int64_t index) {
     return true;
 }
 
+
 bool generate_function_return(char* name) {
     ADD_CODE_N("MOVE LF@res GF@exp_result");
 
@@ -359,6 +426,41 @@ bool generate_function_return(char* name) {
     return true;
 }
 
+
+bool generate_input(char* var, Data_type type) {
+    ADD_CODE_N("WRITE GF@input_prompt");
+
+    ADD_CODE("READ LF@");
+    ADD_CODE(var);
+    ADD_CODE(" ");
+    switch (type) {
+        case TYPE_FLOAT:
+            ADD_CODE_N("float");
+            break;
+
+        case TYPE_INT:
+            ADD_CODE_N("int");
+            break;
+
+        case TYPE_STRING:
+            ADD_CODE_N("string");
+            break;
+
+        default:
+            return false;
+    }
+
+    return true;
+}
+
+
+bool generate_exp_res() {
+    ADD_CODE_N("WRITE GF@exp_result");
+
+    return true;
+}
+
+
 bool generate_push(Token token) {
     ADD_CODE("PUSHS ");
     if (!generate_value_from_token(token)) return false;
@@ -366,6 +468,7 @@ bool generate_push(Token token) {
 
     return true;
 }
+
 
 bool generate_stack_operation(Rule_type rule) {
     switch (rule) {
@@ -425,17 +528,47 @@ bool generate_stack_operation(Rule_type rule) {
     return true;
 }
 
+
+bool generate_stack_concat() {
+    ADD_CODE_N("POPS GF@tmp_op1\n"
+               "POPS GF@tmp_op2\n"
+               "CONCAT GF@tmp_op2 GF@tmp_op2 GF@tmp_op1\n"
+               "PUSHS GF@tmp_op2");
+
+    return true;
+}
+
+
+bool generate_stack_pop_res(char* var, Data_type res_type, Data_type var_type, char* frame) {
+    if (var_type == TYPE_INT && res_type == TYPE_FLOAT) {
+        ADD_CODE_N("FLOAT2INTS");
+    } else if (var_type == TYPE_FLOAT && res_type == TYPE_INT) {
+        ADD_CODE_N("INT2FLOATS");
+    }
+
+    ADD_CODE("POPS ");
+    ADD_CODE(frame);
+    ADD_CODE("@");
+    ADD_CODE(var);
+    ADD_CODE("\n");
+
+    return true;
+}
+
+
 bool generate_stack_top_int2float() {
     ADD_CODE_N("INT2FLOATS");
 
     return true;
 }
 
+
 bool generate_stack_top_float2int() {
     ADD_CODE_N("FLOAT2INTS");
 
     return true;
 }
+
 
 bool generate_stack_sec_int2float() {
     ADD_CODE_N("POPS GF@tmp_op1\n"
@@ -445,6 +578,7 @@ bool generate_stack_sec_int2float() {
     return true;
 }
 
+
 bool generate_stack_sec_float2int() {
     ADD_CODE_N("POPS GF@tmp_op1\n"
                "FLOAT2INTS\n"
@@ -452,6 +586,7 @@ bool generate_stack_sec_float2int() {
 
     return true;
 }
+
 
 bool generate_label(char* name, int64_t deep, int64_t index) {
     ADD_CODE("LABEL @");
@@ -464,6 +599,7 @@ bool generate_label(char* name, int64_t deep, int64_t index) {
 
     return true;
 }
+
 
 bool generate_if_jump(char* name, int64_t deep, int64_t index) {
     ADD_CODE_N("# if");
@@ -478,6 +614,7 @@ bool generate_if_jump(char* name, int64_t deep, int64_t index) {
 
     return true;
 }
+
 
 bool generate_else_jump(char* name, int64_t deep, int64_t index) {
     ADD_CODE("JUMP @");
@@ -495,6 +632,7 @@ bool generate_else_jump(char* name, int64_t deep, int64_t index) {
     return true;
 }
 
+
 bool generate_if_end(char* name, int64_t deep, int64_t index) {
     ADD_CODE_N("# if end");
 
@@ -503,6 +641,7 @@ bool generate_if_end(char* name, int64_t deep, int64_t index) {
     return true;
 }
 
+
 bool generate_while_head(char* name, int64_t deep, int64_t index) {
     ADD_CODE_N("# while");
 
@@ -510,6 +649,7 @@ bool generate_while_head(char* name, int64_t deep, int64_t index) {
 
     return true;
 }
+
 
 bool generate_while_start(char* name, int64_t deep, int64_t index) {
     ADD_CODE("JUMPIFEQ @");
@@ -522,6 +662,7 @@ bool generate_while_start(char* name, int64_t deep, int64_t index) {
 
     return true;
 }
+
 
 bool generate_while_end(char* name, int64_t deep, int64_t index) {
     ADD_CODE("JUMP @");
