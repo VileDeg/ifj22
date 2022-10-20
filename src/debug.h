@@ -39,6 +39,8 @@ typedef struct{
     int pars;
 } test_retcodes;
 
+int test_stdin(FILE* scan_out);
+
 void test_file(FILE* source, bool show_source_contents, 
     FILE* scanner_output, FILE* parser_output, test_retcodes* rc);
 

@@ -29,10 +29,11 @@ int main(void)
     FILE* scanout = open_file("../scanner.txt", "w");
     FILE* parsout = open_file("../parser.txt", "w");
 
-    test_retcodes rcodes = { 0, 0 };
-    test_file(stdin, false, scanout, parsout, &rcodes);
+    // test_retcodes rcodes;
+    // test_file(stdin, false, scanout, NULL, &rcodes);
+    int res = test_stdin(scanout);
 
     close_all_files();
-    return rcodes.scan;    
+    return res;    
 }
 

@@ -1,6 +1,13 @@
 --------------------List of tokens: --------------------
 
 int  deci string       keyword      type            
-                                    EOF             
+                                    prolog          
+          declare                   ID              
+                                    left_bracket    
+          strict_types              ID              
+                                    equal_sign      
+1                                   integer         
+                                    right_bracket   
+                                    semicolon       
 
 

@@ -1,5 +1,0 @@
---------------------Rules triggered: --------------------
-
-prolog -> <?php declare ( strict_types = 1 ) ; <prog> <end>
-[ERROR_SYNTAX]: :(
-

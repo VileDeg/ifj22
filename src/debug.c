@@ -130,6 +130,35 @@ void print_file_contents(FILE* src)
     DEBUGPR(VSPACE "\n");
 }
 
+int test_stdin(FILE* scan_out)
+{
+    if (!scan_out)
+        return;
+    
+    str_t string;
+    str_const(&string);
+    scanner_set_file(stdin);
+    scanner_set_string(&string);
+
+    SET_DEBUG_OUT(scan_out);
+    HEADER("List of tokens: ");
+    DEBUGPR(s_TokenDebugFormat, "int", "deci", "string", "keyword", "type");
+    Token tk;
+    int result;
+    while (tk.type != token_EOF)
+    {
+        result = scanner_get_next_token(&tk);
+        if (result != TOKEN_OK)
+            break;
+
+        debug_token(tk);
+    }
+    DEBUGPR(VSPACE);
+
+    str_dest(&string);
+
+    return result;
+}
 
 void test_file(FILE* source, bool show_source_contents, 
     FILE* scan_out, FILE* pars_out, test_retcodes* rc)
