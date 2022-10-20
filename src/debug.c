@@ -130,8 +130,9 @@ void print_file_contents(FILE* src)
     DEBUGPR(VSPACE "\n");
 }
 
+
 void test_file(FILE* source, bool show_source_contents, 
-    FILE* scan_out, FILE* pars_out)
+    FILE* scan_out, FILE* pars_out, test_retcodes* rc)
 {
     if (!scan_out && !pars_out)
         return;
@@ -141,7 +142,7 @@ void test_file(FILE* source, bool show_source_contents,
     scanner_set_file(source);
     scanner_set_string(&string);
 
-    if (show_source_contents)
+    if (show_source_contents && source != stdin)
     {
         bool done = false;
         if (scan_out)
@@ -162,10 +163,11 @@ void test_file(FILE* source, bool show_source_contents,
         SET_DEBUG_OUT(pars_out);
         HEADER("Rules triggered: ");
 
-        int result;
-        if ((result = parser_parse()) != 0)
+        //int result;
+        if ((rc->pars = parser_parse()) != TOKEN_OK)
         {
-            PRINT_ERROR_SYNT(" :(");
+            //PRINT_ERROR_SYNT(" :(");
+            DEBUGPR("[ERROR_SYNTAX]: :(");
         }
         DEBUGPR(VSPACE);
         rewind(source);
@@ -178,10 +180,13 @@ void test_file(FILE* source, bool show_source_contents,
         HEADER("List of tokens: ");
         DEBUGPR(s_TokenDebugFormat, "int", "deci", "string", "keyword", "type");
         Token tk;
-        int eof = 0;
-        while (!eof)
+        //int result = 0;
+        while (tk.type != token_EOF)
         {
-            eof = scanner_get_next_token(&tk);
+            rc->scan = scanner_get_next_token(&tk);
+            if (rc->scan != TOKEN_OK)
+                break;
+
             debug_token(tk);
         }
         DEBUGPR(VSPACE);

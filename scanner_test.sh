@@ -1,0 +1,4 @@
+TESTER_DIR=IFJ22_Tester
+COMPILER_PATH=out/ifj22
+cd $TESTER_DIR
+./test.py ../$COMPILER_PATH

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <ctype.h>          
 
-#define END_OF_FILE 42
+//#define SCANNER_END_OF_FILE 42
 
 // File to read from
 static FILE* s_fptr;
@@ -294,7 +294,7 @@ int scanner_get_next_token(Token *Token)
                 {
                     Token->type = token_EOF;
                     
-                    return END_OF_FILE;
+                    return 0;
                 }
 
                 //If there were no signs matches, then a lexical error is written out.

@@ -34,8 +34,13 @@ extern FILE* g_DebugOut;
 #define SET_DEBUG_OUT(fptr) g_DebugOut = (fptr)
 #define DEBUGPR(...) do{ ASSERT(g_DebugOut != NULL, ""); fprintf(g_DebugOut, __VA_ARGS__); }while(0)
 
+typedef struct{
+    int scan;
+    int pars;
+} test_retcodes;
+
 void test_file(FILE* source, bool show_source_contents, 
-    FILE* scanner_output, FILE* parser_output);
+    FILE* scanner_output, FILE* parser_output, test_retcodes* rc);
 
 void populate_rule_definitions();
 void print_rule_definitions();

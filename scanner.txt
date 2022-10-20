@@ -1,0 +1,6 @@
+--------------------List of tokens: --------------------
+
+int  deci string       keyword      type            
+                                    EOF             
+
+
