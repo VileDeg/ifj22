@@ -9,6 +9,7 @@ where username is your github username.
 - Всегда использовать int64_t вместо int, uint64_t вместо unsigned
 - Информативные названия функций
 ## TODO
+- Empty file -> syntax error? 
 - Протестировать scanner 
 - Закончить КА (после тестов) 
 - Имплементировать грамматику

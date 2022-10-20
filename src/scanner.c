@@ -436,8 +436,8 @@ int scanner_get_next_token(Token *Token)
                     }
                     else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t')
                         break;
-                    else if (sign == '-' || sign == '+' || sign == '*' || sign == '/' || sign == '<' || sign == '>' || 
-                             sign == '=' || sign == '~' || sign == '(' || sign == ')' || sign == ',' || sign == ';')
+                    else if (sign == '-' || sign == '+' || sign == '*' || sign == '/' || sign == '<' || sign == '>' || sign == '=' ||
+                             sign == '~' || sign == '(' || sign == ')' || sign == ',' || sign == ';' || sign == '!' ) 
                         break;
                     else if (!isdigit(sign))
                     {
@@ -498,7 +498,7 @@ int scanner_get_next_token(Token *Token)
                     current_state = STATE_NUMBER_EXPONENT;
                     break;
                 } 
-                else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t')
+                else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t')  //??
                 {
                     current_state = STATE_NUMBER_EXPONENT;
                     ungetc(sign, s_fptr);
@@ -518,8 +518,8 @@ int scanner_get_next_token(Token *Token)
                 {
                     if (isdigit(sign))
                         str_add_sign(String, sign);
-                    else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t')
-                        break;
+                    else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t' || sign == ';') // нужно больше исключений? 
+                        break; 
                     else
                     {
                         str_add_sign(String, sign);
@@ -774,9 +774,10 @@ int scanner_get_next_token(Token *Token)
                 {
                     if (sign == EOF)
                     {
-                        current_state = STATE_START;
-                        ungetc(sign, s_fptr);
-                        break;
+                        return ERROR_LEXICAL;
+                        // current_state = STATE_START;
+                        // ungetc(sign, s_fptr);
+                        // break;
                     }
                     else if (sign != '*') 
                         sign = getchar_modified();
