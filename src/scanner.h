@@ -90,6 +90,7 @@ typedef enum {
     token_right_curly_bracket, // "}"
     token_dot,                 // "."
     token_prolog,              // "<?php"
+    token_dollar,              // "$"
     token_end                  // "?<"
 } Token_types;
 

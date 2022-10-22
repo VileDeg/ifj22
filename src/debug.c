@@ -132,8 +132,8 @@ void print_file_contents(FILE* src)
 
 int test_stdin(FILE* scan_out)
 {
-    if (!scan_out)
-        return;
+    // if (!scan_out)
+    //     return;
     
     str_t string;
     str_const(&string);

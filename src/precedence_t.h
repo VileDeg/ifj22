@@ -1,8 +1,16 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <parser.h>
 
-#define TAB_SIZE 9
+
+#define TAB_SIZE 8
+
+/*
+ * Expression parsing.
+ */
+
+void expression_parsing(ParserData* pd);
 
 /**
  * @enum Operators of the precedence table.
@@ -13,7 +21,6 @@ typedef enum {
     OPER_DOT,       // .
     OPER_MUL,       // *
     OPER_DIV,       // /
-    OPER_CAR,       // ^
     OPER_EQ,        // ===
     OPER_NEQ,       // !==
     OPER_LT,        // <
@@ -24,6 +31,7 @@ typedef enum {
     OPER_RBR,       // )
     OPER_ID,        // id
     OPER_DOLLAR,    // $
+    OPER_E,         // E
     OPER_RED        // Reduce
 } Oper_type;
 
@@ -37,6 +45,17 @@ typedef enum {
     SIGN_N          // None
 } Sign_type;
 
+typedef enum {
+    INDEX_0,
+    INDEX_1,
+    INDEX_2,
+    INDEX_3,
+    INDEX_4,
+    INDEX_5,
+    INDEX_6,
+    INDEX_7
+} Index_num;
+
 /**
  * @enum Expression rules.
  */
@@ -48,7 +67,6 @@ typedef enum {
     RULE_DOT,       // E -> E . E
     RULE_MUL,       // E -> E * E
     RULE_DIV,       // E -> E / E
-    RULE_CAR,       // E -> E ^ E
     RULE_EQ,        // E -> E === E
     RULE_NEQ,       // E -> E !== E
     RULE_LT,        // E -> E < E
@@ -58,45 +76,65 @@ typedef enum {
     RULE_N          // None
 } Rule_type;
 
-// Precedence table.
 extern int64_t precedent_table[TAB_SIZE][TAB_SIZE];
-
 /*
- * @struct Stack item representation.
+ * @struct Stack element structure.
  */
-typedef struct symbol {
+typedef struct elementStack {
     Oper_type item;
-    struct symbol *next;
-} *symbolPtr;
+    struct elementStack *next;
+    //elementType?                                                              //FIX ME
+} elementSymbol;
 
 /*
  * @struct Stack structure.
  */
-typedef struct stack {
-    symbolPtr top;
-} symStack;
+typedef struct {
+    elementSymbol *top;
+} stackSymbol;
 
 /**
  * Stack initialization.
  */
-void stack_init(symStack*);
+void stack_init(stackSymbol* stack);
 
 /**
  * Push a new element to stack.
  */
-void stack_push(symStack*, Oper_type);
+void stack_push(stackSymbol* stack, Oper_type);                                 // + DATA TYPE for GENERATE CODE?
 
 /**
  * Pop an element from stack.
  */
-Oper_type stack_pop(symStack*);
+void stack_pop(stackSymbol* stack);
 
 /**
  *  Delete stack.
  */
-void stack_clear(symStack*);
+void stack_clear(stackSymbol* stack);
 
-/*
- * Expression parsing.
+/**
+ * @brief Get stack top terminal.
+ * 
+ * @param stack 
+ * @return elementSymbol 
  */
-//int64_t expression_analysis();
+elementSymbol* term_top(stackSymbol* stack);
+
+/**
+ * @brief Get stack top nonterminal.
+ * 
+ * @param stack 
+ * @return elementSymbol 
+ */
+elementSymbol* nonterm_top(stackSymbol* stack);
+
+/**
+ * @brief Get index for precedence table, get token type
+ * 
+ * @param token 
+ * @return Oper_type 
+ */
+Oper_type term_info(Token* token);
+
+Rule_type rule_info(elementSymbol* oper_third, elementSymbol* oper_second, elementSymbol* oper_first, int64_t cnt);
