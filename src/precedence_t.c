@@ -202,7 +202,7 @@ bool reduce(ParserData* pd) {
             rule = RULE_N;
         }                                                                       // TODO check semantics
 
-        //if(rule_info == RULE_ADD && data_type == STRING) => code gen          // GENERATE CODE
+        //if(rule_info == RULE_ADD && data_type == STRING) => GEN_CODE(generate_stack_operation, RULE_DOT)      // GENERATE CODE
         if(cnt != 0) {
             while(cnt != 0) {
             stack_pop(&stack);
@@ -240,7 +240,7 @@ void expression_parsing(ParserData* pd) {
                 stack_push(&stack, xSym);
                 break;
             case SIGN_L:
-                // check if (xSym = variable/constant) => gen code              // GENERATE CODE
+                // check if (xSym = variable/constant) => GEN_CODE(generate_push, pd->token);              // GENERATE CODE
             case SIGN_N:
                 if(xSym == ySym->item && xSym == OPER_DOLLAR)
                     flag_final = true;
@@ -252,15 +252,15 @@ void expression_parsing(ParserData* pd) {
     elementSymbol* E = nonterm_top(&stack);
     /* switch (variable/function's data type) {                                 // GENERATE CODE
         case TYPE_FLOAT:
-            GENERATE CODE
+            GEN_CODE(generate_stack_pop_res, data->lhs_id->identifier, final_non_terminal->data_type, TYPE_FLOAT, frame);
         case TYPE_INT:
-            GENERATE CODE
+            GEN_CODE(generate_stack_pop_res, data->lhs_id->identifier, final_non_terminal->data_type, TYPE_INT, frame);
         case TYPE_STRING:
-            GENERATE CODE
+            GEN_CODE(generate_stack_pop_res, data->lhs_id->identifier, TYPE_STRING, TYPE_STRING, frame);
         case BOOL:
-            GENERATE CODE
+            GEN_CODE(generate_stack_pop_res, data->lhs_id->identifier, final_non_terminal->data_type, TYPE_BOOL, frame);
         case NIL:
-            GENERATE CODE
+            GEN_CODE(generate_stack_pop_res, data->lhs_id->identifier, final_non_terminal->data_type, TYPE_NIL, frame);
         }
     */
 }

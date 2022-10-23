@@ -4,6 +4,9 @@
 #include <symtable.h>
 #include <scanner.h>
 
+#define GEN_CODE(_callback, ...)								\
+	if (!_callback(__VA_ARGS__)) return ERROR_INTERNAL
+
 typedef struct 
 {
     TSymtable globalTable;

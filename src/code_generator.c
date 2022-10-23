@@ -481,10 +481,10 @@ bool generate_stack_operation(Rule_type rule) {
             break;
 
         case RULE_DOT:
-            ADD_CODE_N("POPS GF@tmp_op1\n"
+            ADD_CODE_N("POPS GF@tmp_op3\n"
                        "POPS GF@tmp_op2\n"
-                       "CONCAT GF@tmp_op2 GF@tmp_op2 GF@tmp_op1\n"
-                       "PUSHS GF@tmp_op2");
+                       "CONCAT GF@tmp_op1 GF@tmp_op2 GF@tmp_op3\n"
+                       "PUSHS GF@tmp_op1");
             break;
 
         case RULE_MUL:
