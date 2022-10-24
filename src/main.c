@@ -1,8 +1,5 @@
 #include "debug.h"
-#include "string_t.h"
 #include "parser.h"
-#include "code_generator.h"
-#include "errors.h"
 
 #define MAX_FILES 16
 static FILE* open_files[MAX_FILES];
