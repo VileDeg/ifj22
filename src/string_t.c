@@ -32,7 +32,7 @@ bool str_const(str_t* str)
 bool str_concat(str_t* dst, const char* src)
 {
     size_t srclen = strlen(src);
-    if (dst->len + srclen > dst->cap - 1)
+    while (dst->len + srclen > dst->cap - 1)
     {
         dst->cap *= ALLOCATION_STEP;
         

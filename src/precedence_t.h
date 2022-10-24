@@ -1,7 +1,10 @@
+#ifndef __PRECEDENCE_T__
+#define __PRECEDENCE_T__
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <parser.h>
+#include "parser.h"
 
 
 #define TAB_SIZE 8
@@ -138,3 +141,5 @@ elementSymbol* nonterm_top(stackSymbol* stack);
 Oper_type term_info(Token* token);
 
 Rule_type rule_info(elementSymbol* oper_third, elementSymbol* oper_second, elementSymbol* oper_first, int64_t cnt);
+
+#endif //__PRECEDENCE_T__

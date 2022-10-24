@@ -109,11 +109,14 @@ typedef struct {
     Token_types type; //Type of token.
 } Token;
 
-//void scanner_init();
 void scanner_reset();
+
 void scanner_set_file(FILE* fptr);
+
 FILE* scanner_get_file();
+
 void scanner_set_string(str_t* str);
+
 //Comparing string we've gotten and compares with KW. In case it isn't a KW -> it's an ID.
 bool determine_type(str_t *String, Token *Token);
 

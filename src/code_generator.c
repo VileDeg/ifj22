@@ -136,7 +136,7 @@
         "RETURN\n"
 
 
-str_t code;
+static str_t code;
 
 
 bool generate_header() {

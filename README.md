@@ -9,16 +9,10 @@ where username is your github username.
 - Всегда использовать int64_t вместо int, uint64_t вместо unsigned
 - Информативные названия функций
 ## TODO
+- TYPE_NIL = void?
+- ф-ция symtable_add_param не нужна?
 - убрать нумерацию строк в лексикальной ошибке 
 - Empty file -> syntax error? 
-- Протестировать scanner 
-- Закончить КА (после тестов) 
-- Имплементировать грамматику
-- Таблица символов в файле symtable.c/h
-- Таблица для precedenční analýzy výrazů
-- Встроенные функции
-- Генерация кода
-- Таблица LL-gramatiky
 - Документация(в коде и в .pdf)
 ## Source files
 - debug.h    - declares functions for testing/debugging.

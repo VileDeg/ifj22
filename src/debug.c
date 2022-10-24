@@ -7,6 +7,12 @@
 #include "errors.h"
 
 FILE* g_DebugOut = NULL;
+static FILE* s_ScanOut  = NULL;
+static FILE* s_ParsOut  = NULL;
+
+void set_debug_out(FILE* fptr) { g_DebugOut = fptr; }
+FILE* get_scan_out() { return s_ScanOut; }
+FILE* get_pars_out() { return s_ParsOut; }
 
 static uint64_t max_kw = 10;
 static const char* kw_str[] =
@@ -55,7 +61,6 @@ static const char* tk_types_str[] = {
     "end"
 };
 
-
 const char* debug_kw(Keywords kw)
 {
     return kw < max_kw ? kw_str[kw] : "**NIL**";
@@ -79,8 +84,7 @@ void reset_token(Token* tk)
 
 static const char* s_TokenDebugFormat = "%-4.4s %-4.4s %-12.12s %-12.12s %-16.16s\n";
 
-
-void debug_token(Token tk)
+void debug_print_token(Token tk)
 {
     size_t mxlen = 64;
     char str[mxlen];
@@ -104,8 +108,8 @@ void debug_token(Token tk)
                 "", debug_kw(tk.value.keyword), debug_tk_type(tk.type));
             break;
         default:
-            ASSERT(tk.value.String != NULL, "");
-            ASSERT(tk.value.String->ptr != NULL, "");
+            IFJ22_ASSERT(tk.value.String != NULL, "");
+            IFJ22_ASSERT(tk.value.String->ptr != NULL, "");
             DEBUGPR(s_TokenDebugFormat, "", "",
                 tk.value.String->ptr, "", debug_tk_type(tk.type));
     }
@@ -125,22 +129,21 @@ void print_file_contents(FILE* src)
     while(fgets(line, maxlen, src)!= NULL)
         DEBUGPR("%s", line);
 
-    ASSERT(src != stdin, "");
+    IFJ22_ASSERT(src != stdin, "");
     rewind(src);
     DEBUGPR(VSPACE "\n");
 }
 
 int test_stdin(FILE* scan_out)
 {
-    // if (!scan_out)
-    //     return;
+    IFJ22_ASSERT(scan_out, "");
     
     str_t string;
     str_const(&string);
     scanner_set_file(stdin);
     scanner_set_string(&string);
 
-    SET_DEBUG_OUT(scan_out);
+    set_debug_out(scan_out);
     HEADER("List of tokens: ");
     DEBUGPR(s_TokenDebugFormat, "int", "deci", "string", "keyword", "type");
     Token tk;
@@ -151,7 +154,7 @@ int test_stdin(FILE* scan_out)
         if (result != TOKEN_OK)
             break;
 
-        debug_token(tk);
+        debug_print_token(tk);
     }
     DEBUGPR(VSPACE);
 
@@ -160,70 +163,99 @@ int test_stdin(FILE* scan_out)
     return result;
 }
 
-void test_file(FILE* source, bool show_source_contents, 
-    FILE* scan_out, FILE* pars_out, test_retcodes* rc)
+
+void debug_setup(FILE* source, bool show_source_contents, 
+    FILE* scan_out, FILE* pars_out)
 {
     if (!scan_out && !pars_out)
         return;
     
-    str_t string;
-    str_const(&string);
-    scanner_set_file(source);
-    scanner_set_string(&string);
+    s_ScanOut = scan_out;
+    s_ParsOut = pars_out;
 
     if (show_source_contents && source != stdin)
     {
-        bool done = false;
         if (scan_out)
         {
-            SET_DEBUG_OUT(scan_out);
+            set_debug_out(scan_out);
             print_file_contents(source);    
         }
         if (pars_out && scan_out != pars_out)
         {
-            SET_DEBUG_OUT(pars_out);
+            set_debug_out(pars_out);
             print_file_contents(source);
         }
     }
 
-    //Syntax test
     if (pars_out)
     {
-        SET_DEBUG_OUT(pars_out);
+        set_debug_out(pars_out);
         HEADER("Rules triggered: ");
-
-        //int result;
-        if ((rc->pars = parser_parse()) != TOKEN_OK)
-        {
-            //PRINT_ERROR_SYNT(" :(");
-            DEBUGPR("[ERROR_SYNTAX]: :(");
-        }
-        DEBUGPR(VSPACE);
-        rewind(source);
     }
+
+    if (scan_out)
+    {
+        set_debug_out(scan_out);
+        HEADER("List of tokens: ");
+        DEBUGPR(s_TokenDebugFormat, "int", "deci", "string", "keyword", "type");
+    }
+}
+
+void debug_terminate(FILE* scan_out, FILE* pars_out)
+{
+    if (pars_out)
+    {
+        set_debug_out(pars_out);
+        DEBUGPR(VSPACE);
+    }
+    if (scan_out)
+    {
+        set_debug_out(scan_out);
+        DEBUGPR(VSPACE);
+    }
+}
+
+int test_scanner(FILE* source, bool show_source_contents, 
+    FILE* scan_out)
+{
+    IFJ22_ASSERT(scan_out, "");
     
+    int retcode;
+    str_t string;
+    if (!str_const(&string))
+        goto error;
+    
+    scanner_set_file(source);
+    scanner_set_string(&string);
+
+    set_debug_out(scan_out);
+
+    if (show_source_contents && source != stdin)
+        print_file_contents(source);    
+
     //Lexical test
     if (scan_out)
     {
-        SET_DEBUG_OUT(scan_out);
         HEADER("List of tokens: ");
         DEBUGPR(s_TokenDebugFormat, "int", "deci", "string", "keyword", "type");
         Token tk;
-        //int result = 0;
         while (tk.type != token_EOF)
         {
-            rc->scan = scanner_get_next_token(&tk);
-            if (rc->scan != TOKEN_OK)
+            retcode = scanner_get_next_token(&tk);
+            if (retcode != TOKEN_OK)
                 break;
 
-            debug_token(tk);
+            debug_print_token(tk);
         }
         DEBUGPR(VSPACE);
     }
 
+error:
+    retcode = ERROR_INTERNAL;
+free:
     str_dest(&string);
+    return retcode;
 }
-
 
 static const char* s_RulesFilepath = "../ifj22-ED-LL-gramatika.txt";
 #define RULE_EXP_MXLEN 256
@@ -236,7 +268,7 @@ static struct {
 void populate_rule_definitions()
 {
     FILE* fptr = fopen(s_RulesFilepath, "r");
-    ASSERT(fptr, "");
+    IFJ22_ASSERT(fptr, "");
 
     uint64_t rule = 0;
     
@@ -249,7 +281,7 @@ void populate_rule_definitions()
         {
             RuleInfo.rule_name[rule][letter] = c;
             ++letter;
-            ASSERT(letter < RULE_EXP_MXLEN, "");
+            IFJ22_ASSERT(letter < RULE_EXP_MXLEN, "");
         }
         letter = 0;
         //Skip to after ->
@@ -265,7 +297,7 @@ void populate_rule_definitions()
                 break;
             RuleInfo.exp_string[rule][letter] = c;
             ++letter;
-            ASSERT(letter < RULE_EXP_MXLEN, "");
+            IFJ22_ASSERT(letter < RULE_EXP_MXLEN, "");
         }
 
         do
@@ -299,5 +331,5 @@ const char* get_rule_expansion_by_name(const char* rulename, int expnum)
             --expnum;
         }
     }
-    ASSERT(false, "Rule not found.");
+    IFJ22_ASSERT(false, "Rule not found.");
 }

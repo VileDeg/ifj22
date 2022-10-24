@@ -1,5 +1,8 @@
 #include "debug.h"
 #include "string_t.h"
+#include "parser.h"
+#include "code_generator.h"
+#include "errors.h"
 
 #define MAX_FILES 16
 static FILE* open_files[MAX_FILES];
@@ -7,9 +10,9 @@ static int filesopened = 0;
 
 static FILE* open_file(const char* filepath, const char* modes)
 {
-    ASSERT(filesopened <= MAX_FILES, "");
+    IFJ22_ASSERT(filesopened <= MAX_FILES, "");
     FILE* ret = fopen(filepath, modes);
-    ASSERT(ret != NULL, "");
+    IFJ22_ASSERT(ret != NULL, "");
     open_files[filesopened] = ret;
     ++filesopened;
     return ret;
@@ -25,16 +28,25 @@ int main(void)
 {
     populate_rule_definitions();
 
-    FILE* src     = open_file("../tests/lex/test.php", "r");
+    int ret = 0;
+    //FILE* source  = open_file("../tests/lex/test.php", "r");
+    FILE* source  = open_file("../tests/IFJ22_examples/example1.php", "r");
     FILE* scanout = open_file("../scanner.txt", "w");
-    //FILE* parsout = open_file("../parser.txt", "w");
-
-    test_retcodes rcodes;
-    //test_file(stdin, false, scanout, NULL, &rcodes);
-    test_file(src, false, stdout, NULL, &rcodes);
-    int res = test_stdin(scanout);
-
+    FILE* parsout = open_file("../parser.txt", "w");
+    {
+        
+#if 0
+        ret = test_scanner(source, true, stdout);
+        //ret = test_stdin(scanout); <--- for python tests
+#else
+        debug_setup(source, true, scanout, parsout);
+        {
+            ret = parse_file(source);
+        }
+        debug_terminate(scanout, parsout);
+#endif
+    }
     close_all_files();
-    return res;    
+    return ret;    
 }
 
