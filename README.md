@@ -10,7 +10,6 @@ where username is your github username.
 - Информативные названия функций
 ## TODO
 - TYPE_NIL = void?
-- ф-ция symtable_add_param не нужна?
 - убрать нумерацию строк в лексикальной ошибке 
 - Empty file -> syntax error? 
 - Документация(в коде и в .pdf)
