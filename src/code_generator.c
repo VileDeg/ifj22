@@ -6,11 +6,11 @@
 #define EMIT_N(text)                            \
     if (!str_concat(&code, (text"\n"))) return false
 
-#define EMIT_NUM(number)                 \
+#define EMIT_NUM(number)                \
     do {                                \
         char str[MAX_DIGITS];           \
         sprintf(str, "%ld", (number));  \
-        EMIT(str);                  \
+        EMIT(str);                      \
     } while (0)
 
 #define MAX_DIGITS 50
@@ -48,6 +48,30 @@
         "DEFVAR LF@res\n"           \
         "READ LF@res float\n"       \
         "POPFRAME\n"                \
+        "RETURN\n" BFNEND
+
+/// function write ( term1 , term2 , ..., term𝑛 ) : void
+#define FUNCTION_WRITE                              \
+        "# Function write\n"                        \
+        "LABEL @write\n"                            \
+        "PUSHFRAME\n"                               \
+        "DEFVAR LF@to_write\n"                      \
+        "DEFVAR LF@amount\n"                        \
+        "POPS LF@amount\n"                          \
+        "DEFVAR LF@type\n"                          \
+        "TYPE LF@type LF@amount\n"                  \
+        "JUMPIFNEQ @write_end LF@type string@int\n" \
+        "DEFVAR LF@cond\n"                          \
+        "LT LF@cond LF@amount int@1\n"              \
+        "JUMPIFEQ @write_end LF@cond bool@true\n"   \
+        "LABEL @write_loop\n"                       \
+        "POPS @to_write\n"                          \
+        "WRITE @to_write\n"                         \
+        "SUB LF@amount LF@amount int@1\n"           \
+        "GT LF@cond LF@amount int@0\n"              \
+        "JUMPIFEQ @write_loop LF@cond bool@true\n"  \
+        "LABEL @write_end\n"                        \
+        "POPFRAME\n"                                \
         "RETURN\n" BFNEND
 
 /// function strlen(string $𝑠) : int
@@ -141,10 +165,10 @@ static str_t code;
 
 bool emit_header() {
     EMIT_N(".IFJcode22\n"
-               "DEFVAR GF@tmp_op1\n"
-               "DEFVAR GF@tmp_op2\n"
-               "DEFVAR GF@tmp_op3\n"
-               "DEFVAR GF@exp_result\n");
+           "DEFVAR GF@tmp_op1\n"
+           "DEFVAR GF@tmp_op2\n"
+           "DEFVAR GF@tmp_op3\n"
+           "DEFVAR GF@exp_result\n");
     return true;
 }
 
@@ -153,6 +177,7 @@ bool emit_built_in_funcs() {
     EMIT(FUNCTION_READS);
     EMIT(FUCNTION_READI);
     EMIT(FUNCTION_READF);
+    EMIT(FUNCTION_WRITE);
     EMIT(FUNCTION_STRLEN);
     EMIT(FUNCTION_SUBSTRING);
     EMIT(FUNCTION_ORD);
@@ -164,7 +189,7 @@ bool emit_built_in_funcs() {
 bool code_generator_start() {
     if (!str_const(&code)) return false;
     if (!emit_header()) return false;
-    //if (!emit_built_in_funcs()) return false;
+    if (!emit_built_in_funcs()) return false;
     return true;
 }
 
@@ -182,16 +207,16 @@ void code_generator_flush(FILE* file) {
 
 bool emit_body_start() {
     EMIT_N("# PROGRAM BODY\n"
-               "CREATEFRAME\n"
-               "PUSHFRAME");
+           "CREATEFRAME\n"
+           "PUSHFRAME");
     return true;
 }
 
 
 bool emit_body_end() {
-    EMIT_N("# main end\n"
-               "POPFRAME\n"
-               "CLEARS");
+    EMIT_N("# PROGRAM END\n"
+           "POPFRAME\n"
+           "CLEARS");
     return true;
 }
 
@@ -529,9 +554,9 @@ bool emit_stack_operation(Rule_type rule) {
 
 bool emit_stack_concat() {
     EMIT_N("POPS GF@tmp_op1\n"
-            "POPS GF@tmp_op2\n"
-            "CONCAT GF@tmp_op2 GF@tmp_op2 GF@tmp_op1\n"
-            "PUSHS GF@tmp_op2");
+           "POPS GF@tmp_op2\n"
+           "CONCAT GF@tmp_op2 GF@tmp_op2 GF@tmp_op1\n"
+           "PUSHS GF@tmp_op2");
 
     return true;
 }
@@ -570,8 +595,8 @@ bool emit_stack_top_float2int() {
 
 bool emit_stack_sec_int2float() {
     EMIT_N("POPS GF@tmp_op1\n"
-            "INT2FLOATS\n"
-            "PUSHS GF@tmp_op1");
+           "INT2FLOATS\n"
+           "PUSHS GF@tmp_op1");
 
     return true;
 }
@@ -579,8 +604,8 @@ bool emit_stack_sec_int2float() {
 
 bool emit_stack_sec_float2int() {
     EMIT_N("POPS GF@tmp_op1\n"
-            "FLOAT2INTS\n"
-            "PUSHS GF@tmp_op1");
+           "FLOAT2INTS\n"
+           "PUSHS GF@tmp_op1");
 
     return true;
 }

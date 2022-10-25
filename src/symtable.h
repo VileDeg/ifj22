@@ -109,10 +109,4 @@ bool symtable_delete_symbol(TSymtable *st, const char *key);
  */
 void symtable_clear(TSymtable *st);
 
-/**
- * Free allocated symbol table.
- * @param st
- */
-void symtable_free(TSymtable *st);
-
 #endif //__SYMTABLE__

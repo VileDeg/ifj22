@@ -158,6 +158,10 @@ bool symtable_delete_symbol(TSymtable *st, const char *key) {
 
 
 void symtable_clear(TSymtable *st) {
+    if (st == NULL) {
+        return;
+    }
+
     for (int64_t i = 0; i < MAX_SYMTABLE_SIZE; i++) {
         TItem *to_delete = st->items[i];
         TItem *tmp = NULL;
@@ -173,13 +177,4 @@ void symtable_clear(TSymtable *st) {
         }
         st->items[i] = NULL;
     }
-}
-
-
-void symtable_free(TSymtable *st) {
-    if (st == NULL) {
-        return;
-    }
-    symtable_clear(st);
-    free(st);
 }
