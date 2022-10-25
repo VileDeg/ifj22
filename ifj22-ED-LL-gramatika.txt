@@ -5,6 +5,7 @@
 <statement> -> if <compound_stat> else <scoped_stat> <statement>
 <statement> -> while <compound_stat> <statement>
 <statement> -> return <expression>
+<statement> -> <rhs_value>
 <statement> -> ε
 <scoped_stat> -> { <statement> }
 <compound_stat> -> ( <expression> ) <scoped_stat>
@@ -16,17 +17,6 @@
 <def_var> -> ε
 <rhs_value> -> <value>
 <rhs_value> -> ID ( <args> )
-<rhs_value> -> reads ( <args> )
-<rhs_value> -> readi ( <args> )
-<rhs_value> -> readf ( <args> )
-<rhs_value> -> write ( <args> )
-<rhs_value> -> floatval ( <args> )
-<rhs_value> -> intval ( <args> )
-<rhs_value> -> strval ( <args> )
-<rhs_value> -> strlen ( <args> )
-<rhs_value> -> substring ( <args> )
-<rhs_value> -> ord ( <args> )
-<rhs_value> -> chr ( <args> )
 <rhs_value> -> <expression>
 <args> -> <value> <arg_n>
 <args> -> ε

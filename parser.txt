@@ -29,6 +29,11 @@ if ($a < 0) {
 
 prolog -> <?php declare ( strict_types = 1 ) ; <prog> <end>
 prog -> <statement>
+rhs_value -> <value>
+value -> STRING_VALUE
+args -> <value> <arg_n>
+arg_n -> ε
+statement -> ε
 end -> EOF
 
 

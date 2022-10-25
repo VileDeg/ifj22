@@ -72,7 +72,9 @@
 		CHECK_RULE(_rule);\
 	} while(0)
 
-#define HAS_DOLLAR (pd->token.value.String->ptr[0] == '$')
+#define token_str pd->token.value.String->ptr
+
+#define HAS_DOLLAR (token_str[0] == '$')
 
 #define IS_VAR_ID (TYPE_IS(ID) && HAS_DOLLAR)
 
@@ -85,15 +87,21 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // #define ST_GLOBAL 0
 // #define ST_LOCAL 1
+
+//#define ADD_SYMBOL_TO_TABLE(_symbol, _table_name) symtable_add_symbol(&pd->_table_name, _symbol, &err)
 #define ADD_SYMBOL\
 	do{\
 		bool err = false;\
 		if (!pd->in_scope)\
-			pd->current_func = symtable_add_symbol(&pd->globalTable, pd->token.value.String->ptr, &err);\
+			pd->current_func = symtable_add_symbol(&pd->globalTable, token_str, &err);\
 		else\
-			pd->current_var = symtable_add_symbol(&pd->localTable, pd->token.value.String->ptr, &err);\
+			pd->current_var = symtable_add_symbol(&pd->localTable, token_str, &err);\
 		if (err) return ERROR_INTERNAL;\
 	}while(0)
+///////////////////////////////
+#define CODEGEN(_funcptr, ...) if (!_funcptr(__VA_ARGS__)) return ERROR_INTERNAL\
+
+
 
 static bool init_data(ParserData* pd)
 {
@@ -102,6 +110,26 @@ static bool init_data(ParserData* pd)
 
 	pd->in_scope = pd->in_param_list = false;
 	pd->current_func = pd->current_var = NULL;
+	
+	pd->param_index = 0;
+	
+	bool err = false;
+	TData* data = NULL;
+	if (!(data = symtable_add_symbol(&pd->globalTable, "reads", &err)))
+		return false;
+	if (!(data = symtable_add_symbol(&pd->globalTable, "readi", &err)))
+		return false;
+	if (!(data = symtable_add_symbol(&pd->globalTable, "readf", &err)))
+		return false;
+	if (!(data = symtable_add_symbol(&pd->globalTable, "write", &err)))
+		return false;
+	if (!(data = symtable_add_symbol(&pd->globalTable, "floatval", &err)))
+		return false;
+	if (!(data = symtable_add_symbol(&pd->globalTable, "intval", &err)))
+		return false;
+	if (!(data = symtable_add_symbol(&pd->globalTable, "strval", &err)))
+		return false;
+	
 
 	return true;
 }
@@ -118,22 +146,22 @@ static bool is_void_type(ParserData* pd)
 	return pd->token.type == token_keyword && !strcmp(str, "void");
 }
 
-static int type(ParserData* pd);
-static int value(ParserData* pd);
-static int def_var(ParserData* pd);
-static int rhs_value(ParserData* pd);
-static int statement(ParserData* pd);
-static int expression(ParserData* pd);
-static int rettype(ParserData* pd);
-static int args(ParserData* pd);
-static int arg_n(ParserData* pd);
-static int params(ParserData* pd);
-static int param_n(ParserData* pd);
-static int prog(ParserData* pd);
-static int prolog(ParserData* pd);
-static int scoped_stat(ParserData* pd);
+static int type			(ParserData* pd);
+static int value		(ParserData* pd);
+static int def_var		(ParserData* pd);
+static int rhs_value	(ParserData* pd);
+static int statement	(ParserData* pd);
+static int expression	(ParserData* pd);
+static int rettype		(ParserData* pd);
+static int args			(ParserData* pd);
+static int arg_n		(ParserData* pd);
+static int params		(ParserData* pd);
+static int param_n		(ParserData* pd);
+static int prog			(ParserData* pd);
+static int prolog		(ParserData* pd);
+static int scoped_stat	(ParserData* pd);
 static int compound_stat(ParserData* pd);
-static int end(ParserData* pd);
+static int end			(ParserData* pd);
 
 static int expression(ParserData* pd)
 {
@@ -184,12 +212,12 @@ static int type(ParserData* pd)
 	//<type> -> ? int
 	//<type> -> ? string
 	
-	static const char* type_kw[NUM_F_TYPES] = { "float", "int", "string" };
+	static const char* type_kw	 [NUM_F_TYPES] = { "float", "int", "string" 		 };
 	static const int   type_macro[NUM_F_TYPES] = { TYPE_FLOAT, TYPE_INT, TYPE_STRING };
 	
 	CHECK_TYPE(keyword);
 	
-	int _rulenr = 0; // for debug
+	int _rulenr = 0; // for debugging
 
 	const char* str = pd->token.value.String->ptr;
 	if (str[0] == '?')
@@ -224,21 +252,23 @@ static int type(ParserData* pd)
 static int end(ParserData* pd)
 {
 	RULE_OPEN;
-
-	//<end> -> ?> EOF
-	GET_NEXT_TOKEN();
-	if (TYPE_IS(end))
 	{
-		_DPRNR(0);
-		
-	}
-	//<end> -> EOF
-	else
-	{
-		_DPRNR(1);
-		CHECK_TYPE(EOF);
-	}
+		//<end> -> ?> EOF
+		GET_NEXT_TOKEN();
+		if (TYPE_IS(end))
+		{
+			_DPRNR(0);
+			
+		}
+		//<end> -> EOF
+		else
+		{
+			_DPRNR(1);
+			CHECK_TYPE(EOF);
+		}
 
+		{ CODEGEN(emit_body_end); }
+	}
 	return RULE_OK;
 }
 
@@ -247,90 +277,21 @@ static int end(ParserData* pd)
 static int rhs_value(ParserData* pd)
 {
 	RULE_OPEN;
-
-	//GET_N_CHECK_TYPE...
-	//DEBUGPR("%s -> ???\n", __func__);
-
-	//Will be looked up in symtable
-	//<rhs_value> -> ID ( <args> )
-	if (TYPE_IS(ID))
 	{
-		_DPRNR(0);
-		RHS_VALUE_FUNC_ARGS;
+		
+		//<rhs_value> -> ID ( <args> )
+		if (TYPE_IS(ID))
+		{
+			_DPRNR(0);
+			RHS_VALUE_FUNC_ARGS;
+		}
+		//<rhs_value> -> <expression>
+		else
+		{
+			_DPRNR(12);
+			CHECK_RULE(expression);
+		}
 	}
-	//<rhs_value> -> reads ( <args> )
-	else if (FUNC_ID_IS("reads"))
-	{
-		_DPRNR(1);
-		RHS_VALUE_FUNC_ARGS;
-	}
-	//<rhs_value> -> readi ( <args> )
-	else if (FUNC_ID_IS("readi"))
-	{
-		_DPRNR(2);
-		RHS_VALUE_FUNC_ARGS;
-	}
-	//<rhs_value> -> readf ( <args> )
-	else if (FUNC_ID_IS("readf"))
-	{
-		_DPRNR(3);
-		RHS_VALUE_FUNC_ARGS;
-	}
-	//<rhs_value> -> write ( <args> )
-	else if (FUNC_ID_IS("write"))
-	{
-		_DPRNR(4);
-		RHS_VALUE_FUNC_ARGS;
-	}
-	//<rhs_value> -> floatval ( <args> )
-	else if (FUNC_ID_IS("floatval"))
-	{
-		_DPRNR(5);
-		RHS_VALUE_FUNC_ARGS;
-	}
-	//<rhs_value> -> intval ( <args> )
-	else if (FUNC_ID_IS("intval"))
-	{
-		_DPRNR(6);
-		RHS_VALUE_FUNC_ARGS;
-	}
-	//<rhs_value> -> strval ( <args> )
-	else if (FUNC_ID_IS("strval"))
-	{
-		_DPRNR(7);
-		RHS_VALUE_FUNC_ARGS;
-	}
-	//<rhs_value> -> strlen ( <args> )
-	else if (FUNC_ID_IS("strlen"))
-	{
-		_DPRNR(8);
-		RHS_VALUE_FUNC_ARGS;
-	}
-	//<rhs_value> -> substring ( <args> )
-	else if (FUNC_ID_IS("substring"))
-	{
-		_DPRNR(9);
-		RHS_VALUE_FUNC_ARGS;
-	}
-	//<rhs_value> -> ord ( <args> )
-	else if (FUNC_ID_IS("ord"))
-	{
-		_DPRNR(10);
-		RHS_VALUE_FUNC_ARGS;
-	}
-	//<rhs_value> -> chr ( <args> )
-	else if (FUNC_ID_IS("chr"))
-	{
-		_DPRNR(11);
-		RHS_VALUE_FUNC_ARGS;
-	}
-	//<rhs_value> -> <expression>
-	else
-	{
-		_DPRNR(12);
-		CHECK_RULE(expression);
-	}
-
 	return RULE_OK;
 }
 
@@ -430,7 +391,13 @@ static int statement(ParserData* pd)
 		_DPRNR(3);
 		CHECK_RULE(expression);
 	}
+	//<statement> -> <rhs_value>
+	else if (RULE_GOOD(rhs_value))
+	{
+		_DPRNR(4);	
+	}
 	//<statement> -> eps
+	_DPRNR(5);
 	
 	return RULE_OK;
 }
@@ -499,7 +466,6 @@ static int param_n(ParserData* pd)
 {
 	RULE_OPEN;
 	//<param_n> -> , <type> $ ID <param_n>
-	//GET_N_CHECK_TYPE(comma);
 	
 	if (TYPE_IS(comma))
 	{
@@ -510,7 +476,10 @@ static int param_n(ParserData* pd)
 		GET_N_CHECK_VAR_ID;
 		{ //Add var to local table
 			ADD_SYMBOL;
-		}	
+		}
+		
+		pd->param_index++;
+		{ CODEGEN(emit_function_param_declare, token_str, pd->param_index); }
 
 		GET_N_CHECK_RULE(param_n);
 	}
@@ -520,6 +489,8 @@ static int param_n(ParserData* pd)
 
 	return RULE_OK;
 }
+
+
 
 static int params(ParserData* pd)
 {
@@ -536,6 +507,8 @@ static int params(ParserData* pd)
 		{ //Add var to local table
 			ADD_SYMBOL;
 		}	
+		
+		{ CODEGEN(emit_function_param_declare, token_str, pd->param_index); }
 
 		GET_N_CHECK_RULE(param_n);
 	}
@@ -565,17 +538,21 @@ static int prog(ParserData* pd)
 		}		
 
 		GET_N_CHECK_TYPE(left_bracket);
-
-		GET_N_CHECK_RULE(params);
-		
+		{
+			GET_N_CHECK_RULE(params);
+		}
 		GET_N_CHECK_TYPE(right_bracket);
 		GET_N_CHECK_TYPE(colon);
 
 		CHECK_RULE(rettype);
+		
+		{ CODEGEN(emit_function_start, token_str); }
 
 		GET_N_CHECK_RULE(scoped_stat);
 
 		pd->in_scope = false;
+		
+		{ CODEGEN(emit_function_end, token_str); }
 		
 		CHECK_RULE(prog);
     }
@@ -594,33 +571,35 @@ static int prolog(ParserData* pd)
 {
 	//<prolog> -> <?php declare ( strict_types = 1 ) ; <prog> <end>
 	RULE_OPEN;
-	_DPRNR(0);
-
-	GET_N_CHECK_TYPE(prolog);
-
 	{
-		GET_N_CHECK_TYPE(ID);
-		if (!str_cmp(pd->token.value.String, "declare"))
-			return ERROR_SYNTAX;
+		_DPRNR(0);
 		
-		GET_N_CHECK_TYPE(left_bracket);
-		GET_N_CHECK_TYPE(ID);
-		if (!str_cmp(pd->token.value.String, "strict_types"))
-			return ERROR_SYNTAX;
+		{
+			GET_N_CHECK_TYPE(prolog);
+			GET_N_CHECK_TYPE(ID);
+			if (!str_cmp(pd->token.value.String, "declare"))
+				return ERROR_SYNTAX;
 			
-		GET_N_CHECK_TYPE(equal_sign);
-		GET_N_CHECK_TYPE(integer);
-		if (pd->token.value.integer != 1)
-			return ERROR_SYNTAX;
+			GET_N_CHECK_TYPE(left_bracket);
+			GET_N_CHECK_TYPE(ID);
+			if (!str_cmp(pd->token.value.String, "strict_types"))
+				return ERROR_SYNTAX;
+				
+			GET_N_CHECK_TYPE(equal_sign);
+			GET_N_CHECK_TYPE(integer);
+			if (pd->token.value.integer != 1)
+				return ERROR_SYNTAX;
 
-		GET_N_CHECK_TYPE(right_bracket);
-		GET_N_CHECK_TYPE(semicolon);
+			GET_N_CHECK_TYPE(right_bracket);
+			GET_N_CHECK_TYPE(semicolon);
+		}
+
+		{ CODEGEN(emit_body_start); }
+
+		CHECK_RULE(prog);
+		
+		CHECK_RULE(end);
 	}
-
-	CHECK_RULE(prog);
-	
-	CHECK_RULE(end);
-
     return RULE_OK;
 }
 
@@ -643,24 +622,6 @@ error:
 	result = ERROR_INTERNAL;
 free:
 	str_dest(&string);
-	free_data(&pd);
-end:
-    return result;
-}
-
-
-
-int parse_old()
-{
-    ParserData pd;
-    if (!init_data(&pd))
-		goto error;
-    
-    int result = prolog(&pd);
-
-error:
-	result = ERROR_INTERNAL;
-free:
 	free_data(&pd);
 end:
     return result;

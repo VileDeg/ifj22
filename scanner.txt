@@ -38,5 +38,9 @@ int  deci string       keyword      type
                                     semicolon       
           write                     ID              
                                     left_bracket    
+          Zadejte cisl              string          
+                                    right_bracket   
+                                    semicolon       
+          $a                        ID              
 
 

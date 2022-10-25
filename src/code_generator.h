@@ -15,13 +15,13 @@
  * Generation of header code.
  * @return
  */
-bool generate_header();
+bool emit_header();
 
 /**
  * Generation of code for built-in functions.
  * @return true if success.
  */
-bool generate_built_in_funcs();
+bool emit_built_in_funcs();
 
 /**
  * Starting generation of code.
@@ -44,48 +44,48 @@ void code_generator_flush(FILE* file);
  * Main beginning generation.
  * @return true if success.
  */
-bool generate_main_start();
+bool emit_body_start();
 
 /**
  * Main end generation.
  * @return true if success.
  */
-bool generate_main_end();
+bool emit_body_end();
 
 /**
  * Generation of function beginning.
  * @param name
  * @return true if success.
  */
-bool generate_function_start(char* name);
+bool emit_function_start(char* name);
 
 /**
  * Generation of function end.
  * @param name
  * @return true if success.
  */
-bool generate_function_end(char* name);
+bool emit_function_end(char* name);
 
 /**
  * Generation of default variable value.
  * @param type
  * @return true if success.
  */
-bool generate_def_val(Data_type type);
+bool emit_def_val(Data_type type);
 
 /**
  * Generation of @res value.
  * @param type
  * @return true if success.
  */
-bool generate_function_res(Data_type type);
+bool emit_function_res(Data_type type);
 
 /**
  * Generation of defvar.
  * @param var
  * @return true if success.
  */
-bool generate_defvar(char* var);
+bool emit_defvar(char* var);
 
 /**
  * Giving a variable default value.
@@ -93,14 +93,14 @@ bool generate_defvar(char* var);
  * @param var
  * @return true if success.
  */
-bool generate_var_def(Data_type type, char* var);
+bool emit_var_def(Data_type type, char* var);
 
 /**
  * Generation of function calling.
  * @param name
  * @return true if success.
  */
-bool generate_function_call(char* name);
+bool emit_function_call(char* name);
 
 /**
  * Generation of function result assignment.
@@ -109,7 +109,7 @@ bool generate_function_call(char* name);
  * @param res_type
  * @return true if success.
  */
-bool generate_function_res_assign(char* var, Data_type var_type, Data_type res_type);
+bool emit_function_res_assign(char* var, Data_type var_type, Data_type res_type);
 
 /**
  * Generation of local variables from parameters.
@@ -117,20 +117,20 @@ bool generate_function_res_assign(char* var, Data_type var_type, Data_type res_t
  * @param index
  * @return true if success.
  */
-bool generate_function_param_declare(char* name, int64_t index);
+bool emit_function_param_declare(char* name, int64_t index);
 
 /**
  * Generation of value from token.
  * @param token
  * @return true if success.
  */
-bool generate_value_from_token(Token token);
+bool emit_value_from_token(Token token);
 
 /**
  * Generation of part before passing parameters into function.
  * @return true if success.
  */
-bool generate_function_before_pass_params();
+bool emit_function_before_pass_params();
 
 /**
  * Generation of parameter type conversion.
@@ -139,7 +139,7 @@ bool generate_function_before_pass_params();
  * @param index
  * @return true if success.
  */
-bool generate_function_convert_passed_param(Data_type from, Data_type to, int64_t index);
+bool emit_function_convert_passed_param(Data_type from, Data_type to, int64_t index);
 
 /**
  * Generation of passing parameters into function.
@@ -147,14 +147,14 @@ bool generate_function_convert_passed_param(Data_type from, Data_type to, int64_
  * @param index
  * @return true if success.
  */
-bool generate_function_pass_param(Token token, int64_t index);
+bool emit_function_pass_param(Token token, int64_t index);
 
 /**
  * Generation of returning from function.
  * @param name
  * @return true if success.
  */
-bool generate_function_return(char* name);
+bool emit_function_return(char* name);
 
 /**
  * Generation of input.
@@ -162,33 +162,33 @@ bool generate_function_return(char* name);
  * @param type
  * @return true if success.
  */
-bool generate_input(char* var, Data_type type);
+bool emit_input(char* var, Data_type type);
 
 /**
  * Generation of writing expression result.
  * @return true if success.
  */
-bool generate_exp_res();
+bool emit_exp_res();
 
 /**
  * Generation of pushing data to data stack.
  * @param token
  * @return true if success.
  */
-bool generate_push(Token token);
+bool emit_push(Token token);
 
 /**
  * Generation of code for stack operation.
  * @param rule
  * @return true if success.
  */
-bool generate_stack_operation(Rule_type rule);
+bool emit_stack_operation(Rule_type rule);
 
 /**
  * Generation of stack elements concatenation.
  * @return true if success.
  */
-bool generate_stack_concat();
+bool emit_stack_concat();
 
 /**
  * Generation of popping result from stack.
@@ -198,35 +198,35 @@ bool generate_stack_concat();
  * @param frame
  * @return true if success.
  */
-bool generate_stack_pop_res(char* var, Data_type res_type, Data_type var_type, char* frame);
+bool emit_stack_pop_res(char* var, Data_type res_type, Data_type var_type, char* frame);
 
 /**
  * Generation of converting top element
  * on stack from int to float.
  * @return true if success.
  */
-bool generate_stack_top_int2float();
+bool emit_stack_top_int2float();
 
 /**
  * Generation of converting top element
  * on stack from float to int.
  * @return true if success.
  */
-bool generate_stack_top_float2int();
+bool emit_stack_top_float2int();
 
 /**
  * Generation of converting second
  * element on stack from int to float.
  * @return true if success.
  */
-bool generate_stack_sec_int2float();
+bool emit_stack_sec_int2float();
 
 /**
  * Generation of converting second
  * element on stack from float to int.
  * @return true if success.
  */
-bool generate_stack_sec_float2int();
+bool emit_stack_sec_float2int();
 
 /**
  * Generation of label.
@@ -235,7 +235,7 @@ bool generate_stack_sec_float2int();
  * @param index
  * @return true if success.
  */
-bool generate_label(char* name, int64_t deep, int64_t index);
+bool emit_label(char* name, int64_t deep, int64_t index);
 
 /**
  * Generation of if start.
@@ -244,7 +244,7 @@ bool generate_label(char* name, int64_t deep, int64_t index);
  * @param index
  * @return true if success.
  */
-bool generate_if_jump(char* name, int64_t deep, int64_t index);
+bool emit_if_jump(char* name, int64_t deep, int64_t index);
 
 /**
  * Generation of else start.
@@ -253,7 +253,7 @@ bool generate_if_jump(char* name, int64_t deep, int64_t index);
  * @param index
  * @return true if success.
  */
-bool generate_else_jump(char* name, int64_t deep, int64_t index);
+bool emit_else_jump(char* name, int64_t deep, int64_t index);
 
 /**
  * Generation of if end.
@@ -262,7 +262,7 @@ bool generate_else_jump(char* name, int64_t deep, int64_t index);
  * @param index
  * @return true if success.
  */
-bool generate_if_end(char* name, int64_t deep, int64_t index);
+bool emit_if_end(char* name, int64_t deep, int64_t index);
 
 /**
  * Generation of while head.
@@ -271,7 +271,7 @@ bool generate_if_end(char* name, int64_t deep, int64_t index);
  * @param index
  * @return true if success.
  */
-bool generate_while_head(char* name, int64_t deep, int64_t index);
+bool emit_while_head(char* name, int64_t deep, int64_t index);
 
 /**
  * Generation of while start.
@@ -280,7 +280,7 @@ bool generate_while_head(char* name, int64_t deep, int64_t index);
  * @param index
  * @return true if success.
  */
-bool generate_while_start(char* name, int64_t deep, int64_t index);
+bool emit_while_start(char* name, int64_t deep, int64_t index);
 
 /**
  * Generation of while end.
@@ -289,6 +289,6 @@ bool generate_while_start(char* name, int64_t deep, int64_t index);
  * @param index
  * @return true if success.
  */
-bool generate_while_end(char* name, int64_t deep, int64_t index);
+bool emit_while_end(char* name, int64_t deep, int64_t index);
 
 #endif //__CODE_GENERATOR__

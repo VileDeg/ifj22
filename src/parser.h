@@ -19,11 +19,10 @@ typedef struct
 
     bool in_param_list;
     bool in_scope;
+    
+    int  param_index;
 } ParserData;
 
 int parse_file(FILE* fptr);
-
-// Used only for testing in 'test_file' function (debug.h)
-int parse_old();
 
 #endif // __PARSER_H__

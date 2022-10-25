@@ -1,16 +1,16 @@
 #include "code_generator.h"
 
-#define ADD_CODE(text)                              \
+#define EMIT(text)                              \
     if (!str_concat(&code, (text))) return false
 
-#define ADD_CODE_N(text)                            \
+#define EMIT_N(text)                            \
     if (!str_concat(&code, (text"\n"))) return false
 
-#define ADD_NUM(number)                 \
+#define EMIT_NUM(number)                 \
     do {                                \
         char str[MAX_DIGITS];           \
         sprintf(str, "%ld", (number));  \
-        ADD_CODE(str);                  \
+        EMIT(str);                  \
     } while (0)
 
 #define MAX_DIGITS 50
@@ -19,7 +19,7 @@
 /**
 * GENERATOR OF BUILT-IN FUNCTIONS
 */
-
+#define BFNEND "\n"
 /// function reads() : ?string
 #define FUNCTION_READS              \
         "# Function reads\n"        \
@@ -28,7 +28,7 @@
         "DEFVAR LF@res\n"           \
         "READ LF@res string\n"      \
         "POPFRAME\n"                \
-        "RETURN\n"
+        "RETURN\n" BFNEND
 
 /// function readi() : ?int
 #define FUCNTION_READI          \
@@ -38,7 +38,7 @@
         "DEFVAR LF@res\n"       \
         "READ LF@res int\n"     \
         "POPFRAME\n"            \
-        "RETURN\n"
+        "RETURN\n" BFNEND
 
 /// function readf() : ?float
 #define FUNCTION_READF              \
@@ -48,7 +48,7 @@
         "DEFVAR LF@res\n"           \
         "READ LF@res float\n"       \
         "POPFRAME\n"                \
-        "RETURN\n"
+        "RETURN\n" BFNEND
 
 /// function strlen(string $𝑠) : int
 #define FUNCTION_STRLEN                 \
@@ -58,7 +58,7 @@
         "DEFVAR LF@res\n"               \
         "STRLEN LF@res LF@-0\n"         \
         "POPFRAME\n"                    \
-        "RETURN\n"
+        "RETURN\n" BFNEND
 
 /// function substring(string $𝑠, int $𝑖, int $𝑗) : ?string
 #define FUNCTION_SUBSTRING                              \
@@ -95,7 +95,7 @@
         "JUMPIFEQ @substring_loop LF@cond bool@true\n"  \
         "LABEL @substring_end\n"                        \
         "POPFRAME\n"                                    \
-        "RETURN\n"
+        "RETURN\n" BFNEND
 
 /// function ord(string $c) : int
 #define FUNCTION_ORD                                \
@@ -116,7 +116,7 @@
         "STRI2INT LF@res LF@-0 int@0\n"             \
         "LABEL @ord_end\n"                          \
         "POPFRAME\n"                                \
-        "RETURN\n"
+        "RETURN\n" BFNEND
 
 /// function chr(int $i) : string
 #define FUNCTION_CHR                            \
@@ -133,39 +133,38 @@
         "INT2CHAR LF@res LF@-0\n"               \
         "LABEL @chr_end\n"                      \
         "POPFRAME\n"                            \
-        "RETURN\n"
+        "RETURN\n" BFNEND
 
 
 static str_t code;
 
 
-bool generate_header() {
-    ADD_CODE_N(".IFJcode22\n"
+bool emit_header() {
+    EMIT_N(".IFJcode22\n"
                "DEFVAR GF@tmp_op1\n"
                "DEFVAR GF@tmp_op2\n"
                "DEFVAR GF@tmp_op3\n"
-               "DEFVAR GF@exp_result\n"
-               "JUMP @main");
+               "DEFVAR GF@exp_result\n");
     return true;
 }
 
 
-bool generate_built_in_funcs() {
-    ADD_CODE(FUNCTION_READS);
-    ADD_CODE(FUCNTION_READI);
-    ADD_CODE(FUNCTION_READF);
-    ADD_CODE(FUNCTION_STRLEN);
-    ADD_CODE(FUNCTION_SUBSTRING);
-    ADD_CODE(FUNCTION_ORD);
-    ADD_CODE(FUNCTION_CHR);
+bool emit_built_in_funcs() {
+    EMIT(FUNCTION_READS);
+    EMIT(FUCNTION_READI);
+    EMIT(FUNCTION_READF);
+    EMIT(FUNCTION_STRLEN);
+    EMIT(FUNCTION_SUBSTRING);
+    EMIT(FUNCTION_ORD);
+    EMIT(FUNCTION_CHR);
     return true;
 }
 
 
 bool code_generator_start() {
     if (!str_const(&code)) return false;
-    if (!generate_header()) return false;
-    if (!generate_built_in_funcs()) return false;
+    if (!emit_header()) return false;
+    //if (!emit_built_in_funcs()) return false;
     return true;
 }
 
@@ -181,75 +180,74 @@ void code_generator_flush(FILE* file) {
 }
 
 
-bool generate_main_start() {
-    ADD_CODE_N("# MAIN FUNCTION\n"
-               "LABEL @main\n"
+bool emit_body_start() {
+    EMIT_N("# PROGRAM BODY\n"
                "CREATEFRAME\n"
                "PUSHFRAME");
     return true;
 }
 
 
-bool generate_main_end() {
-    ADD_CODE_N("# main end\n"
+bool emit_body_end() {
+    EMIT_N("# main end\n"
                "POPFRAME\n"
                "CLEARS");
     return true;
 }
 
 
-bool generate_function_start(char* name) {
-    ADD_CODE("# Function ");
-    ADD_CODE(name);
-    ADD_CODE("\n");
+bool emit_function_start(char* name) {
+    EMIT("# Function ");
+    EMIT(name);
+    EMIT("\n");
 
-    ADD_CODE("LABEL @");
-    ADD_CODE(name);
-    ADD_CODE("\n");
+    EMIT("LABEL @");
+    EMIT(name);
+    EMIT("\n");
 
-    ADD_CODE_N("PUSHFRAME");
-
-    return true;
-}
-
-
-bool generate_function_end(char* name) {
-    ADD_CODE("# ");
-    ADD_CODE(name);
-    ADD_CODE_N(" end");
-
-    ADD_CODE("LABEL @");
-    ADD_CODE(name);
-    ADD_CODE_N("_end");
-
-    ADD_CODE_N("POPFRAME");
-
-    ADD_CODE_N("RETURN");
+    EMIT_N("PUSHFRAME");
 
     return true;
 }
 
 
-bool generate_def_val(Data_type type) {
+bool emit_function_end(char* name) {
+    EMIT("# ");
+    EMIT(name);
+    EMIT_N(" end");
+
+    EMIT("LABEL @");
+    EMIT(name);
+    EMIT_N("_end");
+
+    EMIT_N("POPFRAME");
+
+    EMIT_N("RETURN");
+
+    return true;
+}
+
+
+bool emit_def_val(Data_type type) {
     switch (type) {
         case TYPE_FLOAT:
-            ADD_CODE("float@0.0");
+            EMIT("float@0.0");
             break;
 
         case TYPE_INT:
-            ADD_CODE("int@0");
+            EMIT("int@0");
             break;
 
         case TYPE_STRING:
-            ADD_CODE("string@");
+            EMIT("string@");
             break;
 
         case TYPE_BOOL:
-            ADD_CODE("bool@false");
+            EMIT("bool@false");
             break;
 
         case TYPE_NIL:
-            ADD_CODE("nil@nil");
+            EMIT("nil@nil");
             break;
 
         default:
@@ -259,77 +257,77 @@ bool generate_def_val(Data_type type) {
 }
 
 
-bool generate_function_res(Data_type type) {
-    ADD_CODE_N("DEFVAR LF@res");
+bool emit_function_res(Data_type type) {
+    EMIT_N("DEFVAR LF@res");
 
-    ADD_CODE("MOVE LF@res ");
-    if (!generate_def_val(type)) return false;
-    ADD_CODE("\n");
-
-    return true;
-}
-
-
-bool generate_defvar(char* var) {
-    ADD_CODE("DEFVAR LF@");
-    ADD_CODE(var);
-    ADD_CODE("\n");
+    EMIT("MOVE LF@res ");
+    if (!emit_def_val(type)) return false;
+    EMIT("\n");
 
     return true;
 }
 
 
-bool generate_var_def(Data_type type, char* var) {
-    ADD_CODE("MOVE LF@");
-    ADD_CODE(var);
-    ADD_CODE(" ");
-    if (!generate_def_val(type)) return false;
-    ADD_CODE("\n");
+bool emit_defvar(char* var) {
+    EMIT("DEFVAR LF@");
+    EMIT(var);
+    EMIT("\n");
 
     return true;
 }
 
 
-bool generate_function_call(char* name) {
-    ADD_CODE("CALL @");
-    ADD_CODE(name);
-    ADD_CODE("\n");
+bool emit_var_def(Data_type type, char* var) {
+    EMIT("MOVE LF@");
+    EMIT(var);
+    EMIT(" ");
+    if (!emit_def_val(type)) return false;
+    EMIT("\n");
 
     return true;
 }
 
 
-bool generate_function_res_assign(char* var, Data_type var_type, Data_type res_type) {
+bool emit_function_call(char* name) {
+    EMIT("CALL @");
+    EMIT(name);
+    EMIT("\n");
+
+    return true;
+}
+
+
+bool emit_function_res_assign(char* var, Data_type var_type, Data_type res_type) {
     if (var_type == TYPE_INT && res_type == TYPE_FLOAT) {
-        ADD_CODE_N("FLOAT2INT TF@res TF@res");
+        EMIT_N("FLOAT2INT TF@res TF@res");
     } else if (var_type == TYPE_FLOAT && res_type == TYPE_INT) {
-        ADD_CODE_N("INT2FLOAT TF@res TF@res");
+        EMIT_N("INT2FLOAT TF@res TF@res");
     }
 
-    ADD_CODE("MOVE LF@");
-    ADD_CODE(var);
-    ADD_CODE_N(" TF@res");
+    EMIT("MOVE LF@");
+    EMIT(var);
+    EMIT_N(" TF@res");
 
     return true;
 }
 
 
-bool generate_function_param_declare(char* name, int64_t index) {
-    ADD_CODE("DEFVAR LF@");
-    ADD_CODE(name);
-    ADD_CODE("\n");
+bool emit_function_param_declare(char* name, int64_t index) {
+    EMIT("DEFVAR LF@");
+    EMIT(name);
+    EMIT("\n");
 
-    ADD_CODE("MOVE LF@");
-    ADD_CODE(name);
-    ADD_CODE(" LF@-");
-    ADD_NUM(index);
-    ADD_CODE("\n");
+    EMIT("MOVE LF@");
+    EMIT(name);
+    EMIT(" LF@-");
+    EMIT_NUM(index);
+    EMIT("\n");
 
     return true;
 }
 
 
-bool generate_value_from_token(Token token) {
+bool emit_value_from_token(Token token) {
     char term[MAX_DIGITS];
     unsigned char c;
     str_t tmp;
@@ -337,14 +335,14 @@ bool generate_value_from_token(Token token) {
     switch (token.type) {
         case token_integer:
             sprintf(term, "%d", token.value.integer);
-            ADD_CODE("int@");
-            ADD_CODE(term);
+            EMIT("int@");
+            EMIT(term);
             break;
 
         case token_float:
             sprintf(term, "%f", token.value.decimal);
-            ADD_CODE("float@");
-            ADD_CODE(term);
+            EMIT("float@");
+            EMIT(term);
             break;
 
         case token_string:
@@ -357,13 +355,13 @@ bool generate_value_from_token(Token token) {
                     str_add_sign(&tmp, (char) c);
                 }
             }
-            ADD_CODE("string@");
-            ADD_CODE(tmp.ptr);
+            EMIT("string@");
+            EMIT(tmp.ptr);
             break;
 
         case token_ID:
-            ADD_CODE("LF@");
-            ADD_CODE(token.value.String->ptr);
+            EMIT("LF@");
+            EMIT(token.value.String->ptr);
             break;
 
         default:
@@ -375,75 +373,75 @@ bool generate_value_from_token(Token token) {
 }
 
 
-bool generate_function_before_pass_params() {
-    ADD_CODE_N("CREATEFRAME");
+bool emit_function_before_pass_params() {
+    EMIT_N("CREATEFRAME");
 
     return true;
 }
 
 
-bool generate_function_convert_passed_param(Data_type from, Data_type to, int64_t index) {
+bool emit_function_convert_passed_param(Data_type from, Data_type to, int64_t index) {
     if (to == TYPE_INT && from == TYPE_FLOAT) {
-        ADD_CODE("FLOAT2INT TF@-");
-        ADD_NUM(index);
-        ADD_CODE(" TF@-");
-        ADD_NUM(index);
-        ADD_CODE("\n");
+        EMIT("FLOAT2INT TF@-");
+        EMIT_NUM(index);
+        EMIT(" TF@-");
+        EMIT_NUM(index);
+        EMIT("\n");
     } else if (to == TYPE_FLOAT && from == TYPE_INT) {
-        ADD_CODE("INT2FLOAT TF@-");
-        ADD_NUM(index);
-        ADD_CODE(" TF@-");
-        ADD_NUM(index);
-        ADD_CODE("\n");
+        EMIT("INT2FLOAT TF@-");
+        EMIT_NUM(index);
+        EMIT(" TF@-");
+        EMIT_NUM(index);
+        EMIT("\n");
     }
 
     return true;
 }
 
 
-bool generate_function_pass_param(Token token, int64_t index) {
-    ADD_CODE("DEFVAR TF@-");
-    ADD_NUM(index);
-    ADD_CODE("\n");
+bool emit_function_pass_param(Token token, int64_t index) {
+    EMIT("DEFVAR TF@-");
+    EMIT_NUM(index);
+    EMIT("\n");
 
-    ADD_CODE("MOVE TF@-");
-    ADD_NUM(index);
-    ADD_CODE(" ");
-    if (!generate_value_from_token(token)) return false;
-    ADD_CODE("\n");
-
-    return true;
-}
-
-
-bool generate_function_return(char* name) {
-    ADD_CODE_N("MOVE LF@res GF@exp_result");
-
-    ADD_CODE("JUMP @");
-    ADD_CODE(name);
-    ADD_CODE_N("_end");
+    EMIT("MOVE TF@-");
+    EMIT_NUM(index);
+    EMIT(" ");
+    if (!emit_value_from_token(token)) return false;
+    EMIT("\n");
 
     return true;
 }
 
 
-bool generate_input(char* var, Data_type type) {
-    ADD_CODE_N("WRITE GF@input_prompt");
+bool emit_function_return(char* name) {
+    EMIT_N("MOVE LF@res GF@exp_result");
 
-    ADD_CODE("READ LF@");
-    ADD_CODE(var);
-    ADD_CODE(" ");
+    EMIT("JUMP @");
+    EMIT(name);
+    EMIT_N("_end");
+
+    return true;
+}
+
+
+bool emit_input(char* var, Data_type type) {
+    EMIT_N("WRITE GF@input_prompt");
+
+    EMIT("READ LF@");
+    EMIT(var);
+    EMIT(" ");
     switch (type) {
         case TYPE_FLOAT:
-            ADD_CODE_N("float");
+            EMIT_N("float");
             break;
 
         case TYPE_INT:
-            ADD_CODE_N("int");
+            EMIT_N("int");
             break;
 
         case TYPE_STRING:
-            ADD_CODE_N("string");
+            EMIT_N("string");
             break;
 
         default:
@@ -454,71 +452,71 @@ bool generate_input(char* var, Data_type type) {
 }
 
 
-bool generate_exp_res() {
-    ADD_CODE_N("WRITE GF@exp_result");
+bool emit_exp_res() {
+    EMIT_N("WRITE GF@exp_result");
 
     return true;
 }
 
 
-bool generate_push(Token token) {
-    ADD_CODE("PUSHS ");
-    if (!generate_value_from_token(token)) return false;
-    ADD_CODE("\n");
+bool emit_push(Token token) {
+    EMIT("PUSHS ");
+    if (!emit_value_from_token(token)) return false;
+    EMIT("\n");
 
     return true;
 }
 
 
-bool generate_stack_operation(Rule_type rule) {
+bool emit_stack_operation(Rule_type rule) {
     switch (rule) {
         case RULE_ADD:
-            ADD_CODE_N("ADDS");
+            EMIT_N("ADDS");
             break;
 
         case RULE_SUB:
-            ADD_CODE_N("SUBS");
+            EMIT_N("SUBS");
             break;
 
         case RULE_DOT:
-            ADD_CODE_N("POPS GF@tmp_op3\n"
-                       "POPS GF@tmp_op2\n"
-                       "CONCAT GF@tmp_op1 GF@tmp_op2 GF@tmp_op3\n"
-                       "PUSHS GF@tmp_op1");
+            EMIT_N("POPS GF@tmp_op3\n"
+                    "POPS GF@tmp_op2\n"
+                    "CONCAT GF@tmp_op1 GF@tmp_op2 GF@tmp_op3\n"
+                    "PUSHS GF@tmp_op1");
             break;
 
         case RULE_MUL:
-            ADD_CODE_N("MULS");
+            EMIT_N("MULS");
             break;
 
         case RULE_DIV:
-            ADD_CODE_N("DIVS");
+            EMIT_N("DIVS");
             break;
 
         case RULE_EQ:
-            ADD_CODE_N("EQS");
+            EMIT_N("EQS");
             break;
 
         case RULE_NEQ:
-            ADD_CODE_N("EQS\n"
+            EMIT_N("EQS\n"
                        "NOTS");
             break;
 
         case RULE_LT:
-            ADD_CODE_N("LTS");
+            EMIT_N("LTS");
             break;
 
         case RULE_GT:
-            ADD_CODE_N("GTS");
+            EMIT_N("GTS");
             break;
 
         case RULE_LEQ:
-            ADD_CODE_N("GTS\n"
+            EMIT_N("GTS\n"
                        "NOTS");
             break;
 
         case RULE_GEQ:
-            ADD_CODE_N("LTS\n"
+            EMIT_N("LTS\n"
                        "NOTS");
             break;
 
@@ -529,153 +527,153 @@ bool generate_stack_operation(Rule_type rule) {
 }
 
 
-bool generate_stack_concat() {
-    ADD_CODE_N("POPS GF@tmp_op1\n"
-               "POPS GF@tmp_op2\n"
-               "CONCAT GF@tmp_op2 GF@tmp_op2 GF@tmp_op1\n"
-               "PUSHS GF@tmp_op2");
+bool emit_stack_concat() {
+    EMIT_N("POPS GF@tmp_op1\n"
+            "POPS GF@tmp_op2\n"
+            "CONCAT GF@tmp_op2 GF@tmp_op2 GF@tmp_op1\n"
+            "PUSHS GF@tmp_op2");
 
     return true;
 }
 
 
-bool generate_stack_pop_res(char* var, Data_type res_type, Data_type var_type, char* frame) {
+bool emit_stack_pop_res(char* var, Data_type res_type, Data_type var_type, char* frame) {
     if (var_type == TYPE_INT && res_type == TYPE_FLOAT) {
-        ADD_CODE_N("FLOAT2INTS");
+        EMIT_N("FLOAT2INTS");
     } else if (var_type == TYPE_FLOAT && res_type == TYPE_INT) {
-        ADD_CODE_N("INT2FLOATS");
+        EMIT_N("INT2FLOATS");
     }
 
-    ADD_CODE("POPS ");
-    ADD_CODE(frame);
-    ADD_CODE("@");
-    ADD_CODE(var);
-    ADD_CODE("\n");
+    EMIT("POPS ");
+    EMIT(frame);
+    EMIT("@");
+    EMIT(var);
+    EMIT("\n");
 
     return true;
 }
 
 
-bool generate_stack_top_int2float() {
-    ADD_CODE_N("INT2FLOATS");
+bool emit_stack_top_int2float() {
+    EMIT_N("INT2FLOATS");
 
     return true;
 }
 
 
-bool generate_stack_top_float2int() {
-    ADD_CODE_N("FLOAT2INTS");
+bool emit_stack_top_float2int() {
+    EMIT_N("FLOAT2INTS");
 
     return true;
 }
 
 
-bool generate_stack_sec_int2float() {
-    ADD_CODE_N("POPS GF@tmp_op1\n"
-               "INT2FLOATS\n"
-               "PUSHS GF@tmp_op1");
+bool emit_stack_sec_int2float() {
+    EMIT_N("POPS GF@tmp_op1\n"
+            "INT2FLOATS\n"
+            "PUSHS GF@tmp_op1");
 
     return true;
 }
 
 
-bool generate_stack_sec_float2int() {
-    ADD_CODE_N("POPS GF@tmp_op1\n"
-               "FLOAT2INTS\n"
-               "PUSHS GF@tmp_op1");
+bool emit_stack_sec_float2int() {
+    EMIT_N("POPS GF@tmp_op1\n"
+            "FLOAT2INTS\n"
+            "PUSHS GF@tmp_op1");
 
     return true;
 }
 
 
-bool generate_label(char* name, int64_t deep, int64_t index) {
-    ADD_CODE("LABEL @");
-    ADD_CODE(name);
-    ADD_CODE("_");
-    ADD_NUM(deep);
-    ADD_CODE("_");
-    ADD_NUM(index);
-    ADD_CODE("\n");
+bool emit_label(char* name, int64_t deep, int64_t index) {
+    EMIT("LABEL @");
+    EMIT(name);
+    EMIT("_");
+    EMIT_NUM(deep);
+    EMIT("_");
+    EMIT_NUM(index);
+    EMIT("\n");
 
     return true;
 }
 
 
-bool generate_if_jump(char* name, int64_t deep, int64_t index) {
-    ADD_CODE_N("# if");
+bool emit_if_jump(char* name, int64_t deep, int64_t index) {
+    EMIT_N("# if");
 
-    ADD_CODE("JUMPIGEQ @");
-    ADD_CODE(name);
-    ADD_CODE("_");
-    ADD_NUM(deep);
-    ADD_CODE("_");
-    ADD_NUM(index);
-    ADD_CODE_N(" GF@exp_result bool@false");
-
-    return true;
-}
-
-
-bool generate_else_jump(char* name, int64_t deep, int64_t index) {
-    ADD_CODE("JUMP @");
-    ADD_CODE(name);
-    ADD_CODE("_");
-    ADD_NUM(deep);
-    ADD_CODE("_");
-    ADD_NUM(index + 1);
-    ADD_CODE("\n");
-
-    ADD_CODE_N("# else");
-
-    if (!generate_label(name, deep, index)) return false;
+    EMIT("JUMPIGEQ @");
+    EMIT(name);
+    EMIT("_");
+    EMIT_NUM(deep);
+    EMIT("_");
+    EMIT_NUM(index);
+    EMIT_N(" GF@exp_result bool@false");
 
     return true;
 }
 
 
-bool generate_if_end(char* name, int64_t deep, int64_t index) {
-    ADD_CODE_N("# if end");
+bool emit_else_jump(char* name, int64_t deep, int64_t index) {
+    EMIT("JUMP @");
+    EMIT(name);
+    EMIT("_");
+    EMIT_NUM(deep);
+    EMIT("_");
+    EMIT_NUM(index + 1);
+    EMIT("\n");
 
-    if (!generate_label(name, deep, index)) return false;
+    EMIT_N("# else");
 
-    return true;
-}
-
-
-bool generate_while_head(char* name, int64_t deep, int64_t index) {
-    ADD_CODE_N("# while");
-
-    if(!generate_label(name, deep, index)) return false;
-
-    return true;
-}
-
-
-bool generate_while_start(char* name, int64_t deep, int64_t index) {
-    ADD_CODE("JUMPIFEQ @");
-    ADD_CODE(name);
-    ADD_CODE("_");
-    ADD_NUM(deep);
-    ADD_CODE("_");
-    ADD_NUM(index);
-    ADD_CODE_N(" GF@exp_result bool@false");
+    if (!emit_label(name, deep, index)) return false;
 
     return true;
 }
 
 
-bool generate_while_end(char* name, int64_t deep, int64_t index) {
-    ADD_CODE("JUMP @");
-    ADD_CODE(name);
-    ADD_CODE("_");
-    ADD_NUM(deep);
-    ADD_CODE("_");
-    ADD_NUM(index - 1);
-    ADD_CODE("\n");
+bool emit_if_end(char* name, int64_t deep, int64_t index) {
+    EMIT_N("# if end");
 
-    ADD_CODE_N("# loop");
+    if (!emit_label(name, deep, index)) return false;
 
-    if(!generate_label(name, deep, index)) return false;
+    return true;
+}
+
+
+bool emit_while_head(char* name, int64_t deep, int64_t index) {
+    EMIT_N("# while");
+
+    if(!emit_label(name, deep, index)) return false;
+
+    return true;
+}
+
+
+bool emit_while_start(char* name, int64_t deep, int64_t index) {
+    EMIT("JUMPIFEQ @");
+    EMIT(name);
+    EMIT("_");
+    EMIT_NUM(deep);
+    EMIT("_");
+    EMIT_NUM(index);
+    EMIT_N(" GF@exp_result bool@false");
+
+    return true;
+}
+
+
+bool emit_while_end(char* name, int64_t deep, int64_t index) {
+    EMIT("JUMP @");
+    EMIT(name);
+    EMIT("_");
+    EMIT_NUM(deep);
+    EMIT("_");
+    EMIT_NUM(index - 1);
+    EMIT("\n");
+
+    EMIT_N("# loop");
+
+    if(!emit_label(name, deep, index)) return false;
 
     return true;
 }
