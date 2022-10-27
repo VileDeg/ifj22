@@ -66,12 +66,6 @@
 		CHECK_RULE(_rule);\
 	} while(0)
 
-#define GET_N_RUN_RULE(_rule)\
-	do {\
-		GET_NEXT_TOKEN();\
-		CHECK_RULE(_rule);\
-	} while(0)
-
 #define token_str pd->token.value.String->ptr
 
 #define HAS_DOLLAR (token_str[0] == '$')
