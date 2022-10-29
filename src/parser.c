@@ -533,6 +533,7 @@ static int condition_stat(ParserData* pd)
 		_DPRNR(0);
 		GET_N_CHECK_TYPE(left_bracket);
 		{
+			GET_NEXT_TOKEN();
 			/*TODO: if */ expression_parsing(pd); //etc...
 		}
 		GET_N_CHECK_TYPE(right_bracket);

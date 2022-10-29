@@ -223,7 +223,7 @@ int64_t expression_parsing(ParserData* pd) {
     // [x,y] = index for precedence table
     elementSymbol* ySym;
     Oper_type xSym;
-
+   
     stack_init(&stack);
     stack_push(&stack, OPER_DOLLAR);
 
@@ -243,6 +243,8 @@ int64_t expression_parsing(ParserData* pd) {
                 stack_push(&stack, xSym);
                 break;
             case SIGN_L:
+                if (xSym == OPER_ID)
+                    GEN_CODE(emit_push, pd->token);
                 // check if (xSym = variable/constant) => GEN_CODE(generate_push, pd->token);              // GENERATE CODE
                 break;
             case SIGN_N:
@@ -256,7 +258,7 @@ int64_t expression_parsing(ParserData* pd) {
     elementSymbol* E = nonterm_top(&stack);
 
     char *frame = "LF";
-    //if(pd->lhs_var->global) frame = "GF";                                                                 // don't know how to get this info (global/local)
+    if(!pd->in_local_scope) frame = "GF";                                                                 // don't know how to get this info (global/local)
 
     if(pd->lhs_var != NULL) {
         switch (pd->lhs_var->type) {
