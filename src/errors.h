@@ -6,12 +6,12 @@
 
 #define ERROR_LEXICAL 1               //Error in lexical analyse (chybná struktura aktuálního lexému).       
 #define ERROR_SYNTAX 2                //Error in syntax analyse.
-#define ERROR_SEMANTIC_UNDEFINED_FUNCTION 3    //Error in semantic analyse (undefined function).
-#define ERROR_SEMANTIC_FUNCTION 4     //Error in semantic analyse - wrong number/type of var./return values in calling function(or in returning from function).
-#define ERROR_SEMANTIC_UNDEFINED_VARIABLE 5    //Error in semantic analyse (undefined variable).
-#define ERROR_SEMANTIC_RETURN 6 //!!
-#define ERROR_SEMANTIC_EXPRESSION 7   //Error in semantic of t.k(!!) in arithmetic, string, relacnich(!!) expressions.
-#define ERROR_SEMANTIC_OTHER 8        //Other semantic errors.
+#define ERROR_SEM_ID_DEF 3    //Error in semantic analyse (undefined function).
+#define ERROR_SEM_FUNC_COMPAT 4     //Error in semantic analyse - wrong number/type of var./return values in calling function(or in returning from function).
+#define ERROR_SEM_UNDEF_VAR 5    //Error in semantic analyse (undefined variable).
+#define ERROR_SEM_RETURN 6 //!!
+#define ERROR_SEM_EXPRESSION 7   //Error in semantic of t.k(!!) in arithmetic, string, relacnich(!!) expressions.
+#define ERROR_SEM_OTHER 8        //Other semantic errors.
 #define ERROR_INTERNAL 99             //Internal error(problems with allocation ...)
 
 #define _PRERRH(err, fmt, ...)\

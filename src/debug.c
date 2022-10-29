@@ -36,7 +36,7 @@ static const char* tk_types_str[] = {
     "keyword          ",
     "integer          ",
     "double           ",
-    "exponent         ",
+    //"exponent         ",
     "string           ",
     "minus            ",
     "plus             ",
@@ -98,7 +98,7 @@ void debug_print_token(Token tk)
                 "", "", debug_tk_type(tk.type));
             break;
         case token_float:
-        case token_exponent:
+        //case token_exponent:
             snprintf(str, mxlen, "%g", tk.value.decimal);
             DEBUGPR(s_TokenDebugFormat, "", str,
                 "", "", debug_tk_type(tk.type));
@@ -257,9 +257,9 @@ free:
     return retcode;
 }
 
-static const char* s_RulesFilepath = "../ifj22-ED-LL-gramatika.txt";
+static const char* s_RulesFilepath = "../LL-grammar.txt";
 #define RULE_EXP_MXLEN 256
-#define NUM_RULES 38
+#define NUM_RULES 39
 static struct {
     char rule_name [NUM_RULES][RULE_EXP_MXLEN];
     char exp_string[NUM_RULES][RULE_EXP_MXLEN];

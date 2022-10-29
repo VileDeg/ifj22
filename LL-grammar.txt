@@ -1,0 +1,39 @@
+<begin> -> <?php declare ( strict_types = 1 ) ; <program> <end>
+<program> -> function ID ( <params> ) : <func_type> <compound_stat> <program>
+<program> -> <statement> <program>
+<statement> -> $ID <assign> ;
+<statement> -> if <condition_stat> else <compound_stat>
+<statement> -> while <condition_stat>
+<statement> -> return <expression> ;
+<statement> -> <rvalue> ;
+<statement> -> ε
+<condition_stat> -> ( <expression> ) <compound_stat>
+<compound_stat> -> { <statement> }
+<assign> -> = <rvalue>
+<assign> -> ε
+<rvalue> -> $ID
+<rvalue> -> ID ( <args> )
+<rvalue> -> <expression>
+<params> -> <type> $ID <param_n>
+<params> -> ε
+<param_n> -> , <params>
+<param_n> -> ε
+<func_type> -> void
+<func_type> -> <type>
+<args> -> <term> <arg_n>
+<args> -> ε
+<arg_n> -> , <args>
+<arg_n> -> ε
+<term> -> INT_LITERAL
+<term> -> FLOAT_LITERAL
+<term> -> STRING_LITERAL
+<term> -> NULL
+<term> -> $ID
+<type> -> float
+<type> -> int
+<type> -> string
+<type> -> ? float
+<type> -> ? int
+<type> -> ? string
+<end> -> ?> EOF
+<end> -> EOF

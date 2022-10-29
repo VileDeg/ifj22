@@ -24,34 +24,33 @@ void symtable_init(TSymtable *st) {
 
 
 TItem *item_const(const char *key, bool *alloc_failed) {
-    TItem *new_item = (TItem *) calloc(sizeof(TItem), 1);
-    if (new_item == NULL) {
-        *alloc_failed = true;
-        return NULL;
-    }
-    new_item->key = (char *) calloc(1, strlen(key) + 1);
-    if (new_item->key == NULL) {
-        free(new_item);
-        *alloc_failed = true;
-        return NULL;
-    }
-    new_item->data.string = (str_t *) calloc(sizeof(str_t), 1);
-    if (new_item->data.string == NULL) {
-        free(new_item->key);
-        free(new_item);
-        *alloc_failed = true;
-        return NULL;
-    }
-    if (!str_const(new_item->data.string)) {
-        free(new_item->key);
-        free(new_item->data.string);
-        free(new_item);
-        *alloc_failed = true;
-        return NULL;
-    }
+    TItem *new_item = calloc(sizeof(TItem), 1);
+    if (new_item == NULL)
+        goto mem_fail;
+    if (!(new_item->key = calloc(1, strlen(key) + 1)))
+        goto key_fail;
+    if (!(new_item->data.id = calloc(1, strlen(key) + 1)))
+        goto id_fail;
+    if (!(new_item->data.params = calloc(sizeof(str_t), 1)))
+        goto params_fail;
+    if (!str_const(new_item->data.params))
+        goto params_const_fail;
     strcpy(new_item->key, key);
+    strcpy(new_item->data.id, key);
+    new_item->data.type = TYPE_NIL;
     new_item->next = NULL;
     return new_item;
+params_const_fail:
+    free(new_item->data.params);
+params_fail:
+    free(new_item->data.id);
+id_fail:
+    free(new_item->key);
+key_fail:
+    free(new_item);
+mem_fail:
+    *alloc_failed = true;
+    return NULL;
 }
 
 
@@ -89,19 +88,19 @@ bool symtable_add_param(TData *data, int64_t data_type) {
     }
     switch (data_type) {
         case (TYPE_FLOAT):
-            if (!str_add_sign(data->string, 'f')) {
+            if (!str_add_sign(data->params, 'f')) {
                 return false;
             }
             break;
 
         case (TYPE_INT):
-            if (!str_add_sign(data->string, 'i')) {
+            if (!str_add_sign(data->params, 'i')) {
                 return false;
             }
             break;
 
         case (TYPE_STRING):
-            if (!str_add_sign(data->string, 's')) {
+            if (!str_add_sign(data->params, 's')) {
                 return false;
             }
             break;
@@ -143,9 +142,9 @@ bool symtable_delete_symbol(TSymtable *st, const char *key) {
                 last->next = tmp->next;
             }
             free(tmp->key);
-            if (tmp->data.string != NULL) {
-                str_dest(tmp->data.string);
-                free(tmp->data.string);
+            if (tmp->data.params != NULL) {
+                str_dest(tmp->data.params);
+                free(tmp->data.params);
             }
             free(tmp);
             return true;
@@ -168,9 +167,9 @@ void symtable_clear(TSymtable *st) {
         while (to_delete != NULL) {
             tmp = to_delete->next;
             free(to_delete->key);
-            if (to_delete->data.string != NULL) {
-                str_dest(to_delete->data.string);
-                free(to_delete->data.string);
+            if (to_delete->data.params != NULL) {
+                str_dest(to_delete->data.params);
+                free(to_delete->data.params);
             }
             free(to_delete);
             to_delete = tmp;

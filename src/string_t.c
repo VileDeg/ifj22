@@ -15,8 +15,9 @@ void str_dest(str_t *str)
 //Delete data from string.
 void str_clear(str_t* str)
 {
-    str->len = 0;	
-	str->ptr[str->len] = '\0';
+    str->len = 0;
+    memset(str->ptr, 0, str->cap);
+	//str->ptr[str->len] = '\0';
 }
 
 //Initialization of string.

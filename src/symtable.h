@@ -19,13 +19,16 @@ typedef enum {
     TYPE_NIL
 } Data_type;
 
+#define MAX_PARAMS 3
+
 /**
  * @struct Data.
  */
 typedef struct
 {
     Data_type type;
-    str_t* string;
+    str_t* params;
+    char* id;
 } TData;
 
 /**

@@ -40,38 +40,38 @@ void code_generator_finish();
  */
 void code_generator_flush(FILE* file);
 
-/**
- * Main beginning generation.
- * @return true if success.
- */
-bool emit_body_start();
+// /**
+//  * Main beginning generation.
+//  * @return true if success.
+//  */
+// bool emit_body_open();
 
-/**
- * Main end generation.
- * @return true if success.
- */
-bool emit_body_end();
+// /**
+//  * Main end generation.
+//  * @return true if success.
+//  */
+// bool emit_body_close();
 
 /**
  * Generation of function beginning.
  * @param name
  * @return true if success.
  */
-bool emit_function_start(char* name);
+bool emit_function_open(char* name);
 
 /**
  * Generation of function end.
  * @param name
  * @return true if success.
  */
-bool emit_function_end(char* name);
+bool emit_function_close(char* name);
 
-/**
- * Generation of default variable value.
- * @param type
- * @return true if success.
- */
-bool emit_def_val(Data_type type);
+// /**
+//  * Generation of default variable value.
+//  * @param type
+//  * @return true if success.
+//  */
+// bool emit_def_val(Data_type type);
 
 /**
  * Generation of @res value.
@@ -83,17 +83,18 @@ bool emit_function_res(Data_type type);
 /**
  * Generation of defvar.
  * @param var
+ * @param in_local_scope
  * @return true if success.
  */
-bool emit_defvar(char* var);
+bool emit_define_var(char* var, bool in_local_scope);
 
-/**
- * Giving a variable default value.
- * @param type
- * @param var
- * @return true if success.
- */
-bool emit_var_def(Data_type type, char* var);
+// /**
+//  * Giving a variable default value.
+//  * @param type
+//  * @param var
+//  * @return true if success.
+//  */
+// bool emit_var_def(Data_type type, char* var);
 
 /**
  * Generation of function calling.
@@ -148,6 +149,15 @@ bool emit_function_convert_passed_param(Data_type from, Data_type to, int64_t in
  * @return true if success.
  */
 bool emit_function_pass_param(Token token, int64_t index);
+
+/**
+ * Generation of passing parameters into function by stack.
+ * @param token
+ * @return true if success.
+ */
+bool emit_function_pass_param_push(Token token);
+
+bool emit_function_pass_param_count(int64_t count);
 
 /**
  * Generation of returning from function.
@@ -280,7 +290,7 @@ bool emit_while_head(char* name, int64_t deep, int64_t index);
  * @param index
  * @return true if success.
  */
-bool emit_while_start(char* name, int64_t deep, int64_t index);
+bool emit_while_open(char* name, int64_t deep, int64_t index);
 
 /**
  * Generation of while end.
@@ -289,6 +299,6 @@ bool emit_while_start(char* name, int64_t deep, int64_t index);
  * @param index
  * @return true if success.
  */
-bool emit_while_end(char* name, int64_t deep, int64_t index);
+bool emit_while_close(char* name, int64_t deep, int64_t index);
 
 #endif //__CODE_GENERATOR__

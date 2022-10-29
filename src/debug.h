@@ -41,7 +41,8 @@
     FILE* get_scan_out();
     FILE* get_pars_out();
 
-    #define DEBUGPR(...) do{ IFJ22_ASSERT(g_DebugOut != NULL, ""); fprintf(g_DebugOut, __VA_ARGS__); }while(0)
+    #define DEBUGPR(...) do{ IFJ22_ASSERT(g_DebugOut != NULL, "Output file not found");\
+        fprintf(g_DebugOut, __VA_ARGS__); }while(0)
     //#define DPRSCAN(...) SET_DEBUG_OUT(g_ScanOut); DEBGUPR(...)
 
     typedef struct{

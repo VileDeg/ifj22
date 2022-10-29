@@ -337,7 +337,7 @@ int scanner_get_next_token(Token *Token)
                 break;
 
             case(STATE_PROLOG):
-                Token->type = token_prolog;
+                Token->type = token_prologue;
                 return 0;
                                     
             case(STATE_QUESTION_MARK):
@@ -515,7 +515,7 @@ int scanner_get_next_token(Token *Token)
                          
                     sign = getchar_modified();                      
                 }
-                Token->type = token_exponent;
+                Token->type = token_float;
                 //Converts string to a floating-point number (decimal).
                 Token->value.decimal = atof(String->ptr);
                 ungetc(sign, s_fptr);

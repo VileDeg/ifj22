@@ -1,0 +1,83 @@
+static int term(ParserData* pd)
+{
+	RULE_OPEN;
+	{
+		if (strcmp(pd->rhs_func->id, "write"))
+		{
+			if (pd->rhs_func->params->len == pd->param_index)
+				return ERROR_SEM_FUNC_COMPAT;
+			CODEGEN(emit_function_pass_param, pd->token, pd->param_index);
+		}
+		else
+		{
+			CODEGEN(emit_function_pass_param_push, pd->token);
+			if (IS_VAR_ID && !symtable_find(&pd->localTable, token_str))
+				return ERROR_SEM_UNDEF_VAR;
+			goto end;
+		}
+
+		//<term> -> INT_VALUE
+		if (TYPE_IS(integer))
+		{
+			_DPRNR(0);
+
+			if (pd->rhs_func->params->ptr[pd->param_index] == 's')
+				return ERROR_SEM_FUNC_COMPAT;
+			if (pd->rhs_func->params->ptr[pd->param_index] == 'f')
+				CODEGEN(emit_function_convert_passed_param, TYPE_INT, TYPE_FLOAT, pd->param_index);
+
+		}
+		//<term> -> FLOAT_VALUE
+		else if (TYPE_IS(float))
+		{
+			_DPRNR(1);
+
+			if (pd->rhs_func->params->ptr[pd->param_index] == 's')
+				return ERROR_SEM_FUNC_COMPAT;
+			if (pd->rhs_func->params->ptr[pd->param_index] == 'i')
+				CODEGEN(emit_function_convert_passed_param, TYPE_FLOAT, TYPE_INT, pd->param_index);
+		}
+		//<term> -> STRING_VALUE
+		else if (TYPE_IS(string))
+		{
+			_DPRNR(2);
+
+			if (pd->rhs_func->params->ptr[pd->param_index] != 's')
+				return ERROR_SEM_FUNC_COMPAT;
+		}
+		//<term> -> $ID
+		else if (IS_VAR_ID)
+		{
+			_DPRNR(3);
+
+			TData* var = symtable_find(&pd->localTable, token_str);
+			if (!var) 
+				return ERROR_SEM_UNDEF_VAR;
+			switch (var->type)
+			{
+			case TYPE_INT:
+				if (pd->rhs_func->params->ptr[pd->param_index] == 's')
+					return ERROR_SEM_FUNC_COMPAT;
+				if (pd->rhs_func->params->ptr[pd->param_index] == 'f')
+					CODEGEN(emit_function_convert_passed_param, TYPE_INT, TYPE_FLOAT, pd->param_index);
+				break;
+			case TYPE_FLOAT:
+				if (pd->rhs_func->params->ptr[pd->param_index] == 's')
+				return ERROR_SEM_FUNC_COMPAT;
+				if (pd->rhs_func->params->ptr[pd->param_index] == 'i')
+					CODEGEN(emit_function_convert_passed_param, TYPE_FLOAT, TYPE_INT, pd->param_index);
+				break;
+			case TYPE_STRING:
+				if (pd->rhs_func->params->ptr[pd->param_index] != 's')
+					return ERROR_SEM_FUNC_COMPAT;
+			default: // Unsupported type
+				return ERROR_INTERNAL;
+			}
+		}
+		else
+			return ERROR_SYNTAX;
+end:		
+		pd->param_index++;
+	}
+	return RULE_OK;
+}

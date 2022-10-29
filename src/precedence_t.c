@@ -118,7 +118,7 @@ Oper_type term_info(Token* token) {
         case token_ID:
         case token_integer:
         case token_float:
-        case token_exponent:
+        //case token_exponent:
         case token_string:
             return OPER_ID;
         case token_dollar:

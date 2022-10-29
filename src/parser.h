@@ -3,6 +3,7 @@
 
 #include "symtable.h"
 #include "scanner.h"
+#include "stack_t.h"
 
 #define GEN_CODE(_callback, ...)								\
 	if (!_callback(__VA_ARGS__)) return ERROR_INTERNAL
@@ -14,11 +15,12 @@ typedef struct
 
     Token token;
 
-    TData* current_func;
-    TData* current_var;
+    TData* rhs_func;
+    TData* lhs_var;
 
     bool in_param_list;
-    bool in_scope;
+    bool last_rule_was_eps;
+    bool in_local_scope;
     
     int  param_index;
 } ParserData;

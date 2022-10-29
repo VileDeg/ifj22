@@ -68,7 +68,7 @@ typedef enum {
     token_keyword,             //Keyword.
     token_integer,             // Number (type integer).
     token_float,               // Number (type float).
-    token_exponent,            // Number (type exponent).
+    //token_exponent,            // Number (type exponent).
     token_string,              // String.
     token_minus,               // "-"
     token_plus,                // "+"
@@ -89,7 +89,7 @@ typedef enum {
     token_left_curly_bracket,  // "{"
     token_right_curly_bracket, // "}"
     token_dot,                 // "."
-    token_prolog,              // "<?php"
+    token_prologue,              // "<?php"
     token_dollar,              // "$"
     token_end                  // "?<"
 } Token_types;
