@@ -35,5 +35,5 @@
 <type> -> ? float
 <type> -> ? int
 <type> -> ? string
-<end> -> ?> EOF
-<end> -> EOF
+<end> -> ?>
+<end> -> ε

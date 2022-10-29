@@ -216,22 +216,14 @@ static int end(ParserData* pd)
 {
 	RULE_OPEN;
 	{
-		//<end> -> ?> EOF
+		//<end> -> ?>
 		GET_NEXT_TOKEN();
 
 		if (TYPE_IS(end))
-		{
 			_DPRNR(0);
-			
-		}
-		//<end> -> EOF
+		//<end> -> ε
 		else
-		{
 			_DPRNR(1);
-			CHECK_TYPE(EOF);
-		}
-
-		//{ CODEGEN(emit_body_close); }
 	}
 	return RULE_OK;
 }
@@ -797,7 +789,7 @@ int parse_file(FILE* fptr)
 {
 	str_t string;
     ParserData pd;
-    if (!str_const(&string) || !init_data(&pd) || !code_generator_start())
+    if (!str_const(&string) || !init_data(&pd) || !code_generator_init())
 		goto error;
 
 	scanner_set_file(fptr);
@@ -807,7 +799,7 @@ int parse_file(FILE* fptr)
 
     int result = begin(&pd);
 	code_generator_flush(s_CodegenOut);
-	code_generator_finish();
+	code_generator_terminate();
 
 	goto free;
 

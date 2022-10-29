@@ -27,12 +27,12 @@ bool emit_built_in_funcs();
  * Starting generation of code.
  * @return true if success.
  */
-bool code_generator_start();
+bool code_generator_init();
 
 /**
  * Finish code generation.
  */
-void code_generator_finish();
+void code_generator_terminate();
 
 /**
  * Extract code into file.
@@ -133,14 +133,14 @@ bool emit_value_from_token(Token token);
  */
 bool emit_function_before_pass_params();
 
-/**
- * Generation of parameter type conversion.
- * @param from
- * @param to
- * @param index
- * @return true if success.
- */
-bool emit_function_convert_passed_param(Data_type from, Data_type to, int64_t index);
+// /**
+//  * Generation of parameter type conversion.
+//  * @param from
+//  * @param to
+//  * @param index
+//  * @return true if success.
+//  */
+// bool emit_function_convert_passed_param(Data_type from, Data_type to, int64_t index);
 
 /**
  * Generation of passing parameters into function.
@@ -166,13 +166,13 @@ bool emit_function_pass_param_count(int64_t count);
  */
 bool emit_function_return(char* name);
 
-/**
- * Generation of input.
- * @param name
- * @param type
- * @return true if success.
- */
-bool emit_input(char* var, Data_type type);
+// /**
+//  * Generation of input.
+//  * @param name
+//  * @param type
+//  * @return true if success.
+//  */
+// bool emit_input(char* var, Data_type type);
 
 /**
  * Generation of writing expression result.

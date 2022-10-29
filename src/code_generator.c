@@ -184,7 +184,7 @@ bool emit_built_in_funcs() {
 }
 
 
-bool code_generator_start() {
+bool code_generator_init() {
     if (!str_const(&code)) return false;
     if (!emit_header()) return false;
     if (!emit_built_in_funcs()) return false;
@@ -192,7 +192,7 @@ bool code_generator_start() {
 }
 
 
-void code_generator_finish() {
+void code_generator_terminate() {
     str_dest(&code);
 }
 
@@ -409,23 +409,23 @@ bool emit_function_before_pass_params() {
 }
 
 
-bool emit_function_convert_passed_param(Data_type from, Data_type to, int64_t index) {
-    if (to == TYPE_INT && from == TYPE_FLOAT) {
-        EMIT("FLOAT2INT TF@-");
-        EMIT_INT(index);
-        EMIT(" TF@-");
-        EMIT_INT(index);
-        EMIT("\n");
-    } else if (to == TYPE_FLOAT && from == TYPE_INT) {
-        EMIT("INT2FLOAT TF@-");
-        EMIT_INT(index);
-        EMIT(" TF@-");
-        EMIT_INT(index);
-        EMIT("\n");
-    }
+// bool emit_function_convert_passed_param(Data_type from, Data_type to, int64_t index) {
+//     if (to == TYPE_INT && from == TYPE_FLOAT) {
+//         EMIT("FLOAT2INT TF@-");
+//         EMIT_INT(index);
+//         EMIT(" TF@-");
+//         EMIT_INT(index);
+//         EMIT("\n");
+//     } else if (to == TYPE_FLOAT && from == TYPE_INT) {
+//         EMIT("INT2FLOAT TF@-");
+//         EMIT_INT(index);
+//         EMIT(" TF@-");
+//         EMIT_INT(index);
+//         EMIT("\n");
+//     }
 
-    return true;
-}
+//     return true;
+// }
 
 
 bool emit_function_pass_param(Token token, int64_t index) {
@@ -474,31 +474,31 @@ bool emit_function_return(char* name) {
 }
 
 
-bool emit_input(char* var, Data_type type) {
-    EMIT_NL("WRITE GF@input_prompt");
+// bool emit_input(char* var, Data_type type) {
+//     EMIT_NL("WRITE GF@input_prompt");
 
-    EMIT("READ LF@");
-    EMIT(var);
-    EMIT(" ");
-    switch (type) {
-        case TYPE_FLOAT:
-            EMIT_NL("float");
-            break;
+//     EMIT("READ LF@");
+//     EMIT(var);
+//     EMIT(" ");
+//     switch (type) {
+//         case TYPE_FLOAT:
+//             EMIT_NL("float");
+//             break;
 
-        case TYPE_INT:
-            EMIT_NL("int");
-            break;
+//         case TYPE_INT:
+//             EMIT_NL("int");
+//             break;
 
-        case TYPE_STRING:
-            EMIT_NL("string");
-            break;
+//         case TYPE_STRING:
+//             EMIT_NL("string");
+//             break;
 
-        default:
-            return false;
-    }
+//         default:
+//             return false;
+//     }
 
-    return true;
-}
+//     return true;
+// }
 
 
 bool emit_exp_res() {
