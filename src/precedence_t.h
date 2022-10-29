@@ -12,8 +12,7 @@
 /*
  * Expression parsing.
  */
-
-void expression_parsing(ParserData* pd);
+int64_t expression_parsing(ParserData* pd);
 
 /**
  * @enum Operators of the precedence table.
@@ -86,7 +85,7 @@ extern int64_t precedent_table[TAB_SIZE][TAB_SIZE];
 typedef struct elementStack {
     Oper_type item;
     struct elementStack *next;
-    //elementType?                                                              //FIX ME
+    Data_type elementType;
 } elementSymbol;
 
 /*

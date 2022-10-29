@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "precedence_t.h"
+#include "errors.h"
 
 // Precedence table.
 int64_t precedent_table[TAB_SIZE][TAB_SIZE] = 
@@ -26,7 +27,7 @@ void stack_init(stackSymbol* stack)
 
 void stack_push(stackSymbol* stack, Oper_type item) 
 {
-    elementSymbol *new = malloc(sizeof(Oper_type));                             // TODO kontrola na NULL
+    elementSymbol *new = malloc(sizeof(elementSymbol));                             // TODO kontrola na NULL
     new->item = item;
     new->next = NULL;
     if(stack->top != NULL) {
@@ -215,7 +216,7 @@ bool reduce(ParserData* pd) {
     }
 }
 
-void expression_parsing(ParserData* pd) {
+int64_t expression_parsing(ParserData* pd) {
     bool flag_final = false;
 
     // [x,y] = index for precedence table
@@ -236,11 +237,13 @@ void expression_parsing(ParserData* pd) {
         switch(precedent_table[index_info(ySym->item)][index_info(xSym)]) {
             case SIGN_R:
                 reduce(pd);
+                break;
             case SIGN_E:
                 stack_push(&stack, xSym);
                 break;
             case SIGN_L:
                 // check if (xSym = variable/constant) => GEN_CODE(generate_push, pd->token);              // GENERATE CODE
+                break;
             case SIGN_N:
                 if(xSym == ySym->item && xSym == OPER_DOLLAR)
                     flag_final = true;
@@ -250,17 +253,25 @@ void expression_parsing(ParserData* pd) {
     }
 
     elementSymbol* E = nonterm_top(&stack);
-    /* switch (variable/function's data type) {                                 // GENERATE CODE
-        case TYPE_FLOAT:
-            GEN_CODE(generate_stack_pop_res, data->lhs_id->identifier, final_non_terminal->data_type, TYPE_FLOAT, frame);
-        case TYPE_INT:
-            GEN_CODE(generate_stack_pop_res, data->lhs_id->identifier, final_non_terminal->data_type, TYPE_INT, frame);
-        case TYPE_STRING:
-            GEN_CODE(generate_stack_pop_res, data->lhs_id->identifier, TYPE_STRING, TYPE_STRING, frame);
-        case BOOL:
-            GEN_CODE(generate_stack_pop_res, data->lhs_id->identifier, final_non_terminal->data_type, TYPE_BOOL, frame);
-        case NIL:
-            GEN_CODE(generate_stack_pop_res, data->lhs_id->identifier, final_non_terminal->data_type, TYPE_NIL, frame);
-        }
-    */
+
+    char *frame = "LF";
+    //if(pd->lhs_var->global) frame = "GF";                                                                 // don't know how to get this info (global/local)
+
+    // if(pd->lhs_var != NULL) {
+    //     switch (pd->lhs_var->type) {
+    //     case TYPE_FLOAT:
+    //         GEN_CODE(generate_stack_pop_res, pd->lhs_var->id, E->elementType, TYPE_FLOAT, frame);           // FIX ME !!! generate_stack_pop_res is not defined
+    //     case TYPE_INT:
+    //         GEN_CODE(generate_stack_pop_res, pd->lhs_var->id, E->elementType, TYPE_INT, frame);
+    //     case TYPE_STRING:
+    //         GEN_CODE(generate_stack_pop_res, pd->lhs_var->id, TYPE_STRING, TYPE_STRING, frame);
+    //     case TYPE_BOOL:
+    //         GEN_CODE(generate_stack_pop_res, pd->lhs_var->id, E->elementType, TYPE_BOOL, frame);
+    //     case TYPE_NIL:
+    //         GEN_CODE(generate_stack_pop_res, pd->lhs_var->id, E->elementType, TYPE_NIL, frame);
+    //     default:
+    //         break;
+    //     }
+    // }
+
 }
