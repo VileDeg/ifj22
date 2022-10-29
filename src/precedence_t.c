@@ -3,6 +3,7 @@
 
 #include "precedence_t.h"
 #include "errors.h"
+#include "code_generator.h"
 
 // Precedence table.
 int64_t precedent_table[TAB_SIZE][TAB_SIZE] = 
@@ -257,21 +258,26 @@ int64_t expression_parsing(ParserData* pd) {
     char *frame = "LF";
     //if(pd->lhs_var->global) frame = "GF";                                                                 // don't know how to get this info (global/local)
 
-    // if(pd->lhs_var != NULL) {
-    //     switch (pd->lhs_var->type) {
-    //     case TYPE_FLOAT:
-    //         GEN_CODE(generate_stack_pop_res, pd->lhs_var->id, E->elementType, TYPE_FLOAT, frame);           // FIX ME !!! generate_stack_pop_res is not defined
-    //     case TYPE_INT:
-    //         GEN_CODE(generate_stack_pop_res, pd->lhs_var->id, E->elementType, TYPE_INT, frame);
-    //     case TYPE_STRING:
-    //         GEN_CODE(generate_stack_pop_res, pd->lhs_var->id, TYPE_STRING, TYPE_STRING, frame);
-    //     case TYPE_BOOL:
-    //         GEN_CODE(generate_stack_pop_res, pd->lhs_var->id, E->elementType, TYPE_BOOL, frame);
-    //     case TYPE_NIL:
-    //         GEN_CODE(generate_stack_pop_res, pd->lhs_var->id, E->elementType, TYPE_NIL, frame);
-    //     default:
-    //         break;
-    //     }
-    // }
+    if(pd->lhs_var != NULL) {
+        switch (pd->lhs_var->type) {
+        case TYPE_FLOAT:
+            GEN_CODE(emit_stack_pop_res, pd->lhs_var->id, E->elementType, TYPE_FLOAT, frame);           // FIX ME !!!
+            break;
+        case TYPE_INT:
+            GEN_CODE(emit_stack_pop_res, pd->lhs_var->id, E->elementType, TYPE_INT, frame);
+            break;
+        case TYPE_STRING:
+            GEN_CODE(emit_stack_pop_res, pd->lhs_var->id, TYPE_STRING, TYPE_STRING, frame);
+            break;
+        case TYPE_BOOL:
+            GEN_CODE(emit_stack_pop_res, pd->lhs_var->id, E->elementType, TYPE_BOOL, frame);
+            break;
+        case TYPE_NIL:
+            GEN_CODE(emit_stack_pop_res, pd->lhs_var->id, E->elementType, TYPE_NIL, frame);
+            break;
+        default:
+            break;
+        }
+    }
 
 }
