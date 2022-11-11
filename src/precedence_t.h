@@ -31,10 +31,15 @@ typedef enum {
     OPER_GEQ,       // >=
     OPER_LBR,       // (
     OPER_RBR,       // )
-    OPER_ID,        // id
+
+    DATA_ID,        // id
+    DATA_INT,       // int
+    DATA_FLOAT,     // float
+    DATA_STRING,    // string
+    
     OPER_DOLLAR,    // $
     OPER_E,         // E
-    OPER_RED        // Reduce
+    OPER_RED        // reduce
 } Oper_type;
 
 /**
@@ -103,7 +108,7 @@ void stack_init(stackSymbol* stack);
 /**
  * Push a new element to stack.
  */
-void stack_push(stackSymbol* stack, Oper_type);                                 // + DATA TYPE for GENERATE CODE?
+bool stack_push(stackSymbol* stack, Oper_type item, Data_type elementType);
 
 /**
  * Pop an element from stack.

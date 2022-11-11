@@ -16,6 +16,7 @@ typedef enum {
     TYPE_STRING,
 
     TYPE_BOOL,  /// for code-generator
+    TYPE_NONE,
     TYPE_NIL
 } Data_type;
 
