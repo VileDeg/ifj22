@@ -399,10 +399,20 @@ int scanner_get_next_token(Token *Token)
             case(STATE_ID_OR_KEYWORD):
                 while(true)
                 {
+                    
                     if (isalpha(sign) || isdigit(sign) || sign == '_')
                         str_add_sign(String, sign);
+                    //  else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t')
+                    //     break;
+                    // else if (sign == '-' ||  sign == '+' || sign == '*' || sign == '/' || sign == '<' || 
+                    //          sign == '>' || sign == '=' || sign == '(' || sign == ')' ||  sign == ';' ) //sign == ',' || sign == '!'
+                    //     break;
                     else
+                    {
                         break;
+                        PRINT_ERROR_LEX("Wrong ID or keyword");
+                        return ERROR_LEXICAL; 
+                    }
                     sign = getchar_modified();
                 }
                 determine_type(String, Token); 
@@ -473,12 +483,12 @@ int scanner_get_next_token(Token *Token)
                     current_state = STATE_NUMBER_EXPONENT;
                     break;
                 }
-                else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t')
-                {
-                    current_state = STATE_NUMBER_EXPONENT;
-                    ungetc(sign, s_fptr);
-                    break;
-                }
+                // else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t')
+                // {
+                //     current_state = STATE_NUMBER_EXPONENT;
+                //     ungetc(sign, s_fptr);
+                //     break;
+                // }
                 else 
                 {
                     str_add_sign(String, sign);
@@ -495,12 +505,12 @@ int scanner_get_next_token(Token *Token)
                     current_state = STATE_NUMBER_EXPONENT;
                     break;
                 } 
-                else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t')  //??
-                {
-                    current_state = STATE_NUMBER_EXPONENT;
-                    ungetc(sign, s_fptr);
-                    break;
-                }
+                // else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t')  //??
+                // {
+                //     current_state = STATE_NUMBER_EXPONENT;
+                //     ungetc(sign, s_fptr);
+                //     break;
+                // }
                 else
                 {
                     str_add_sign(String, sign);
@@ -909,9 +919,15 @@ int scanner_get_next_token(Token *Token)
                 }
                 else
                 {
-                    PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
+                    str_add_sign(String, '\\');
+                    str_add_sign(String, ascii_oct[0]);
+                    ungetc(sign, s_fptr);
+                    current_state = STATE_STRING_START;
+                    break;
 
-                    return ERROR_LEXICAL;
+                    // PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
+
+                    // return ERROR_LEXICAL;
                 }
 
             case(STATE_STRING_BACKSLASH_ZERO_ZERO):
@@ -926,9 +942,15 @@ int scanner_get_next_token(Token *Token)
                 }
                 else
                 {
-                    PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
+                    str_add_sign(String, '\\');
+                    str_add_sign(String, ascii_oct[0]);
+                    str_add_sign(String, ascii_oct[1]);
+                    ungetc(sign, s_fptr);
+                    current_state = STATE_STRING_START;
+                    break;
+                    // PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
 
-                    return ERROR_LEXICAL;
+                    // return ERROR_LEXICAL;
                 }
 
 
@@ -942,9 +964,14 @@ int scanner_get_next_token(Token *Token)
                 }
                 else 
                 {
-                    PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
+                    str_add_sign(String, '\\');
+                    str_add_sign(String, ascii_oct[0]);
+                    ungetc(sign, s_fptr);
+                    current_state = STATE_STRING_START;
+                    break;
+                    // PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
                     
-                    return ERROR_LEXICAL;
+                    // return ERROR_LEXICAL;
                 }
                     
 
@@ -961,9 +988,15 @@ int scanner_get_next_token(Token *Token)
                 }
                 else 
                 {
-                    PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
+                    str_add_sign(String, '\\');
+                    str_add_sign(String, ascii_oct[0]);
+                    str_add_sign(String, ascii_oct[1]);
+                    ungetc(sign, s_fptr);
+                    current_state = STATE_STRING_START;
+                    break;
+                    // PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
                     
-                    return ERROR_LEXICAL;
+                    // return ERROR_LEXICAL;
                 }
 
 
@@ -984,9 +1017,14 @@ int scanner_get_next_token(Token *Token)
                 }
                 else 
                 {
-                    PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
+                    str_add_sign(String, '\\');
+                    str_add_sign(String, 'x');
+                    ungetc(sign, s_fptr);
+                    current_state = STATE_STRING_START;
+                    break;
+                    // PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
                     
-                    return ERROR_LEXICAL;
+                    // return ERROR_LEXICAL;
                 }
 
             //Handling a situation with escape sequence ascii[d][d].
@@ -1001,9 +1039,15 @@ int scanner_get_next_token(Token *Token)
                 }
                 else 
                 {
-                    PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
+                    str_add_sign(String, '\\');
+                    str_add_sign(String, 'x');
+                    str_add_sign(String, ascii_hex[0]);
+                    ungetc(sign, s_fptr);
+                    current_state = STATE_STRING_START;
+                    break;
+                    // PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
                     
-                    return ERROR_LEXICAL;
+                    // return ERROR_LEXICAL;
                 }
 
             case(STATE_STRING_BACKSLASH_HEX_ZERO):
@@ -1017,9 +1061,15 @@ int scanner_get_next_token(Token *Token)
                 }
                 else 
                 {
-                    PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
+                    str_add_sign(String, '\\');
+                    str_add_sign(String, 'x');
+                    str_add_sign(String, ascii_hex[0]);
+                    ungetc(sign, s_fptr);
+                    current_state = STATE_STRING_START;
+                    break;
+                    // PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
                     
-                    return ERROR_LEXICAL;
+                    // return ERROR_LEXICAL;
                 }
 
 

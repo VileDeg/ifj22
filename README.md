@@ -9,6 +9,11 @@ where username is your github username.
 - Всегда использовать int64_t вместо int, uint64_t вместо unsigned
 - Информативные названия функций
 ## TODO
+Scanner:
+- $5var -> ошибка + проблемы с $
+- проблемы с эскейп секвенциями(исправить только в .drawio)
+
+
 - TYPE_NIL = void?
 - убрать нумерацию строк в лексикальной ошибке 
 - Empty file -> syntax error? 
