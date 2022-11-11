@@ -3,6 +3,8 @@
 
 #define TOKEN_OK 0
 #define RULE_OK 0
+#define REDUCE_OK 0
+#define EXPRESSION_OK 0
 
 #define ERROR_LEXICAL 1               //Error in lexical analyse (chybná struktura aktuálního lexému).       
 #define ERROR_SYNTAX 2                //Error in syntax analyse.
