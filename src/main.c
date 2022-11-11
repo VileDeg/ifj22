@@ -26,15 +26,15 @@ int main(void)
     populate_rule_definitions();
 
     int ret = 0;
-    //FILE* source  = open_file("../tests/lex/test.php", "r");
-    FILE* source  = open_file("../tests/IFJ22_examples/example1.php", "r");
-    FILE* scanout = open_file("../scanner.txt", "w");
-    FILE* parsout = open_file("../parser.txt", "w");
+    FILE* source  = open_file("..//ifj-testsuite-master/tests/lex/numbers/float_space_2.php", "r");
+    //FILE* source  = open_file("../tests/IFJ22_examples/example1.php", "r");
+    //FILE* scanout = open_file("../scanner.txt", "w");
+    //FILE* parsout = open_file("../parser.txt", "w");
     {
         
-#if 0
+#if 1
         ret = test_scanner(source, true, stdout);
-        //ret = test_stdin(scanout); <--- for python tests
+        //ret = test_stdin(scanout); //<--- for python tests
 #else
         debug_setup(source, true, scanout, parsout);
         {

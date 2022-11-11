@@ -13,6 +13,7 @@ static str_t* String;
 
 static unsigned int sign_counter = 0;
 static unsigned int line_counter = 1;
+bool is_correct_file_start = false;
 
 void scanner_set_file(FILE* fptr)
 {
@@ -107,6 +108,17 @@ int scanner_get_next_token(Token *Token)
     while(true)
     {
         sign = getchar_modified();
+        
+        if(is_correct_file_start == false)
+        {
+            if (sign != '<')
+            {
+                PRINT_ERROR_LEX("wrong file start");
+                return ERROR_LEXICAL;
+            }
+                
+            is_correct_file_start = true;
+        }
 
         switch(current_state)
         {
@@ -518,6 +530,7 @@ int scanner_get_next_token(Token *Token)
                 Token->type = token_float;
                 //Converts string to a floating-point number (decimal).
                 Token->value.decimal = atof(String->ptr);
+                //!!printf("%f", atof("83e2"));
                 ungetc(sign, s_fptr);
                 
                 return 0;
@@ -555,7 +568,7 @@ int scanner_get_next_token(Token *Token)
                 else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t')
                     break;
                 else if (sign == '-' || sign == '+' || sign == '*' || sign == '/' || sign == '<' || sign == '>' || 
-                         sign == '=' || sign == '~' || sign == '(' || sign == ')' || sign == ',')
+                         sign == '=' || sign == '~' || sign == '(' || sign == ')' || sign == ',' || sign == ';' )
                     break;
                 else if (!isdigit(sign))
                 {
@@ -766,6 +779,15 @@ int scanner_get_next_token(Token *Token)
                     }
                     else if (sign != '*') 
                         sign = getchar_modified();
+                    else if (sign == '*')
+                    {
+                        sign = getchar_modified();
+                        if (sign == '/')
+                        {
+                            current_state = STATE_START;
+                            break;
+                        }
+                    }
                     else
                     {
                         current_state = STATE_COMMENT_BLOCK_END;
@@ -804,7 +826,9 @@ int scanner_get_next_token(Token *Token)
                         PRINT_ERROR_LEX("%d:%d: unterminated string", line_counter, sign_counter);
                         return ERROR_LEXICAL;
                     }
-                    else if (sign == '\n' || sign == EOF)
+                    // else if (sign == '\n') //!! надо чтоб считывало \n знак в строке? 
+                    //     break;
+                    else if (sign == EOF) //(sign == '\n' || sign == EOF)
                     {
                         PRINT_ERROR_LEX("%d:%d: no end of string", line_counter, sign_counter);
                         

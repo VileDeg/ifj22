@@ -1,0 +1,31 @@
+--------------------List of tokens: --------------------
+
+int  deci string       keyword      type            
+                                    prolog          
+          declare                   ID              
+                                    left_bracket    
+          strict_types              ID              
+                                    equal_sign      
+1                                   integer         
+                                    right_bracket   
+                                    semicolon       
+                       while        keyword         
+                                    left_bracket    
+1                                   integer         
+                                    equal           
+1                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+                       while        keyword         
+                                    left_bracket    
+7                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+                       return       keyword         
+0                                   integer         
+                                    semicolon       
+                                    EOF             
+
+
