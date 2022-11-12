@@ -18,8 +18,8 @@ int64_t precedent_table[TAB_SIZE][TAB_SIZE] =
     {SIGN_L, SIGN_L, SIGN_L, SIGN_L, SIGN_L, SIGN_N, SIGN_L, SIGN_N}
 };
 
-stackSymbol stack;                                                              // FIXME Global :(((
-bool flag_stop;
+stackSymbol stack;
+bool flag_stop;                                                                 // FIXME Global :(((
 
 void stack_init(stackSymbol* stack) 
 {
@@ -28,7 +28,7 @@ void stack_init(stackSymbol* stack)
 
 bool stack_push(stackSymbol* stack, Oper_type item, Data_type elementType) 
 {
-    elementSymbol *new = malloc(sizeof(elementSymbol));                             // TODO kontrola na NULL
+    elementSymbol *new = malloc(sizeof(elementSymbol));
     if (new == NULL)
         return false;
     new->item = item;
@@ -37,7 +37,6 @@ bool stack_push(stackSymbol* stack, Oper_type item, Data_type elementType)
     if(stack->top != NULL) {
         new->next = stack->top;
         stack->top = new;
-
     } else {
         stack->top = new;
     }
@@ -230,10 +229,89 @@ Rule_type rule_info(elementSymbol* oper_third, elementSymbol* oper_second, eleme
     } else {
         return RULE_N;
     }
+
     if(oper_first->item == OPER_RBR && oper_second->item == OPER_E && oper_first->item == OPER_LBR) {
         return RULE_BR;
     } else {
         return RULE_N;
+    }
+}
+// FIX ME add NULL and NIL semantic
+uint32_t type_change (Rule_type rule, Data_type* type, elementSymbol* oper_third, elementSymbol* oper_second, elementSymbol* oper_first) {
+    switch(rule) {
+        case RULE_ID:
+            if(oper_third->elementType == TYPE_NONE) {
+                return ERROR_SEM_UNDEF_VAR;
+            }
+            *type = oper_third->elementType;
+            break;
+        case RULE_BR:
+            if(oper_second->elementType == TYPE_NONE) {
+                return ERROR_SEM_UNDEF_VAR;
+            }
+            *type = oper_second->elementType;
+            break;
+        case RULE_ADD:                                                          // FIX better solution for if/else if
+        case RULE_SUB:
+        case RULE_MUL:
+            if(oper_third->elementType == TYPE_INT && oper_first->elementType == TYPE_INT) {
+                *type = TYPE_INT;
+            } else if(oper_third->elementType == TYPE_FLOAT && oper_first->elementType == TYPE_FLOAT) {
+                *type = TYPE_FLOAT;
+            } else if(oper_third->elementType == TYPE_INT && oper_first->elementType == TYPE_FLOAT) {
+                *type = TYPE_FLOAT;
+                GEN_CODE(emit_stack_top_int2float);
+            } else if(oper_third->elementType == TYPE_FLOAT && oper_first->elementType == TYPE_INT) {
+                *type = TYPE_FLOAT;
+                GEN_CODE(emit_stack_sec_int2float);
+            } else {
+                return ERROR_SEM_EXPRESSION;
+            }
+            break;
+        case RULE_DIV:
+            if(oper_third->elementType == TYPE_INT && oper_first->elementType == TYPE_FLOAT) {
+                *type = TYPE_FLOAT;
+                GEN_CODE(emit_stack_top_int2float);
+            } else if(oper_third->elementType == TYPE_FLOAT && oper_first->elementType == TYPE_INT) {
+                *type = TYPE_FLOAT;
+                GEN_CODE(emit_stack_sec_int2float);
+            } else if(oper_third->elementType == TYPE_FLOAT && oper_first->elementType == TYPE_FLOAT) {
+                *type = TYPE_FLOAT;
+            } else {
+                return ERROR_SEM_EXPRESSION;
+            }
+            break;
+        case RULE_DOT:
+            if(oper_third->elementType == TYPE_STRING && oper_first->elementType == TYPE_STRING) {
+                *type = TYPE_STRING;
+            } else {
+                return ERROR_SEM_EXPRESSION;
+            }
+            break;
+        case RULE_EQ:
+            if(oper_third->elementType != oper_first->elementType) {                                    // FIX GENCODE add NIL function
+                if((oper_third->elementType != TYPE_NIL) || (oper_first->elementType != TYPE_NIL)) 
+                    *type = TYPE_BOOL;
+                    // BOOL = false
+            }
+            break;
+        case RULE_NEQ:
+            if(oper_third->elementType == oper_first->elementType) {
+                *type = TYPE_BOOL;
+                // BOOL = false
+            }
+            break;
+        case RULE_LT:
+        case RULE_GT:
+        case RULE_LEQ:
+        case RULE_GEQ:
+            *type = TYPE_BOOL;
+            if(((oper_third->elementType != TYPE_BOOL) || (oper_first->elementType != TYPE_BOOL)) || ((oper_first->elementType != TYPE_STRING) && (oper_third->elementType != TYPE_STRING))) {
+                return ERROR_SEM_EXPRESSION;
+            }
+            break;
+        default:
+            break;
     }
 }
 
@@ -255,6 +333,8 @@ uint64_t reduce(ParserData* pd) {
 
     if(flag_stop) {
         elementSymbol* oper_first = stack.top;
+        elementSymbol* oper_second;
+        elementSymbol* oper_third;
         if(cnt == 1) {   
             if((oper_first->item == DATA_ID) || (oper_first->item == DATA_INT) || (oper_first->item == DATA_FLOAT) || (oper_first->item == DATA_STRING)) {
                 rule = RULE_ID;
@@ -262,20 +342,26 @@ uint64_t reduce(ParserData* pd) {
                 rule = RULE_N;
             }
         } else if(cnt == 3) {
-            elementSymbol* oper_second = stack.top->next;
-            elementSymbol* oper_third = stack.top->next->next;
+            oper_second = stack.top->next;
+            oper_third = stack.top->next->next;
             rule = rule_info(oper_third, oper_second, oper_first, cnt);
+            if(rule == RULE_N) {
+                return ERROR_SYNTAX;
+            }
         } else {
             return ERROR_SYNTAX;
         }
+
+        type_change(rule, &type, oper_third, oper_second, oper_first);
+
+        if(rule == RULE_DOT) {
+            if(type == TYPE_STRING) {
+                GEN_CODE(emit_stack_operation, rule);
+            } else {
+                return ERROR_SEM_EXPRESSION;
+            }
+        }
         
-        // if(rule == RULE_N) {
-        //     return ERROR_SYNTAX;
-        // } else {
-
-        // }
-
-        //if(rule_info == RULE_ADD && data_type == STRING) => GEN_CODE(generate_stack_operation, RULE_DOT)      // GENERATE CODE
         if(cnt != 0) {
             while(cnt != 0) {
             stack_pop(&stack);

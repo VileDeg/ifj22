@@ -27,12 +27,12 @@ int main(void)
 
     int ret = 0;
     //FILE* source  = open_file("..//ifj-testsuite-master/tests/lex/strings/escape_bad_2.php", "r");
-    //FILE* source  = open_file("../tests/IFJ22_examples/example1.php", "r");
+    FILE* source  = open_file("../tests/IFJ22_examples/example1.php", "r");
     FILE* scanout = open_file("../scanner.txt", "w");
-    //FILE* parsout = open_file("../parser.txt", "w");
+    FILE* parsout = open_file("../parser.txt", "w");
     {
         
-#if 1
+#if 0
         //ret = test_scanner(source, true, stdout);
         ret = test_stdin(scanout); //<--- for python tests
 #else
