@@ -1,83 +1,41 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "precedence_t.h"
+#include "symbol_stack.h"
 #include "errors.h"
 #include "code_generator.h"
+#include "parser.h"
+
+#define RES result
+
+#define ERROR_RET(_retcode) \
+    do { \
+		stack_clear(&Stack); \
+		return _retcode; \
+	} while(0)
+
+#define RESULT_ERR_CHECK(_funccall) \
+    if (RES = _funccall) \
+        ERROR_RET(RES); \
+    else {} 
+
+#define INTERN_ERR_CHECK(_expr) \
+    if (!_expr) \
+        ERROR_RET(ERROR_INTERNAL);
 
 // Precedence table.
-int64_t precedent_table[TAB_SIZE][TAB_SIZE] = 
-{
-    {SIGN_R, SIGN_L, SIGN_R, SIGN_R, SIGN_L, SIGN_R, SIGN_L, SIGN_L},
-    {SIGN_R, SIGN_R, SIGN_R, SIGN_R, SIGN_L, SIGN_R, SIGN_L, SIGN_R},
-    {SIGN_L, SIGN_L, SIGN_R, SIGN_L, SIGN_L, SIGN_R, SIGN_L, SIGN_R},
-    {SIGN_L, SIGN_L, SIGN_R, SIGN_L, SIGN_L, SIGN_R, SIGN_L, SIGN_R},
-    {SIGN_L, SIGN_L, SIGN_L, SIGN_L, SIGN_L, SIGN_E, SIGN_L, SIGN_N},
-    {SIGN_R, SIGN_R, SIGN_R, SIGN_R, SIGN_N, SIGN_R, SIGN_N, SIGN_R},
-    {SIGN_R, SIGN_R, SIGN_R, SIGN_R, SIGN_N, SIGN_R, SIGN_N, SIGN_R},
-    {SIGN_L, SIGN_L, SIGN_L, SIGN_L, SIGN_L, SIGN_N, SIGN_L, SIGN_N}
+int64_t precedent_table[TAB_SIZE][TAB_SIZE] = {
+    {REDUCE, SHIFT , REDUCE, REDUCE, SHIFT, REDUCE, SHIFT, SHIFT },
+    {REDUCE, REDUCE, REDUCE, REDUCE, SHIFT, REDUCE, SHIFT, REDUCE},
+    {SHIFT , SHIFT , REDUCE, SHIFT , SHIFT, REDUCE, SHIFT, REDUCE},
+    {SHIFT , SHIFT , REDUCE, SHIFT , SHIFT, REDUCE, SHIFT, REDUCE},
+    {SHIFT , SHIFT , SHIFT , SHIFT , SHIFT, EQUAL , SHIFT, NONE  },
+    {REDUCE, REDUCE, REDUCE, REDUCE, NONE , REDUCE, NONE , REDUCE},
+    {REDUCE, REDUCE, REDUCE, REDUCE, NONE , REDUCE, NONE , REDUCE},
+    {SHIFT , SHIFT , SHIFT , SHIFT , SHIFT, NONE  , SHIFT, NONE  }
 };
 
-stackSymbol stack;
-bool flag_stop;                                                                 // FIXME Global :(((
-
-void stack_init(stackSymbol* stack) 
-{
-    stack->top = NULL;
-}
-
-bool stack_push(stackSymbol* stack, Oper_type item, Data_type elementType) 
-{
-    elementSymbol *new = malloc(sizeof(elementSymbol));
-    if (new == NULL)
-        return false;
-    new->item = item;
-    new->next = NULL;
-    new->elementType = elementType;
-    if(stack->top != NULL) {
-        new->next = stack->top;
-        stack->top = new;
-    } else {
-        stack->top = new;
-    }
-    return true;
-    
-    // elementSymbol *new = malloc(sizeof(elementSymbol));
-    // if(new == NULL) {
-    //     return false;
-    // }
-    // new->item = item;
-    // new->elementType = elementType;
-    // new->next = stack->top;
-    // return true;
-    
-    // new->next = NULL;
-    // if(stack->top != NULL) {
-    //     new->next = stack->top;
-    //     stack->top = new;
-    // } else {
-    //     stack->top = new;
-    // }
-}
-
-void stack_pop(stackSymbol* stack) 
-{
-    if(stack->top->next != NULL) {
-        elementSymbol *tmp = stack->top;
-        stack->top = tmp->next;
-        free(tmp);
-    } else {
-        free(stack->top);
-        stack->top = NULL;
-    }
-}
-
-void stack_clear(stackSymbol* stack)
-{
-    while(stack->top != NULL) {
-        stack_pop(stack);
-    }
-}
+static SymbolStack Stack;
 
 Index_num index_info(Oper_type item) {
     switch(item) {
@@ -88,7 +46,7 @@ Index_num index_info(Oper_type item) {
         case OPER_MUL:       // *
         case OPER_DIV:       // /
             return INDEX_1;
-        case OPER_EQ:        // ===
+        case OPER_E:        // ===
         case OPER_NEQ:       // !==
             return INDEX_2;
         case OPER_LT:        // <
@@ -105,8 +63,6 @@ Index_num index_info(Oper_type item) {
         case DATA_INT:
         case DATA_STRING:
             return INDEX_6;
-        // case OPER_DOLLAR: // $
-        //     return INDEX_7;
         default:
             return INDEX_7;
     }
@@ -115,7 +71,6 @@ Index_num index_info(Oper_type item) {
 Oper_type term_info(Token* token) {
     Token_types tokenType = token->type;
     switch(tokenType) {
-    // switch(token->type) {
         case token_minus:
             return OPER_SUB;
         case token_plus:
@@ -127,7 +82,7 @@ Oper_type term_info(Token* token) {
         case token_divide:
             return OPER_DIV;
         case token_equal:
-            return OPER_EQ;
+            return OPER_E;
         case token_not_equal:
             return OPER_NEQ;
         case token_less:
@@ -150,42 +105,23 @@ Oper_type term_info(Token* token) {
             return DATA_FLOAT;
         case token_string:
             return DATA_STRING;
-        // case token_dollar:
-        //     return OPER_DOLLAR;
         default:
             return OPER_DOLLAR;
     }
 }
-elementSymbol* term_top(stackSymbol* stack) {
-    elementSymbol *tmp = stack->top;
-    // while(tmp != NULL) {
-    //     if(tmp->item < OPER_RED)
-    //         return tmp;
-    // }
-    // return NULL;
-    for(elementSymbol *tmp = stack->top; tmp != NULL; tmp = tmp->next) {
-        if(tmp->item < OPER_RED)
-            return tmp;
-    }
-    return NULL;
-}
 
-elementSymbol* nonterm_top(stackSymbol* stack) {
-    return stack->top;
-}
 
-Data_type type_info(Token* token, ParserData* pd) {
-    TData *item;
-    Token_types tokenType = token->type;
-    switch(tokenType) {
+DataType type_info(ParserData* pd) 
+{
+    TData *data = NULL;
+    
+    switch(pd->token.type) 
+    {
         case token_ID:
-            item = symtable_find(&pd->localTable, pd->token.value.String->ptr);
-            if(item != NULL) {
-                return item->type;
-            } else {
-                // fprintf(stderr, "ERROR: Variable %s is not defined.\n", token->data);
-                return TYPE_NONE;
-            }
+            data = symtable_find(&pd->localTable, pd->token.value.String->ptr);
+            if(!data)
+                return TYPE_UNDEF;
+            return data->type;
         case token_integer:
             return TYPE_INT;
         case token_float:
@@ -193,14 +129,18 @@ Data_type type_info(Token* token, ParserData* pd) {
         case token_string:
             return TYPE_STRING;
         default:
-            return TYPE_NONE;
+            return TYPE_UNDEF;
     }
 }
 
+Rule_type rule_info(SSElement* oper1, SSElement* oper2, SSElement* oper3) 
+{
+    if(oper1->operType == OPER_LBR && oper2->operType == OPER_E && oper3->operType == OPER_RBR) 
+        return RULE_BR;
 
-Rule_type rule_info(elementSymbol* oper_third, elementSymbol* oper_second, elementSymbol* oper_first, int64_t cnt) {
-    if(oper_third->item == OPER_E && oper_first->item == OPER_E) {
-        switch(oper_second->item) {
+    if(oper1->operType == OPER_E && oper3->operType == OPER_E) 
+    {
+        switch(oper2->operType) {
             case OPER_ADD:
                 return RULE_ADD;
             case OPER_SUB:
@@ -211,7 +151,7 @@ Rule_type rule_info(elementSymbol* oper_third, elementSymbol* oper_second, eleme
                 return RULE_MUL;
             case OPER_DIV:
                 return RULE_DIV;
-            case OPER_EQ:
+            case OPER_E:
                 return RULE_EQ;
             case OPER_NEQ:
                 return RULE_NEQ;
@@ -226,78 +166,72 @@ Rule_type rule_info(elementSymbol* oper_third, elementSymbol* oper_second, eleme
             default:
                 return RULE_N;
         }
-    } else {
-        return RULE_N;
     }
-
-    if(oper_first->item == OPER_RBR && oper_second->item == OPER_E && oper_first->item == OPER_LBR) {
-        return RULE_BR;
-    } else {
+    else
         return RULE_N;
-    }
 }
 // FIX ME add NULL and NIL semantic
-uint32_t type_change (Rule_type rule, Data_type* type, elementSymbol* oper_third, elementSymbol* oper_second, elementSymbol* oper_first) {
+uint32_t type_change (Rule_type rule, DataType* dataType, SSElement* oper1, SSElement* oper2, SSElement* oper3) {
     switch(rule) {
         case RULE_ID:
-            if(oper_third->elementType == TYPE_NONE) {
+            if(oper1->dataType == TYPE_UNDEF) {
                 return ERROR_SEM_UNDEF_VAR;
             }
-            *type = oper_third->elementType;
+            *dataType = oper1->dataType;
             break;
         case RULE_BR:
-            if(oper_second->elementType == TYPE_NONE) {
+            if(oper2->dataType == TYPE_UNDEF) {
                 return ERROR_SEM_UNDEF_VAR;
             }
-            *type = oper_second->elementType;
+            *dataType = oper2->dataType;
             break;
         case RULE_ADD:                                                          // FIX better solution for if/else if
         case RULE_SUB:
         case RULE_MUL:
-            if(oper_third->elementType == TYPE_INT && oper_first->elementType == TYPE_INT) {
-                *type = TYPE_INT;
-            } else if(oper_third->elementType == TYPE_FLOAT && oper_first->elementType == TYPE_FLOAT) {
-                *type = TYPE_FLOAT;
-            } else if(oper_third->elementType == TYPE_INT && oper_first->elementType == TYPE_FLOAT) {
-                *type = TYPE_FLOAT;
-                GEN_CODE(emit_stack_top_int2float);
-            } else if(oper_third->elementType == TYPE_FLOAT && oper_first->elementType == TYPE_INT) {
-                *type = TYPE_FLOAT;
-                GEN_CODE(emit_stack_sec_int2float);
+            if(oper1->dataType == TYPE_INT && oper3->dataType == TYPE_INT) {
+                *dataType = TYPE_INT;
+            } else if(oper1->dataType == TYPE_FLOAT && oper3->dataType == TYPE_FLOAT) {
+                *dataType = TYPE_FLOAT;
+            } else if(oper1->dataType == TYPE_INT && oper3->dataType == TYPE_FLOAT) {
+                *dataType = TYPE_FLOAT;
+                CODEGEN(emit_stack_top_int2float);
+            } else if(oper1->dataType == TYPE_FLOAT && oper3->dataType == TYPE_INT) {
+                *dataType = TYPE_FLOAT;
+                CODEGEN(emit_stack_sec_int2float);
             } else {
                 return ERROR_SEM_EXPRESSION;
             }
             break;
         case RULE_DIV:
-            if(oper_third->elementType == TYPE_INT && oper_first->elementType == TYPE_FLOAT) {
-                *type = TYPE_FLOAT;
-                GEN_CODE(emit_stack_top_int2float);
-            } else if(oper_third->elementType == TYPE_FLOAT && oper_first->elementType == TYPE_INT) {
-                *type = TYPE_FLOAT;
-                GEN_CODE(emit_stack_sec_int2float);
-            } else if(oper_third->elementType == TYPE_FLOAT && oper_first->elementType == TYPE_FLOAT) {
-                *type = TYPE_FLOAT;
+            if(oper1->dataType == TYPE_INT && oper3->dataType == TYPE_FLOAT) {
+                *dataType = TYPE_FLOAT;
+                CODEGEN(emit_stack_top_int2float);
+            } else if(oper1->dataType == TYPE_FLOAT && oper3->dataType == TYPE_INT) {
+                *dataType = TYPE_FLOAT;
+                CODEGEN(emit_stack_sec_int2float);
+            } else if(oper1->dataType == TYPE_FLOAT && oper3->dataType == TYPE_FLOAT) {
+                *dataType = TYPE_FLOAT;
             } else {
                 return ERROR_SEM_EXPRESSION;
             }
             break;
         case RULE_DOT:
-            if(oper_third->elementType == TYPE_STRING && oper_first->elementType == TYPE_STRING) {
-                *type = TYPE_STRING;
+            if(oper1->dataType == TYPE_STRING && oper3->dataType == TYPE_STRING) {
+                *dataType = TYPE_STRING;
             } else {
                 return ERROR_SEM_EXPRESSION;
             }
             break;
         case RULE_EQ:
-            if(oper_third->elementType != oper_first->elementType) {                                    // FIX GENCODE add NIL function
-                if((oper_third->elementType != TYPE_NIL) || (oper_first->elementType != TYPE_NIL)) 
-                    *type = TYPE_BOOL;
+            if(oper1->dataType != oper3->dataType) {                                    // FIX GENCODE add NIL function
+                if((oper1->dataType != TYPE_NULL) || (oper3->dataType != TYPE_NULL)) 
+                    *dataType = TYPE_BOOL;
                     // BOOL = false
             }
             break;
         case RULE_NEQ:
-            if(oper_third->elementType == oper_first->elementType) {
-                *type = TYPE_BOOL;
+            if(oper1->dataType == oper3->dataType) {
+                *dataType = TYPE_BOOL;
                 // BOOL = false
             }
             break;
@@ -305,186 +239,191 @@ uint32_t type_change (Rule_type rule, Data_type* type, elementSymbol* oper_third
         case RULE_GT:
         case RULE_LEQ:
         case RULE_GEQ:
-            *type = TYPE_BOOL;
-            if(((oper_third->elementType != TYPE_BOOL) || (oper_first->elementType != TYPE_BOOL)) || ((oper_first->elementType != TYPE_STRING) && (oper_third->elementType != TYPE_STRING))) {
+            *dataType = TYPE_BOOL;
+            if(((oper1->dataType != TYPE_BOOL) || (oper3->dataType != TYPE_BOOL)) || ((oper3->dataType != TYPE_STRING) && (oper1->dataType != TYPE_STRING))) {
                 return ERROR_SEM_EXPRESSION;
             }
             break;
         default:
             break;
-    }
-}
-
-uint64_t reduce(ParserData* pd) {
-    int64_t cnt;
-    Rule_type rule;
-    elementSymbol* topTerm = nonterm_top(&stack);
-    Data_type type;
-
-    for(cnt = 0; topTerm != NULL; cnt++) {
-        if(topTerm->item == OPER_RED) {
-            flag_stop = true;
-            break;
-        } else {
-            flag_stop = false;
-        }
-        topTerm = topTerm->next;
-    }
-
-    if(flag_stop) {
-        elementSymbol* oper_first = stack.top;
-        elementSymbol* oper_second;
-        elementSymbol* oper_third;
-        if(cnt == 1) {   
-            if((oper_first->item == DATA_ID) || (oper_first->item == DATA_INT) || (oper_first->item == DATA_FLOAT) || (oper_first->item == DATA_STRING)) {
-                rule = RULE_ID;
-            } else {
-                rule = RULE_N;
-            }
-        } else if(cnt == 3) {
-            oper_second = stack.top->next;
-            oper_third = stack.top->next->next;
-            rule = rule_info(oper_third, oper_second, oper_first, cnt);
-            if(rule == RULE_N) {
-                return ERROR_SYNTAX;
-            }
-        } else {
-            return ERROR_SYNTAX;
-        }
-
-        type_change(rule, &type, oper_third, oper_second, oper_first);
-
-        if(rule == RULE_DOT) {
-            if(type == TYPE_STRING) {
-                GEN_CODE(emit_stack_operation, rule);
-            } else {
-                return ERROR_SEM_EXPRESSION;
-            }
-        }
-        
-        if(cnt != 0) {
-            while(cnt != 0) {
-            stack_pop(&stack);
-            cnt--;
-            }
-        } else {
-            stack_pop(&stack);
-        }
-        stack_push(&stack, OPER_E, type);
     }
     return REDUCE_OK;
 }
 
-int64_t expression_parsing(ParserData* pd) {
-    bool flag_final = false;
 
-    // [x,y] = index for precedence table
-    elementSymbol* ySym;
-    Oper_type xSym;
-   
-    stack_init(&stack);
-    if((stack_push(&stack, OPER_DOLLAR, TYPE_NONE)) == false) {
-        stack_clear(&stack);
-    return ERROR_INTERNAL;
-    }
-    //stack_push(&stack, OPER_DOLLAR, TYPE_NONE);
-
-    while(!flag_final) {
-
-        // get index, get symbol from terminal
-        xSym = term_info(&pd->token);
-
-        // get top terminal
-        ySym = term_top(&stack);
-
-        Data_type type = type_info(&pd->token, pd);
-
-        switch(precedent_table[index_info(ySym->item)][index_info(xSym)]) {
-            case SIGN_R:
-                reduce(pd);
-                break;
-            case SIGN_E:
-                stack_push(&stack, xSym, type);
-                if(scanner_get_next_token(&pd->token)) {
-                    stack_clear(&stack);
-                    return ERROR_INTERNAL;
-                }
-                break;
-            case SIGN_L: ;
-                elementSymbol* topBefore = NULL;
-                elementSymbol* topAfter = (&stack)->top;
-                while(topAfter != NULL) {
-                    if(topAfter->item < OPER_RED) {
-                        elementSymbol* new = (elementSymbol*)malloc(sizeof(elementSymbol));
-                        if(new == NULL) {
-                            stack_clear(&stack);
-                            return ERROR_INTERNAL;
-                        }
-                        new->item = OPER_RED;
-                        new->elementType = TYPE_NONE;
-                        if(topBefore != NULL) {
-                            new->next = topBefore->next;
-                            topBefore->next = new;
-                        } else {
-                            new->next = (&stack)->top;
-                            (&stack)->top = new;
-                        }
-                    }
-                    
-                    topBefore = topAfter;
-                    topAfter = topAfter->next;
-                }
-
-                stack_push(&stack, xSym, type);
-
-                if (xSym == DATA_ID || xSym == DATA_INT || xSym == DATA_FLOAT || xSym == DATA_STRING) {
-                    GEN_CODE(emit_push, pd->token);
-                }
-                if(scanner_get_next_token(&pd->token)) {
-                    stack_clear(&stack);
-                    return ERROR_INTERNAL;
-                }
-                break;
-            case SIGN_N:
-                if(xSym == ySym->item && xSym == OPER_DOLLAR) {
-                    flag_final = true;
-                } else {
-                    stack_clear(&stack);
-                    return ERROR_SYNTAX;
-                }
-                break;
+uint32_t num_of_symbols_to_reduce(bool* reduceFound)
+{
+    SSElement* curr = Stack.top;
+    uint32_t cnt = 0;
+    *reduceFound = false;
+    for(; curr != NULL; cnt++) 
+    {
+        if(curr->operType == OPER_REDUCE) 
+        {
+            *reduceFound = true;
+            break;
         }
+            
+        curr = curr->next;
+    }
+    return cnt;
+}
+
+uint64_t reduce(ParserData* pd) 
+{
+    int result = REDUCE_OK;
+    Rule_type RuleType;
+    
+    DataType dataType;
+
+    bool reduceFound = false;
+
+    int64_t SymbolCnt = num_of_symbols_to_reduce(&reduceFound);
+
+    SSElement* oper1 = NULL;
+    SSElement* oper2 = NULL;
+    SSElement* oper3 = NULL;
+    if(SymbolCnt == 1 && reduceFound) {   
+        oper1 = Stack.top;
+        if((oper1->operType == DATA_ID) || (oper1->operType == DATA_INT) || (oper1->operType == DATA_FLOAT) || (oper1->operType == DATA_STRING)) {
+            RuleType = RULE_ID;
+        } else {
+            RuleType = RULE_N;
+        }
+    } else if(SymbolCnt == 3 && reduceFound) 
+    {
+        oper1 = Stack.top->next->next;
+        oper2 = Stack.top->next;
+        oper3 = Stack.top;
+        RuleType = rule_info(oper1, oper2, oper3);
         
+    } else 
+        return ERROR_SYNTAX;
+
+    if(RuleType == RULE_N)
+        return ERROR_SYNTAX;
+
+    RESULT_ERR_CHECK(type_change(RuleType, &dataType, oper1, oper2, oper3));
+
+    // if(RuleType == RULE_DOT) {
+    //     if(dataType == TYPE_STRING) {
+    if (RuleType != RULE_ID)
+        CODEGEN(emit_stack_operation, RuleType);
+        // } else {
+        //     return ERROR_SEM_EXPRESSION;
+        // }
+    //}
+    
+    ++SymbolCnt;
+    while(SymbolCnt != 0) 
+    {
+        stack_pop(&Stack);
+        SymbolCnt--;
     }
 
-    elementSymbol* E = nonterm_top(&stack);
+    stack_push(&Stack, OPER_E, dataType);
 
-    char *frame = "LF";
-    if(!pd->in_local_scope) frame = "GF";
+    return REDUCE_OK;
+}
 
-    if(pd->lhs_var != NULL) {
-        switch (pd->lhs_var->type) {
-        case TYPE_FLOAT:
-            GEN_CODE(emit_stack_pop_res, pd->lhs_var->id, E->elementType, TYPE_FLOAT, frame);
-            break;
-        case TYPE_INT:
-            GEN_CODE(emit_stack_pop_res, pd->lhs_var->id, E->elementType, TYPE_INT, frame);
-            break;
-        case TYPE_STRING:
-            GEN_CODE(emit_stack_pop_res, pd->lhs_var->id, TYPE_STRING, TYPE_STRING, frame);
-            break;
-        case TYPE_BOOL:
-            GEN_CODE(emit_stack_pop_res, pd->lhs_var->id, E->elementType, TYPE_BOOL, frame);
-            break;
-        case TYPE_NIL:
-            GEN_CODE(emit_stack_pop_res, pd->lhs_var->id, E->elementType, TYPE_NIL, frame);
-            break;
-        default:
-            break;
+int64_t expression_parsing(ParserData* pd) 
+{
+    int64_t RES = ERROR_SYNTAX;
+    
+    stack_init(&Stack);
+
+    INTERN_ERR_CHECK(stack_push(&Stack, OPER_DOLLAR, TYPE_UNDEF));
+    
+    // [x,y] = index for precedence table
+    Oper_type currSymbol;
+    SSElement* stackTerm;
+
+    bool success = false;
+
+    do
+    {
+        currSymbol = term_info(&pd->token);
+        stackTerm = stack_get_top_term(&Stack);
+        INTERN_ERR_CHECK(stackTerm);
+
+        DataType symbolDataType = type_info(pd);
+        // if (symbolDataType == TYPE_UNDEF)
+        //     ERROR_RET(ERROR_SEM_UNDEF_VAR);
+
+        switch(precedent_table[index_info(stackTerm->operType)][index_info(currSymbol)]) 
+        {
+            case SHIFT:
+                INTERN_ERR_CHECK(stack_push_after_top_term(&Stack, OPER_REDUCE, TYPE_UNDEF));
+
+                INTERN_ERR_CHECK(stack_push(&Stack, currSymbol, symbolDataType));
+
+                if (currSymbol == DATA_ID || currSymbol == DATA_INT || currSymbol == DATA_FLOAT || currSymbol == DATA_STRING)
+                    CODEGEN(emit_push, pd->token);
+
+                RESULT_ERR_CHECK(scanner_get_next_token(&pd->token));
+                break;
+            case EQUAL:
+                INTERN_ERR_CHECK(stack_push(&Stack, currSymbol, symbolDataType));
+                RESULT_ERR_CHECK(scanner_get_next_token(&pd->token))
+                break;
+            case REDUCE:
+                RESULT_ERR_CHECK(reduce(pd));
+                break;
+            case NONE:
+                if(currSymbol == stackTerm->operType && currSymbol == OPER_DOLLAR) 
+                    success = true;
+                else 
+                    ERROR_RET(ERROR_SYNTAX);
+                break;
+        }
+    }
+    while (!success);
+
+    SSElement* lastNonterm = Stack.top;
+
+    INTERN_ERR_CHECK(lastNonterm);
+    if (lastNonterm->operType != OPER_E)
+        ERROR_RET(ERROR_SYNTAX);
+
+    if(pd->lhs_var != NULL) 
+    {
+        char *frame = "LF";
+        if(!pd->in_local_scope) frame = "GF";
+
+        switch (pd->lhs_var->type) 
+        {
+            case TYPE_INT:
+                if (lastNonterm->dataType == TYPE_STRING)
+                    ERROR_RET(ERROR_SEM_TYPE_COMPAT);
+
+                CODEGEN(emit_stack_pop_res, pd->lhs_var->id, lastNonterm->dataType, TYPE_INT, frame);
+                break;
+            case TYPE_FLOAT:
+                if (lastNonterm->dataType == TYPE_STRING)
+                    ERROR_RET(ERROR_SEM_TYPE_COMPAT);
+
+                CODEGEN(emit_stack_pop_res, pd->lhs_var->id, lastNonterm->dataType, TYPE_FLOAT, frame);
+                break;
+            case TYPE_BOOL:
+                CODEGEN(emit_stack_pop_res, pd->lhs_var->id, lastNonterm->dataType, TYPE_BOOL, frame);
+                break;
+            case TYPE_STRING:
+                if (lastNonterm->dataType != TYPE_STRING || lastNonterm->dataType != TYPE_BOOL)
+                    ERROR_RET(ERROR_SEM_TYPE_COMPAT);
+
+                CODEGEN(emit_stack_pop_res, pd->lhs_var->id, TYPE_STRING, TYPE_STRING, frame);
+                break;
+            case TYPE_UNDEF:
+                CODEGEN(emit_stack_pop_res, pd->lhs_var->id, lastNonterm->dataType, TYPE_UNDEF, frame);
+                break;
+            default:
+                IFJ22_ASSERT(false, "Unsupported type.");
+                break;
         }
     }
 
-    stack_clear(&stack);
-    return EXPRESSION_OK;
+    stack_clear(&Stack);
 
+    pd->last_rule_was_eps = true; // <-- we use this to avoid reading next token
+    return EXPRESSION_OK;
 }

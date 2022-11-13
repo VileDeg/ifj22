@@ -220,7 +220,7 @@ void code_generator_flush(FILE* file) {
 // }
 
 
-bool emit_function_open(char* name) {
+bool emit_function_open(const char* name) {
     EMIT("# Function ");
     EMIT(name);
     EMIT("\n");
@@ -237,7 +237,7 @@ bool emit_function_open(char* name) {
 }
 
 
-bool emit_function_close(char* name) {
+bool emit_function_close(const char* name) {
     // EMIT("# ");
     // EMIT(name);
     // EMIT_NL(" end");
@@ -254,7 +254,7 @@ bool emit_function_close(char* name) {
 }
 
 
-bool emit_def_val(Data_type type) {
+bool emit_def_val(DataType type) {
     switch (type) {
         case TYPE_FLOAT:
             EMIT("float@0.0");
@@ -272,7 +272,7 @@ bool emit_def_val(Data_type type) {
             EMIT("bool@false");
             break;
 
-        case TYPE_NIL:
+        case TYPE_NULL:
             EMIT("nil@nil");
             break;
 
@@ -283,7 +283,7 @@ bool emit_def_val(Data_type type) {
 }
 
 
-bool emit_function_res(Data_type type) {
+bool emit_function_res(DataType type) {
     EMIT_NL("DEFVAR LF@res");
 
     EMIT("MOVE LF@res ");
@@ -294,7 +294,7 @@ bool emit_function_res(Data_type type) {
 }
 
 
-bool emit_define_var(char* var, bool in_local_scope) {
+bool emit_define_var(const char* var, bool in_local_scope) {
     EMIT("DEFVAR ");
     const char* frame = in_local_scope ? "LF" : "GF";
     EMIT(frame);
@@ -306,7 +306,7 @@ bool emit_define_var(char* var, bool in_local_scope) {
 }
 
 
-// bool emit_var_def(Data_type type, char* var) {
+// bool emit_var_def(DataType type, char* var) {
 //     EMIT("MOVE LF@");
 //     EMIT(var);
 //     EMIT(" ");
@@ -317,7 +317,7 @@ bool emit_define_var(char* var, bool in_local_scope) {
 // }
 
 
-bool emit_function_call(char* name) {
+bool emit_function_call(const char* name) {
     EMIT("CALL @");
     EMIT(name);
     EMIT("\n");
@@ -326,7 +326,7 @@ bool emit_function_call(char* name) {
 }
 
 
-bool emit_function_res_assign(char* var, Data_type var_type, Data_type res_type) {
+bool emit_function_res_assign(const char* var, DataType var_type, DataType res_type) {
     if (var_type == TYPE_INT && res_type == TYPE_FLOAT) {
         EMIT_NL("FLOAT2INT TF@res TF@res");
     } else if (var_type == TYPE_FLOAT && res_type == TYPE_INT) {
@@ -341,7 +341,7 @@ bool emit_function_res_assign(char* var, Data_type var_type, Data_type res_type)
 }
 
 
-bool emit_function_param_declare(char* name, int64_t index) {
+bool emit_function_param_declare(const char* name, int64_t index) {
     EMIT("DEFVAR LF@");
     EMIT(name);
     EMIT("\n");
@@ -409,7 +409,7 @@ bool emit_function_before_pass_params() {
 }
 
 
-// bool emit_function_convert_passed_param(Data_type from, Data_type to, int64_t index) {
+// bool emit_function_convert_passed_param(DataType from, DataType to, int64_t index) {
 //     if (to == TYPE_INT && from == TYPE_FLOAT) {
 //         EMIT("FLOAT2INT TF@-");
 //         EMIT_INT(index);
@@ -463,7 +463,7 @@ bool emit_function_pass_param_count(int64_t count)
 }
 
 
-bool emit_function_return(char* name) {
+bool emit_function_return(const char* name) {
     EMIT_NL("MOVE LF@res GF@$EXPR_REG");
 
     EMIT("JUMP @");
@@ -474,7 +474,7 @@ bool emit_function_return(char* name) {
 }
 
 
-// bool emit_input(char* var, Data_type type) {
+// bool emit_input(const char* var, DataType type) {
 //     EMIT_NL("WRITE GF@input_prompt");
 
 //     EMIT("READ LF@");
@@ -586,12 +586,12 @@ bool emit_stack_concat() {
 }
 
 
-bool emit_stack_pop_res(char* var, Data_type res_type, Data_type var_type, char* frame) {
+bool emit_stack_pop_res(const char* var, DataType res_type, DataType var_type, const char* frame) {
     if (var_type == TYPE_INT && res_type == TYPE_FLOAT) {
         EMIT_NL("FLOAT2INTS");
     } else if (var_type == TYPE_FLOAT && res_type == TYPE_INT) {
         EMIT_NL("INT2FLOATS");
-    }
+    } //TODO: TYPE_BOOL ??
 
     EMIT("POPS ");
     EMIT(frame);
@@ -635,7 +635,7 @@ bool emit_stack_sec_float2int() {
 }
 
 
-bool emit_label(char* name, int64_t deep, int64_t index) {
+bool emit_label(const char* name, int64_t deep, int64_t index) {
     EMIT("LABEL @");
     EMIT(name);
     EMIT("_");
@@ -648,10 +648,10 @@ bool emit_label(char* name, int64_t deep, int64_t index) {
 }
 
 
-bool emit_if_jump(char* name, int64_t deep, int64_t index) {
+bool emit_if_open(const char* name, int64_t deep, int64_t index) {
     EMIT_NL("# if");
 
-    EMIT("JUMPIGEQ @");
+    EMIT("JUMPIFEQ @");
     EMIT(name);
     EMIT("_");
     EMIT_INT(deep);
@@ -663,7 +663,7 @@ bool emit_if_jump(char* name, int64_t deep, int64_t index) {
 }
 
 
-bool emit_else_jump(char* name, int64_t deep, int64_t index) {
+bool emit_else(const char* name, int64_t deep, int64_t index) {
     EMIT("JUMP @");
     EMIT(name);
     EMIT("_");
@@ -680,7 +680,7 @@ bool emit_else_jump(char* name, int64_t deep, int64_t index) {
 }
 
 
-bool emit_if_end(char* name, int64_t deep, int64_t index) {
+bool emit_if_close(const char* name, int64_t deep, int64_t index) {
     EMIT_NL("# if end");
 
     if (!emit_label(name, deep, index)) return false;
@@ -689,7 +689,7 @@ bool emit_if_end(char* name, int64_t deep, int64_t index) {
 }
 
 
-bool emit_while_head(char* name, int64_t deep, int64_t index) {
+bool emit_while_head(const char* name, int64_t deep, int64_t index) {
     EMIT_NL("# while");
 
     if(!emit_label(name, deep, index)) return false;
@@ -698,7 +698,7 @@ bool emit_while_head(char* name, int64_t deep, int64_t index) {
 }
 
 
-bool emit_while_open(char* name, int64_t deep, int64_t index) {
+bool emit_while_open(const char* name, int64_t deep, int64_t index) {
     EMIT("JUMPIFEQ @");
     EMIT(name);
     EMIT("_");
@@ -711,7 +711,7 @@ bool emit_while_open(char* name, int64_t deep, int64_t index) {
 }
 
 
-bool emit_while_close(char* name, int64_t deep, int64_t index) {
+bool emit_while_close(const char* name, int64_t deep, int64_t index) {
     EMIT("JUMP @");
     EMIT(name);
     EMIT("_");

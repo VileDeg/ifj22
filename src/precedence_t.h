@@ -7,6 +7,8 @@
 #include "parser.h"
 
 
+
+
 #define TAB_SIZE 8
 
 /*
@@ -38,18 +40,18 @@ typedef enum {
     DATA_STRING,    // string
     
     OPER_DOLLAR,    // $
-    OPER_E,         // E
-    OPER_RED        // reduce
+    OPER_REDUCE,   // reduce (Must be < OPER_EXPR !!)
+    OPER_E       // E
 } Oper_type;
 
 /**
  * @enum Sign types.
  */
 typedef enum {
-    SIGN_L,         // <
-    SIGN_R,         // >
-    SIGN_E,         // =
-    SIGN_N          // None
+    SHIFT,         // <
+    REDUCE,         // >
+    EQUAL,         // =
+    NONE          // None
 } Sign_type;
 
 typedef enum {
@@ -83,67 +85,6 @@ typedef enum {
     RULE_N          // None
 } Rule_type;
 
-extern int64_t precedent_table[TAB_SIZE][TAB_SIZE];
-/*
- * @struct Stack element structure.
- */
-typedef struct elementStack {
-    Oper_type item;
-    struct elementStack *next;
-    Data_type elementType;
-} elementSymbol;
 
-/*
- * @struct Stack structure.
- */
-typedef struct {
-    elementSymbol *top;
-} stackSymbol;
-
-/**
- * Stack initialization.
- */
-void stack_init(stackSymbol* stack);
-
-/**
- * Push a new element to stack.
- */
-bool stack_push(stackSymbol* stack, Oper_type item, Data_type elementType);
-
-/**
- * Pop an element from stack.
- */
-void stack_pop(stackSymbol* stack);
-
-/**
- *  Delete stack.
- */
-void stack_clear(stackSymbol* stack);
-
-/**
- * @brief Get stack top terminal.
- * 
- * @param stack 
- * @return elementSymbol 
- */
-elementSymbol* term_top(stackSymbol* stack);
-
-/**
- * @brief Get stack top nonterminal.
- * 
- * @param stack 
- * @return elementSymbol 
- */
-elementSymbol* nonterm_top(stackSymbol* stack);
-
-/**
- * @brief Get index for precedence table, get token type
- * 
- * @param token 
- * @return Oper_type 
- */
-Oper_type term_info(Token* token);
-
-Rule_type rule_info(elementSymbol* oper_third, elementSymbol* oper_second, elementSymbol* oper_first, int64_t cnt);
 
 #endif //__PRECEDENCE_T__

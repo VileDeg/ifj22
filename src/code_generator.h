@@ -10,6 +10,16 @@
 #include "scanner.h"
 #include "precedence_t.h"
 
+extern FILE* s_CodegenOut;
+#ifdef IFJ22_DEBUG
+#define CODEGEN(_funcptr, ...) do { if (!_funcptr(__VA_ARGS__)) return ERROR_INTERNAL;\
+	IFJ22_ASSERT(s_CodegenOut, "Code generator output file not found");\
+	code_generator_flush(s_CodegenOut); }while(0)
+#else
+#define CODEGEN(_funcptr, ...) if (!_funcptr(__VA_ARGS__)) return ERROR_INTERNAL
+#endif //IFJ22_DEBUG
+
+//typedef int Rule_type;
 
 /**
  * Generation of header code.
@@ -57,28 +67,28 @@ void code_generator_flush(FILE* file);
  * @param name
  * @return true if success.
  */
-bool emit_function_open(char* name);
+bool emit_function_open(const char* name);
 
 /**
  * Generation of function end.
  * @param name
  * @return true if success.
  */
-bool emit_function_close(char* name);
+bool emit_function_close(const char* name);
 
 // /**
 //  * Generation of default variable value.
 //  * @param type
 //  * @return true if success.
 //  */
-// bool emit_def_val(Data_type type);
+// bool emit_def_val(DataType type);
 
 /**
  * Generation of @res value.
  * @param type
  * @return true if success.
  */
-bool emit_function_res(Data_type type);
+bool emit_function_res(DataType type);
 
 /**
  * Generation of defvar.
@@ -86,7 +96,7 @@ bool emit_function_res(Data_type type);
  * @param in_local_scope
  * @return true if success.
  */
-bool emit_define_var(char* var, bool in_local_scope);
+bool emit_define_var(const char* var, bool in_local_scope);
 
 // /**
 //  * Giving a variable default value.
@@ -94,14 +104,14 @@ bool emit_define_var(char* var, bool in_local_scope);
 //  * @param var
 //  * @return true if success.
 //  */
-// bool emit_var_def(Data_type type, char* var);
+// bool emit_var_def(DataType type, const char* var);
 
 /**
  * Generation of function calling.
  * @param name
  * @return true if success.
  */
-bool emit_function_call(char* name);
+bool emit_function_call(const char* name);
 
 /**
  * Generation of function result assignment.
@@ -110,7 +120,7 @@ bool emit_function_call(char* name);
  * @param res_type
  * @return true if success.
  */
-bool emit_function_res_assign(char* var, Data_type var_type, Data_type res_type);
+bool emit_function_res_assign(const char* var, DataType var_type, DataType res_type);
 
 /**
  * Generation of local variables from parameters.
@@ -118,7 +128,7 @@ bool emit_function_res_assign(char* var, Data_type var_type, Data_type res_type)
  * @param index
  * @return true if success.
  */
-bool emit_function_param_declare(char* name, int64_t index);
+bool emit_function_param_declare(const char* name, int64_t index);
 
 /**
  * Generation of value from token.
@@ -140,7 +150,7 @@ bool emit_function_before_pass_params();
 //  * @param index
 //  * @return true if success.
 //  */
-// bool emit_function_convert_passed_param(Data_type from, Data_type to, int64_t index);
+// bool emit_function_convert_passed_param(DataType from, DataType to, int64_t index);
 
 /**
  * Generation of passing parameters into function.
@@ -164,7 +174,7 @@ bool emit_function_pass_param_count(int64_t count);
  * @param name
  * @return true if success.
  */
-bool emit_function_return(char* name);
+bool emit_function_return(const char* name);
 
 // /**
 //  * Generation of input.
@@ -172,7 +182,7 @@ bool emit_function_return(char* name);
 //  * @param type
 //  * @return true if success.
 //  */
-// bool emit_input(char* var, Data_type type);
+// bool emit_input(const char* var, DataType type);
 
 /**
  * Generation of writing expression result.
@@ -208,7 +218,7 @@ bool emit_stack_concat();
  * @param frame
  * @return true if success.
  */
-bool emit_stack_pop_res(char* var, Data_type res_type, Data_type var_type, char* frame);
+bool emit_stack_pop_res(const char* var, DataType res_type, DataType var_type, const char* frame);
 
 /**
  * Generation of converting top element
@@ -245,7 +255,7 @@ bool emit_stack_sec_float2int();
  * @param index
  * @return true if success.
  */
-bool emit_label(char* name, int64_t deep, int64_t index);
+bool emit_label(const char* name, int64_t deep, int64_t index);
 
 /**
  * Generation of if start.
@@ -254,7 +264,7 @@ bool emit_label(char* name, int64_t deep, int64_t index);
  * @param index
  * @return true if success.
  */
-bool emit_if_jump(char* name, int64_t deep, int64_t index);
+bool emit_if_open(const char* name, int64_t deep, int64_t index);
 
 /**
  * Generation of else start.
@@ -263,7 +273,7 @@ bool emit_if_jump(char* name, int64_t deep, int64_t index);
  * @param index
  * @return true if success.
  */
-bool emit_else_jump(char* name, int64_t deep, int64_t index);
+bool emit_else(const char* name, int64_t deep, int64_t index);
 
 /**
  * Generation of if end.
@@ -272,7 +282,7 @@ bool emit_else_jump(char* name, int64_t deep, int64_t index);
  * @param index
  * @return true if success.
  */
-bool emit_if_end(char* name, int64_t deep, int64_t index);
+bool emit_if_close(const char* name, int64_t deep, int64_t index);
 
 /**
  * Generation of while head.
@@ -281,7 +291,7 @@ bool emit_if_end(char* name, int64_t deep, int64_t index);
  * @param index
  * @return true if success.
  */
-bool emit_while_head(char* name, int64_t deep, int64_t index);
+bool emit_while_head(const char* name, int64_t deep, int64_t index);
 
 /**
  * Generation of while start.
@@ -290,7 +300,7 @@ bool emit_while_head(char* name, int64_t deep, int64_t index);
  * @param index
  * @return true if success.
  */
-bool emit_while_open(char* name, int64_t deep, int64_t index);
+bool emit_while_open(const char* name, int64_t deep, int64_t index);
 
 /**
  * Generation of while end.
@@ -299,6 +309,6 @@ bool emit_while_open(char* name, int64_t deep, int64_t index);
  * @param index
  * @return true if success.
  */
-bool emit_while_close(char* name, int64_t deep, int64_t index);
+bool emit_while_close(const char* name, int64_t deep, int64_t index);
 
 #endif //__CODE_GENERATOR__

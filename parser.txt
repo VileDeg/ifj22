@@ -1,79 +1,35 @@
 --------------------File contents: --------------------
 
-<<<<<<< HEAD
-<php
-declare(strict_types=1);
-
-return 0;
-=======
 <?php
 declare(strict_types=1);
-// Program 1: Vypocet faktorialu (iterativne)
 
-// Hlavni telo programu
-write("Zadejte cislo pro vypocet faktorialu\n");
-$a = readi();
+if (5 + 1 - 3)
+{}
+else
+{}
 
-if ($a === null) {
-	write("Chyba pri nacitani celeho cisla!\n");
-} else {}
-
-if ($a < 0) {
-	write("Faktorial nelze spocitat\n");
-} else {
-	$vysl = 1;
-	while ($a > 0) {
-		$vysl = $vysl * $a;
-		$a = $a - 1;
-	}
-	write("Vysledek je: ", $vysl, "\n");
-}
-
->>>>>>> origin/expression_test
+return 0;
 
 
 --------------------Rules triggered: --------------------
 
-<<<<<<< HEAD
-=======
 Current token:                                     prolog          
-begin -> <?php declare ( strict_types = 1 ) ; <program> <end>
-Current token:           write                     ID              
-program -> <statement> <program>
-Current token:           write                     ID              
-rvalue -> $ID
-Current token:           Zadejte cisl              string          
-args -> <term> <arg_n>
-Current token:                                     right_bracket   
-arg_n -> ε
-Current token:                                     right_bracket   
-statement -> <rvalue> ;
-Current token:           $a                        ID              
-program -> <statement> <program>
-Current token:           $a                        ID              
-statement -> $ID <assign> ;
-Current token:                                     equal_sign      
-assign -> = <rvalue>
-Current token:           readi                     ID              
-rvalue -> $ID
-Current token:                                     right_bracket   
-args -> ε
+begin -> <?php declare ( strict_types = 1 ) ; <program>
 Current token:                        if           keyword         
 program -> <statement> <program>
 Current token:                        if           keyword         
-statement -> if <condition_stat> else <compound_stat>
-Current token:                        if           keyword         
-condition_stat -> ( <expression> ) <compound_stat>
-Current token:                                     right_bracket   
-compound_stat -> { <statement> }
-Current token:           write                     ID              
-rvalue -> $ID
-Current token:           Chyba pri na              string          
-args -> <term> <arg_n>
-Current token:                                     right_bracket   
-arg_n -> ε
-Current token:                                     right_bracket   
-statement -> <rvalue> ;
->>>>>>> origin/expression_test
+statement -> if ( <expression> ) { <statement> } else { <statement> } <statement>
+Current token:                                     right_curly_brac
+rvalue -> ID ( <args> )
+Current token:                                     right_curly_brac
+statement -> ε
+Current token:                                     right_curly_brac
+rvalue -> ID ( <args> )
+Current token:                                     right_curly_brac
+statement -> ε
+Current token:                        return       keyword         
+statement -> return <expression> ; <statement>
+Current token:                                     EOF             
+program -> EOF
 
 

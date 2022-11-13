@@ -1,33 +1,16 @@
-<<<<<<< HEAD
-=======
 --------------------File contents: --------------------
 
 <?php
 declare(strict_types=1);
-// Program 1: Vypocet faktorialu (iterativne)
 
-// Hlavni telo programu
-write("Zadejte cislo pro vypocet faktorialu\n");
-$a = readi();
+if (5 + 1 - 3)
+{}
+else
+{}
 
-if ($a === null) {
-	write("Chyba pri nacitani celeho cisla!\n");
-} else {}
-
-if ($a < 0) {
-	write("Faktorial nelze spocitat\n");
-} else {
-	$vysl = 1;
-	while ($a > 0) {
-		$vysl = $vysl * $a;
-		$a = $a - 1;
-	}
-	write("Vysledek je: ", $vysl, "\n");
-}
+return 0;
 
 
-
->>>>>>> origin/expression_test
 --------------------List of tokens: --------------------
 
 int  deci string       keyword      type            
@@ -39,49 +22,14 @@ int  deci string       keyword      type
 1                                   integer         
                                     right_bracket   
                                     semicolon       
-<<<<<<< HEAD
-                       while        keyword         
+                       if           keyword         
                                     left_bracket    
-1                                   integer         
-                                    equal           
-1                                   integer         
-                                    right_bracket   
-                                    left_curly_brack
-                       while        keyword         
-                                    left_bracket    
-7                                   integer         
-                                    right_bracket   
-                                    left_curly_brack
                                     right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
                                     right_curly_brac
                        return       keyword         
 0                                   integer         
-                                    semicolon       
                                     EOF             
-=======
-          write                     ID              
-                                    left_bracket    
-          Zadejte cisl              string          
-                                    right_bracket   
-                                    semicolon       
-          $a                        ID              
-                                    equal_sign      
-          readi                     ID              
-                                    left_bracket    
-                                    right_bracket   
-                                    semicolon       
-                       if           keyword         
-                                    left_bracket    
-          $a                        ID              
-                                    right_bracket   
-                                    left_curly_brack
-          write                     ID              
-                                    left_bracket    
-          Chyba pri na              string          
-                                    right_bracket   
-                                    semicolon       
-                                    right_curly_brac
-                       else         keyword         
->>>>>>> origin/expression_test
 
 

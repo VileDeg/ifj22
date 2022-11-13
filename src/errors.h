@@ -9,7 +9,7 @@
 #define ERROR_LEXICAL 1               //Error in lexical analyse (chybná struktura aktuálního lexému).       
 #define ERROR_SYNTAX 2                //Error in syntax analyse.
 #define ERROR_SEM_ID_DEF 3    //Error in semantic analyse (undefined function).
-#define ERROR_SEM_FUNC_COMPAT 4     //Error in semantic analyse - wrong number/type of var./return values in calling function(or in returning from function).
+#define ERROR_SEM_TYPE_COMPAT 4     //Error in semantic analyse - wrong number/type of var./return values in calling function(or in returning from function).
 #define ERROR_SEM_UNDEF_VAR 5    //Error in semantic analyse (undefined variable).
 #define ERROR_SEM_RETURN 6 //!!
 #define ERROR_SEM_EXPRESSION 7   //Error in semantic of t.k(!!) in arithmetic, string, relacnich(!!) expressions.

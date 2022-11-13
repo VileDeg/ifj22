@@ -9,10 +9,12 @@
 FILE* g_DebugOut = NULL;
 static FILE* s_ScanOut  = NULL;
 static FILE* s_ParsOut  = NULL;
+static FILE* s_ExprOut  = NULL;
 
 void set_debug_out(FILE* fptr) { g_DebugOut = fptr; }
 FILE* get_scan_out() { return s_ScanOut; }
 FILE* get_pars_out() { return s_ParsOut; }
+FILE* get_expr_out() { return s_ExprOut; }
 
 static uint64_t max_kw = 10;
 static const char* kw_str[] =
@@ -165,13 +167,14 @@ int test_stdin(FILE* scan_out)
 
 
 void debug_setup(FILE* source, bool show_source_contents, 
-    FILE* scan_out, FILE* pars_out)
+    FILE* scan_out, FILE* pars_out, FILE* expr_out)
 {
     if (!scan_out && !pars_out)
         return;
     
     s_ScanOut = scan_out;
     s_ParsOut = pars_out;
+    s_ExprOut = expr_out;
 
     if (show_source_contents && source != stdin)
     {
@@ -259,11 +262,13 @@ free:
 
 static const char* s_RulesFilepath = "../LL-grammar.txt";
 #define RULE_EXP_MXLEN 256
-#define NUM_RULES 39
+#define NUM_RULES 37
 static struct {
     char rule_name [NUM_RULES][RULE_EXP_MXLEN];
     char exp_string[NUM_RULES][RULE_EXP_MXLEN];
 } RuleInfo;
+
+
 
 void populate_rule_definitions()
 {

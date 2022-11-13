@@ -2,12 +2,10 @@
 
 #include "parser.h"
 #include "errors.h"
-#include "debug.h"
 #include "scanner.h"
 #include "symtable.h"
 #include "precedence_t.h"
 #include "code_generator.h"
-
 
 #define RES result
 #define DEF_RES int RES
@@ -45,51 +43,48 @@
 		}while(0)
 #endif
 
-#define TYPE_IS(type_postfix) (pd->token.type == token_##type_postfix)
+#define TYPE_IS(_postfix) (pd->token.type == token_##_postfix)
 
-#define KEYWORD_IS(kw) (pd->token.type == token_keyword && pd->token.value.keyword == keyword_##kw)
+#define KEYWORD_IS(_kw) (TYPE_IS(keyword) && pd->token.value.keyword == keyword_##_kw)
 
 //Never use with more than 1 argument!
-#define CHECK_TYPE(_type_postfix, ...)\
-	if (!TYPE_IS(_type_postfix##__VA_ARGS__)) return ERROR_SYNTAX
-	
-#define CHECK_KEYWORD(_kw)\
-	if (KEYWORD_IS(_kw)) return ERROR_SYNTAX
+#define CHECK_TYPE(_postfix, ...)\
+	if (!TYPE_IS(_postfix##__VA_ARGS__)) { return ERROR_SYNTAX; } else {}
 
-#define GET_N_CHECK_TYPE(_type)\
+//Never use with more than 1 argument!
+#define CHECK_KEYWORD(_kw, ...)\
+	if (!KEYWORD_IS(_kw##__VA_ARGS__)) { return ERROR_SYNTAX; } else {}
+
+//Never use with more than 1 argument!
+#define GET_N_CHECK_TYPE(_type, ...)\
 	do {\
 		GET_NEXT_TOKEN();\
-		CHECK_TYPE(_type);\
+		CHECK_TYPE(_type##__VA_ARGS__);\
 	} while(0)
 
-#define GET_N_CHECK_KEYWORD(_kw)\
+//Never use with more than 1 argument!
+#define GET_N_CHECK_KEYWORD(_kw, ...)\
 	do {\
 		GET_NEXT_TOKEN();\
-		CHECK_KEYWORD(_kw);\
+		CHECK_KEYWORD(_kw##__VA_ARGS__);\
 	} while(0)
 
 #define RULE_GOOD(_rule) (_rule(pd) == RULE_OK)
 
 #define CHECK_RULE(_rule)\
-	if ((RES = _rule(pd))) return RES
+	if ((RES = _rule(pd))) { return RES; } else {}
 
 
 #define HAS_DOLLAR (token_str[0] == '$')
 
 #define IS_VAR_ID (TYPE_IS(ID) && HAS_DOLLAR)
 
-#define CHECK_DOLLAR if (!HAS_DOLLAR) return ERROR_SYNTAX
+#define CHECK_DOLLAR if (!HAS_DOLLAR) { return ERROR_SYNTAX; } else {}
 
 #define GET_N_CHECK_VAR_ID GET_N_CHECK_TYPE(ID); CHECK_DOLLAR
 
-#define FUNC_ID_IS(_id) (TYPE_IS(ID) && str_cmp(pd->token.value.String, "reads"))
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// #define ST_GLOBAL 0
-// #define ST_LOCAL 1
 
-#define GLOBAL_TABLE 1
-#define LOCAL_TABLE  0
 #define ADD_NEW_ID(_dst)\
 	do{\
 		bool _err = false;\
@@ -97,37 +92,15 @@
 			pd->_dst = symtable_add_symbol(pd->in_local_scope ? &pd->localTable : &pd->globalTable, token_str, &_err);\
 		if (_err) return ERROR_INTERNAL;\
 	}while(0)
-// #define ADD_ID_TO(_global)\
-// 	do{\
-// 		bool err = false;\
-// 		if (_global)\
-// 			pd->rhs_func = symtable_add_symbol(&pd->globalTable, token_str, &err);\
-// 		else\
-// 			pd->lhs_var = symtable_add_symbol(&pd->localTable, token_str, &err);\
-// 		if (err) return ERROR_INTERNAL;\
-// 	}while(0)
-//#define FOUND_ID_IN(_table) symtable_find(&pd->_table, token_str)
+
 #define ID_FOUND symtable_find(pd->in_local_scope ? &pd->localTable : &pd->globalTable, token_str)
 	
-	// do{\
-	// 	if (_global) {\
-	// 		if (!(pd->rhs_func = symtable_find(&pd->globalTable, token_str))) return ERROR_INTERNAL;\
-	// 	} else\
-	// 		if (!(pd->lhs_var = symtable_find(&pd->localTable, token_str))) return ERROR_INTERNAL;\
-	// }while(0)
-///////////////////////////////
-static FILE* s_CodegenOut = NULL;
-#ifdef IFJ22_DEBUG
-#define CODEGEN(_funcptr, ...) do { if (!_funcptr(__VA_ARGS__)) return ERROR_INTERNAL;\
-	IFJ22_ASSERT(s_CodegenOut, "Code generator output file not found");\
-	code_generator_flush(s_CodegenOut); }while(0)
-#else
-#define CODEGEN(_funcptr, ...) if (!_funcptr(__VA_ARGS__)) return ERROR_INTERNAL
-#endif //IFJ22_DEBUG
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+FILE* s_CodegenOut = NULL;
 
-////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #define EPSRULE pd->last_rule_was_eps = true
-/////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 GENERATE_STACK_DEFINITION(Token, tk)
 GENERATE_STACK_DEFINITION(str_t, str)
 
@@ -142,6 +115,8 @@ static bool init_data(ParserData* pd)
 	pd->in_param_list = pd->last_rule_was_eps = pd->in_local_scope = false;
 	pd->rhs_func = pd->lhs_var = NULL;
 	pd->param_index = 0;
+	pd->label_deep = -1;
+	pd->label_index = 0;
 
 	tkstack_init(&s_TokenStack);
 	strstack_init(&s_StringStack);
@@ -186,6 +161,7 @@ static bool init_data(ParserData* pd)
 
 	if (!(data = symtable_add_symbol(&pd->globalTable, "$EXPR_REG", &err)))
 		return false;
+	data->type = TYPE_BOOL;
 
 	return true;
 }
@@ -208,38 +184,19 @@ static int params		 (ParserData* pd);
 static int param_n		 (ParserData* pd);
 static int program		 (ParserData* pd);
 static int begin		 (ParserData* pd);
-static int compound_stat (ParserData* pd);
-static int condition_stat(ParserData* pd);
-static int end			 (ParserData* pd);
-
-static int end(ParserData* pd)
-{
-	RULE_OPEN;
-	{
-		//<end> -> ?>
-		GET_NEXT_TOKEN();
-
-		if (TYPE_IS(end))
-			_DPRNR(0);
-		//<end> -> ε
-		else
-			_DPRNR(1);
-	}
-	return RULE_OK;
-}
 
 static int term(ParserData* pd)
 {
 	#define CHECK_FUNC_PARAM_TYPE(_typelett)\
 		if (pd->rhs_func->params->ptr[pd->param_index] != _typelett)\
-			return ERROR_SEM_FUNC_COMPAT;
+			return ERROR_SEM_TYPE_COMPAT;
 
 	RULE_OPEN;
 	{
 		if (strcmp(pd->rhs_func->id, "write")) // if function not "write"
 		{
 			if (pd->rhs_func->params->len == pd->param_index)
-				return ERROR_SEM_FUNC_COMPAT;
+				return ERROR_SEM_TYPE_COMPAT;
 
 			CODEGEN(emit_function_pass_param, pd->token, pd->param_index);
 		}
@@ -428,7 +385,7 @@ static int rvalue(ParserData* pd)
 {
 	RULE_OPEN;
 	{
-		//GET_NEXT_TOKEN();
+		GET_NEXT_TOKEN();
 
 		//<rvalue> -> ID ( <args> )
 		if (TYPE_IS(ID))
@@ -444,7 +401,7 @@ static int rvalue(ParserData* pd)
 						// if (pd->lhs_var->type != pd->rhs_func->type)
 						// {
 						// 	if (pd->lhs_var->type == TYPE_STRING || pd->rhs_func->type == TYPE_STRING) 
-						// 		return ERROR_SEM_FUNC_COMPAT; // Cannot implicitly convert
+						// 		return ERROR_SEM_TYPE_COMPAT; // Cannot implicitly convert
 						// }
 					}
 
@@ -458,7 +415,7 @@ static int rvalue(ParserData* pd)
 					GET_N_CHECK_TYPE(right_bracket);
 
 					if (strcmp(pd->rhs_func->id, "write") && pd->rhs_func->params->len != pd->param_index)
-						return ERROR_SEM_FUNC_COMPAT;
+						return ERROR_SEM_TYPE_COMPAT;
 					
 					CODEGEN(emit_function_call, pd->rhs_func->id);
 					if (pd->lhs_var)
@@ -473,15 +430,13 @@ static int rvalue(ParserData* pd)
 					return ERROR_SEM_ID_DEF;
 				}
 			}
-
-			
 		}
 		//<rvalue> -> <expression>
 		else
 		{
 			_DPRNR(1);
 
-			/*TODO: if */ expression_parsing(pd); //etc...
+			CHECK_RULE(expression_parsing);
 		}
 	}
 	return RULE_OK;
@@ -495,7 +450,7 @@ static int assign(ParserData* pd)
 		if (TYPE_IS(equal_sign))
 		{
 			_DPRNR(0);
-			GET_NEXT_TOKEN();
+
 			CHECK_RULE(rvalue);
 		}
 		//<assign> -> eps
@@ -508,46 +463,11 @@ static int assign(ParserData* pd)
 	return RULE_OK;
 }
 
-static int compound_stat(ParserData* pd)
-{
-	RULE_OPEN;
-	{
-		//<compound_stat> -> { <statement> }
-		_DPRNR(0);
-
-		GET_N_CHECK_TYPE(left_curly_bracket);
-		{
-			GET_NEXT_TOKEN();
-			CHECK_RULE(statement);
-		}
-		GET_N_CHECK_TYPE(right_curly_bracket);
-	}
-	return RULE_OK;
-}
-
-static int condition_stat(ParserData* pd)
-{
-	RULE_OPEN;
-	{
-		//<condition_stat> -> ( <expression> ) <compound_stat>
-		_DPRNR(0);
-		GET_N_CHECK_TYPE(left_bracket);
-		{
-			GET_NEXT_TOKEN();
-			/*TODO: if */ expression_parsing(pd); //etc...
-		}
-		GET_N_CHECK_TYPE(right_bracket);
-
-		CHECK_RULE(compound_stat);
-	}
-	return RULE_OK;
-}
-
 static int statement(ParserData* pd)
 {
 	RULE_OPEN;
 	{
-		//<statement> -> $ID <assign>
+		//<statement> -> $ID <assign> ; <statement>
 		if (IS_VAR_ID)
 		{
 			_DPRNR(0);
@@ -563,41 +483,94 @@ static int statement(ParserData* pd)
 			CHECK_RULE(assign);
 
 			GET_N_CHECK_TYPE(semicolon);
+
+			GET_NEXT_TOKEN();
+			CHECK_RULE(statement);
 		}
-		//<statement> -> if <condition_stat> else <compound_stat>
+		//<statement> -> if ( <expression> ) { <statement> } else { <statement> } <statement>
 		else if (KEYWORD_IS(if))
 		{
 			_DPRNR(1);
-			CHECK_RULE(condition_stat);
+
+			GET_N_CHECK_TYPE(left_bracket);
+			pd->lhs_var = symtable_find(&pd->globalTable, "$EXPR_REG");
+			if (!pd->lhs_var)
+				return ERROR_SEM_UNDEF_VAR;
+
+			CHECK_RULE(expression_parsing);
+
+			pd->label_deep++;
+			
+			const char* func_name = pd->rhs_func ? pd->rhs_func->id : "";
+
+			{ CODEGEN(emit_if_open, func_name, pd->label_deep, pd->label_index); }
+
+			GET_N_CHECK_TYPE(left_curly_bracket);
+			{
+				CHECK_RULE(statement);
+			}
+			GET_N_CHECK_TYPE(right_curly_bracket);
 
 			GET_N_CHECK_KEYWORD(else);
 
-			CHECK_RULE(compound_stat);
+			{ CODEGEN(emit_else, func_name, pd->label_deep, pd->label_index); }
+
+			GET_N_CHECK_TYPE(left_curly_bracket);
+			{
+				CHECK_RULE(statement);
+			}
+			GET_N_CHECK_TYPE(right_curly_bracket);
+
+			{ CODEGEN(emit_if_close, func_name, pd->label_deep, pd->label_index + 1); }
+
+			pd->label_index += 2;
+			pd->label_deep--;
 
 			GET_NEXT_TOKEN();
 			CHECK_RULE(statement);
 		}
-		//<statement> -> while <condition_stat>
+		//<statement> -> while ( <expression> ) { <statement> } <statement>
 		else if (KEYWORD_IS(while))
 		{
 			_DPRNR(2);
-			CHECK_RULE(condition_stat);
+			GET_N_CHECK_TYPE(left_bracket);
+			{
+				//GET_NEXT_TOKEN();
+				pd->lhs_var = symtable_find(&pd->globalTable, "$EXPR_REG");
+				if (!pd->lhs_var)
+					return ERROR_SEM_UNDEF_VAR;
+
+				CHECK_RULE(expression_parsing);
+			}
+			GET_N_CHECK_TYPE(right_bracket);
+
+			GET_N_CHECK_TYPE(left_curly_bracket);
+			{
+				GET_NEXT_TOKEN();
+				CHECK_RULE(statement);
+			}
+			GET_N_CHECK_TYPE(right_curly_bracket);
 
 			GET_NEXT_TOKEN();
 			CHECK_RULE(statement);
 		}
-		//<statement> -> return <expression> ;
+		//<statement> -> return <expression> ; <statement>
 		else if (KEYWORD_IS(return))
 		{
 			_DPRNR(3);
-			/*TODO: if */ expression_parsing(pd); //etc...
+
+			GET_NEXT_TOKEN();
+			CHECK_RULE(expression_parsing);
 			GET_N_CHECK_TYPE(semicolon);
 		}
-		//<statement> -> <rvalue>
+		//<statement> -> <rvalue> ; <statement>
 		else if (RULE_GOOD(rvalue))
 		{
 			_DPRNR(4);
 			GET_N_CHECK_TYPE(semicolon);
+
+			GET_NEXT_TOKEN();
+			CHECK_RULE(statement);
 		}
 		//<statement> -> ε
 		else
@@ -702,60 +675,73 @@ static int params(ParserData* pd)
 static int program(ParserData* pd)
 {
 	RULE_OPEN;
-
-    //<program> -> function ID ( <params> ) : <func_type> <compound_stat> <program>
-	GET_NEXT_TOKEN();
-    if (KEYWORD_IS(function))
-    {
-		_DPRNR(0);
-		
-		GET_N_CHECK_TYPE(ID);
-		{ //Add func id to global table
-			if (ID_FOUND) //Function already defined
-				return ERROR_SEM_ID_DEF;
-			ADD_NEW_ID(rhs_func);
-		}		
-
-		pd->in_local_scope = true;
-
-		GET_N_CHECK_TYPE(left_bracket);
-		{
-			CHECK_RULE(params);
-		}
-		GET_N_CHECK_TYPE(right_bracket);
-		GET_N_CHECK_TYPE(colon);
-
-		CHECK_RULE(func_type);
-		
-		{ CODEGEN(emit_function_open, token_str); }
-
-		CHECK_RULE(compound_stat);
-
-		
-		{ CODEGEN(emit_function_close, token_str); }
-		
-		pd->in_local_scope = false;
-		CHECK_RULE(program);
-    }
-	//<program> -> <statement> <program>
-	else
 	{
-		_DPRNR(1);
-		CHECK_RULE(statement);
-		CHECK_RULE(program);
-	}
+		//<program> -> function ID ( <params> ) : <func_type> { <statement> } <program>
+		GET_NEXT_TOKEN();
+		if (KEYWORD_IS(function))
+		{
+			_DPRNR(0);
+			
+			GET_N_CHECK_TYPE(ID);
+			{ //Add func id to global table
+				if (ID_FOUND) //Function already defined
+					return ERROR_SEM_ID_DEF;
+				ADD_NEW_ID(rhs_func);
+			}		
 
-	
+			pd->in_local_scope = true;
+
+			GET_N_CHECK_TYPE(left_bracket);
+			{
+				CHECK_RULE(params);
+			}
+			GET_N_CHECK_TYPE(right_bracket);
+			GET_N_CHECK_TYPE(colon);
+
+			CHECK_RULE(func_type);
+			
+			{ CODEGEN(emit_function_open, token_str); }
+
+			GET_N_CHECK_TYPE(left_curly_bracket);
+			{
+				GET_NEXT_TOKEN();
+				CHECK_RULE(statement);
+			}
+			GET_N_CHECK_TYPE(right_curly_bracket);
+			
+			{ CODEGEN(emit_function_close, token_str); }
+			
+			pd->in_local_scope = false;
+			CHECK_RULE(program);
+		}
+		//<program> -> ?>
+		else if (TYPE_IS(end))
+		{
+			_DPRNR(1);
+			GET_N_CHECK_TYPE(EOF);
+		}
+		//<program> -> EOF
+		else if (TYPE_IS(EOF))
+		{
+			_DPRNR(2);
+		}
+		//<program> -> <statement> <program>
+		else
+		{
+			_DPRNR(3);
+			CHECK_RULE(statement)
+			CHECK_RULE(program);
+		}
+
+	}
     return RULE_OK;
 }
 
 static int begin(ParserData* pd)
 {
-	//<begin> -> <?php declare ( strict_types = 1 ) ; <program> <end>
+	//<begin> -> <?php declare ( strict_types = 1 ) ; <program>
 	RULE_OPEN;
 	{
-		
-		
 		{
 			GET_N_CHECK_TYPE(prologue);
 			_DPRNR(0);
@@ -777,11 +763,7 @@ static int begin(ParserData* pd)
 			GET_N_CHECK_TYPE(semicolon);
 		}
 
-		//{ CODEGEN(emit_body_open); }
-
 		CHECK_RULE(program);
-		
-		CHECK_RULE(end);
 	}
     return RULE_OK;
 }

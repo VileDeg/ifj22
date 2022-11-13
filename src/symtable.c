@@ -37,7 +37,7 @@ TItem *item_const(const char *key, bool *alloc_failed) {
         goto params_const_fail;
     strcpy(new_item->key, key);
     strcpy(new_item->data.id, key);
-    new_item->data.type = TYPE_NIL;
+    new_item->data.type = TYPE_NULL;
     new_item->next = NULL;
     return new_item;
 params_const_fail:

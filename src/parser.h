@@ -4,9 +4,7 @@
 #include "symtable.h"
 #include "scanner.h"
 #include "stack_t.h"
-
-#define GEN_CODE(_callback, ...)								\
-	if (!_callback(__VA_ARGS__)) return ERROR_INTERNAL
+#include "debug.h"
 
 typedef struct 
 {
@@ -23,6 +21,8 @@ typedef struct
     bool in_local_scope;
     
     int  param_index;
+    int  label_index;
+    int  label_deep;
 } ParserData;
 
 int parse_file(FILE* fptr);

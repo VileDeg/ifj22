@@ -16,9 +16,9 @@ typedef enum {
     TYPE_STRING,
 
     TYPE_BOOL,  /// for code-generator
-    TYPE_NONE,
-    TYPE_NIL
-} Data_type;
+    TYPE_UNDEF,
+    TYPE_NULL
+} DataType;
 
 #define MAX_PARAMS 3
 
@@ -27,7 +27,7 @@ typedef enum {
  */
 typedef struct
 {
-    Data_type type;
+    DataType type;
     str_t* params;
     char* id;
 } TData;
