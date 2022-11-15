@@ -3,36 +3,832 @@
 -1 :: stack_push
 	0: $        UNDEF
 
--2 :: stack_push
+-2 :: stack_push_after_top_term
+	0: REDUCE   UNDEF
+	1: $        UNDEF
+
+-3 :: stack_push
 	0: int      INT
 	1: REDUCE   UNDEF
 	2: $        UNDEF
 
--3 :: stack_pop
+-4 :: stack_pop
 	0: REDUCE   UNDEF
 	1: $        UNDEF
 
--4 :: stack_pop
+-5 :: stack_pop
 	0: $        UNDEF
 
--5 :: stack_push
+-6 :: stack_push
 	0: E        INT
 	1: $        UNDEF
 
--6 :: stack_pop
-	0: $        UNDEF
-
 -7 :: stack_pop
-
--8 :: stack_clear
-
--9 :: stack_init
-
--10 :: stack_push
 	0: $        UNDEF
+
+-8 :: stack_pop
+
+-9 :: stack_clear
+
+-10 :: stack_init
 
 -11 :: stack_push
+	0: $        UNDEF
+
+-12 :: stack_push_after_top_term
+	0: REDUCE   UNDEF
+	1: $        UNDEF
+
+-13 :: stack_push
 	0: (        UNDEF
 	1: REDUCE   UNDEF
 	2: $        UNDEF
+
+-14 :: stack_push_after_top_term
+	0: REDUCE   UNDEF
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-15 :: stack_push
+	0: id       INT
+	1: REDUCE   UNDEF
+	2: (        UNDEF
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-16 :: stack_pop
+	0: REDUCE   UNDEF
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-17 :: stack_pop
+	0: (        UNDEF
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-18 :: stack_push
+	0: E        INT
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-19 :: stack_push_after_top_term
+	0: E        INT
+	1: REDUCE   UNDEF
+	2: (        UNDEF
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-20 :: stack_push
+	0: ===      UNDEF
+	1: E        INT
+	2: REDUCE   UNDEF
+	3: (        UNDEF
+	4: REDUCE   UNDEF
+	5: $        UNDEF
+
+-21 :: stack_push_after_top_term
+	0: REDUCE   UNDEF
+	1: ===      UNDEF
+	2: E        INT
+	3: REDUCE   UNDEF
+	4: (        UNDEF
+	5: REDUCE   UNDEF
+	6: $        UNDEF
+
+-22 :: stack_push
+	0: null     NULL
+	1: REDUCE   UNDEF
+	2: ===      UNDEF
+	3: E        INT
+	4: REDUCE   UNDEF
+	5: (        UNDEF
+	6: REDUCE   UNDEF
+	7: $        UNDEF
+
+-23 :: stack_pop
+	0: REDUCE   UNDEF
+	1: ===      UNDEF
+	2: E        INT
+	3: REDUCE   UNDEF
+	4: (        UNDEF
+	5: REDUCE   UNDEF
+	6: $        UNDEF
+
+-24 :: stack_pop
+	0: ===      UNDEF
+	1: E        INT
+	2: REDUCE   UNDEF
+	3: (        UNDEF
+	4: REDUCE   UNDEF
+	5: $        UNDEF
+
+-25 :: stack_push
+	0: E        NULL
+	1: ===      UNDEF
+	2: E        INT
+	3: REDUCE   UNDEF
+	4: (        UNDEF
+	5: REDUCE   UNDEF
+	6: $        UNDEF
+
+-26 :: stack_pop
+	0: ===      UNDEF
+	1: E        INT
+	2: REDUCE   UNDEF
+	3: (        UNDEF
+	4: REDUCE   UNDEF
+	5: $        UNDEF
+
+-27 :: stack_pop
+	0: E        INT
+	1: REDUCE   UNDEF
+	2: (        UNDEF
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-28 :: stack_pop
+	0: REDUCE   UNDEF
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-29 :: stack_pop
+	0: (        UNDEF
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-30 :: stack_push
+	0: E        BOOL
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-31 :: stack_push
+	0: )        UNDEF
+	1: E        BOOL
+	2: (        UNDEF
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-32 :: stack_pop
+	0: E        BOOL
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-33 :: stack_pop
+	0: (        UNDEF
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-34 :: stack_pop
+	0: REDUCE   UNDEF
+	1: $        UNDEF
+
+-35 :: stack_pop
+	0: $        UNDEF
+
+-36 :: stack_push
+	0: E        BOOL
+	1: $        UNDEF
+
+-37 :: stack_pop
+	0: $        UNDEF
+
+-38 :: stack_pop
+
+-39 :: stack_clear
+
+-40 :: stack_init
+
+-41 :: stack_push
+	0: $        UNDEF
+
+-42 :: stack_pop
+
+-43 :: stack_clear
+
+-44 :: stack_init
+
+-45 :: stack_push
+	0: $        UNDEF
+
+-46 :: stack_pop
+
+-47 :: stack_clear
+
+-48 :: stack_init
+
+-49 :: stack_push
+	0: $        UNDEF
+
+-50 :: stack_push_after_top_term
+	0: REDUCE   UNDEF
+	1: $        UNDEF
+
+-51 :: stack_push
+	0: (        UNDEF
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-52 :: stack_push_after_top_term
+	0: REDUCE   UNDEF
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-53 :: stack_push
+	0: id       INT
+	1: REDUCE   UNDEF
+	2: (        UNDEF
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-54 :: stack_pop
+	0: REDUCE   UNDEF
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-55 :: stack_pop
+	0: (        UNDEF
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-56 :: stack_push
+	0: E        INT
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-57 :: stack_push_after_top_term
+	0: E        INT
+	1: REDUCE   UNDEF
+	2: (        UNDEF
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-58 :: stack_push
+	0: <        UNDEF
+	1: E        INT
+	2: REDUCE   UNDEF
+	3: (        UNDEF
+	4: REDUCE   UNDEF
+	5: $        UNDEF
+
+-59 :: stack_push_after_top_term
+	0: REDUCE   UNDEF
+	1: <        UNDEF
+	2: E        INT
+	3: REDUCE   UNDEF
+	4: (        UNDEF
+	5: REDUCE   UNDEF
+	6: $        UNDEF
+
+-60 :: stack_push
+	0: int      INT
+	1: REDUCE   UNDEF
+	2: <        UNDEF
+	3: E        INT
+	4: REDUCE   UNDEF
+	5: (        UNDEF
+	6: REDUCE   UNDEF
+	7: $        UNDEF
+
+-61 :: stack_pop
+	0: REDUCE   UNDEF
+	1: <        UNDEF
+	2: E        INT
+	3: REDUCE   UNDEF
+	4: (        UNDEF
+	5: REDUCE   UNDEF
+	6: $        UNDEF
+
+-62 :: stack_pop
+	0: <        UNDEF
+	1: E        INT
+	2: REDUCE   UNDEF
+	3: (        UNDEF
+	4: REDUCE   UNDEF
+	5: $        UNDEF
+
+-63 :: stack_push
+	0: E        INT
+	1: <        UNDEF
+	2: E        INT
+	3: REDUCE   UNDEF
+	4: (        UNDEF
+	5: REDUCE   UNDEF
+	6: $        UNDEF
+
+-64 :: stack_pop
+	0: <        UNDEF
+	1: E        INT
+	2: REDUCE   UNDEF
+	3: (        UNDEF
+	4: REDUCE   UNDEF
+	5: $        UNDEF
+
+-65 :: stack_pop
+	0: E        INT
+	1: REDUCE   UNDEF
+	2: (        UNDEF
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-66 :: stack_pop
+	0: REDUCE   UNDEF
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-67 :: stack_pop
+	0: (        UNDEF
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-68 :: stack_push
+	0: E        BOOL
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-69 :: stack_push
+	0: )        UNDEF
+	1: E        BOOL
+	2: (        UNDEF
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-70 :: stack_pop
+	0: E        BOOL
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-71 :: stack_pop
+	0: (        UNDEF
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-72 :: stack_pop
+	0: REDUCE   UNDEF
+	1: $        UNDEF
+
+-73 :: stack_pop
+	0: $        UNDEF
+
+-74 :: stack_push
+	0: E        BOOL
+	1: $        UNDEF
+
+-75 :: stack_pop
+	0: $        UNDEF
+
+-76 :: stack_pop
+
+-77 :: stack_clear
+
+-78 :: stack_init
+
+-79 :: stack_push
+	0: $        UNDEF
+
+-80 :: stack_pop
+
+-81 :: stack_clear
+
+-82 :: stack_init
+
+-83 :: stack_push
+	0: $        UNDEF
+
+-84 :: stack_push_after_top_term
+	0: REDUCE   UNDEF
+	1: $        UNDEF
+
+-85 :: stack_push
+	0: int      INT
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-86 :: stack_pop
+	0: REDUCE   UNDEF
+	1: $        UNDEF
+
+-87 :: stack_pop
+	0: $        UNDEF
+
+-88 :: stack_push
+	0: E        INT
+	1: $        UNDEF
+
+-89 :: stack_pop
+	0: $        UNDEF
+
+-90 :: stack_pop
+
+-91 :: stack_clear
+
+-92 :: stack_init
+
+-93 :: stack_push
+	0: $        UNDEF
+
+-94 :: stack_push_after_top_term
+	0: REDUCE   UNDEF
+	1: $        UNDEF
+
+-95 :: stack_push
+	0: (        UNDEF
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-96 :: stack_push_after_top_term
+	0: REDUCE   UNDEF
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-97 :: stack_push
+	0: id       INT
+	1: REDUCE   UNDEF
+	2: (        UNDEF
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-98 :: stack_pop
+	0: REDUCE   UNDEF
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-99 :: stack_pop
+	0: (        UNDEF
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-100 :: stack_push
+	0: E        INT
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-101 :: stack_push_after_top_term
+	0: E        INT
+	1: REDUCE   UNDEF
+	2: (        UNDEF
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-102 :: stack_push
+	0: >        UNDEF
+	1: E        INT
+	2: REDUCE   UNDEF
+	3: (        UNDEF
+	4: REDUCE   UNDEF
+	5: $        UNDEF
+
+-103 :: stack_push_after_top_term
+	0: REDUCE   UNDEF
+	1: >        UNDEF
+	2: E        INT
+	3: REDUCE   UNDEF
+	4: (        UNDEF
+	5: REDUCE   UNDEF
+	6: $        UNDEF
+
+-104 :: stack_push
+	0: int      INT
+	1: REDUCE   UNDEF
+	2: >        UNDEF
+	3: E        INT
+	4: REDUCE   UNDEF
+	5: (        UNDEF
+	6: REDUCE   UNDEF
+	7: $        UNDEF
+
+-105 :: stack_pop
+	0: REDUCE   UNDEF
+	1: >        UNDEF
+	2: E        INT
+	3: REDUCE   UNDEF
+	4: (        UNDEF
+	5: REDUCE   UNDEF
+	6: $        UNDEF
+
+-106 :: stack_pop
+	0: >        UNDEF
+	1: E        INT
+	2: REDUCE   UNDEF
+	3: (        UNDEF
+	4: REDUCE   UNDEF
+	5: $        UNDEF
+
+-107 :: stack_push
+	0: E        INT
+	1: >        UNDEF
+	2: E        INT
+	3: REDUCE   UNDEF
+	4: (        UNDEF
+	5: REDUCE   UNDEF
+	6: $        UNDEF
+
+-108 :: stack_pop
+	0: >        UNDEF
+	1: E        INT
+	2: REDUCE   UNDEF
+	3: (        UNDEF
+	4: REDUCE   UNDEF
+	5: $        UNDEF
+
+-109 :: stack_pop
+	0: E        INT
+	1: REDUCE   UNDEF
+	2: (        UNDEF
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-110 :: stack_pop
+	0: REDUCE   UNDEF
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-111 :: stack_pop
+	0: (        UNDEF
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-112 :: stack_push
+	0: E        BOOL
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-113 :: stack_push
+	0: )        UNDEF
+	1: E        BOOL
+	2: (        UNDEF
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-114 :: stack_pop
+	0: E        BOOL
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-115 :: stack_pop
+	0: (        UNDEF
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-116 :: stack_pop
+	0: REDUCE   UNDEF
+	1: $        UNDEF
+
+-117 :: stack_pop
+	0: $        UNDEF
+
+-118 :: stack_push
+	0: E        BOOL
+	1: $        UNDEF
+
+-119 :: stack_pop
+	0: $        UNDEF
+
+-120 :: stack_pop
+
+-121 :: stack_clear
+
+-122 :: stack_init
+
+-123 :: stack_push
+	0: $        UNDEF
+
+-124 :: stack_push_after_top_term
+	0: REDUCE   UNDEF
+	1: $        UNDEF
+
+-125 :: stack_push
+	0: id       INT
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-126 :: stack_pop
+	0: REDUCE   UNDEF
+	1: $        UNDEF
+
+-127 :: stack_pop
+	0: $        UNDEF
+
+-128 :: stack_push
+	0: E        INT
+	1: $        UNDEF
+
+-129 :: stack_push_after_top_term
+	0: E        INT
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-130 :: stack_push
+	0: *        UNDEF
+	1: E        INT
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-131 :: stack_push_after_top_term
+	0: REDUCE   UNDEF
+	1: *        UNDEF
+	2: E        INT
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-132 :: stack_push
+	0: id       INT
+	1: REDUCE   UNDEF
+	2: *        UNDEF
+	3: E        INT
+	4: REDUCE   UNDEF
+	5: $        UNDEF
+
+-133 :: stack_pop
+	0: REDUCE   UNDEF
+	1: *        UNDEF
+	2: E        INT
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-134 :: stack_pop
+	0: *        UNDEF
+	1: E        INT
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-135 :: stack_push
+	0: E        INT
+	1: *        UNDEF
+	2: E        INT
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-136 :: stack_pop
+	0: *        UNDEF
+	1: E        INT
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-137 :: stack_pop
+	0: E        INT
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-138 :: stack_pop
+	0: REDUCE   UNDEF
+	1: $        UNDEF
+
+-139 :: stack_pop
+	0: $        UNDEF
+
+-140 :: stack_push
+	0: E        INT
+	1: $        UNDEF
+
+-141 :: stack_pop
+	0: $        UNDEF
+
+-142 :: stack_pop
+
+-143 :: stack_clear
+
+-144 :: stack_init
+
+-145 :: stack_push
+	0: $        UNDEF
+
+-146 :: stack_push_after_top_term
+	0: REDUCE   UNDEF
+	1: $        UNDEF
+
+-147 :: stack_push
+	0: id       INT
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-148 :: stack_pop
+	0: REDUCE   UNDEF
+	1: $        UNDEF
+
+-149 :: stack_pop
+	0: $        UNDEF
+
+-150 :: stack_push
+	0: E        INT
+	1: $        UNDEF
+
+-151 :: stack_push_after_top_term
+	0: E        INT
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-152 :: stack_push
+	0: -        UNDEF
+	1: E        INT
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-153 :: stack_push_after_top_term
+	0: REDUCE   UNDEF
+	1: -        UNDEF
+	2: E        INT
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-154 :: stack_push
+	0: int      INT
+	1: REDUCE   UNDEF
+	2: -        UNDEF
+	3: E        INT
+	4: REDUCE   UNDEF
+	5: $        UNDEF
+
+-155 :: stack_pop
+	0: REDUCE   UNDEF
+	1: -        UNDEF
+	2: E        INT
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-156 :: stack_pop
+	0: -        UNDEF
+	1: E        INT
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-157 :: stack_push
+	0: E        INT
+	1: -        UNDEF
+	2: E        INT
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-158 :: stack_pop
+	0: -        UNDEF
+	1: E        INT
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-159 :: stack_pop
+	0: E        INT
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-160 :: stack_pop
+	0: REDUCE   UNDEF
+	1: $        UNDEF
+
+-161 :: stack_pop
+	0: $        UNDEF
+
+-162 :: stack_push
+	0: E        INT
+	1: $        UNDEF
+
+-163 :: stack_pop
+	0: $        UNDEF
+
+-164 :: stack_pop
+
+-165 :: stack_clear
+
+-166 :: stack_init
+
+-167 :: stack_push
+	0: $        UNDEF
+
+-168 :: stack_pop
+
+-169 :: stack_clear
+
+-170 :: stack_init
+
+-171 :: stack_push
+	0: $        UNDEF
+
+-172 :: stack_pop
+
+-173 :: stack_clear
+
+-174 :: stack_init
+
+-175 :: stack_push
+	0: $        UNDEF
+
+-176 :: stack_pop
+
+-177 :: stack_clear
 

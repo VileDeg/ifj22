@@ -40,3 +40,81 @@ Current token: 4                                   integer
 rvalue -> ID ( <args> )
 Current token:                        if           keyword         
 statement -> if ( <expression> ) { <statement> } else { <statement> } <statement>
+Current token:           write                     ID              
+rvalue -> $ID
+Current token:           Chyba pri na              string          
+args -> <term> <arg_n>
+Current token:                                     right_bracket   
+arg_n -> ε
+Current token:                                     right_bracket   
+statement -> <rvalue> ; <statement>
+Current token:                                     right_curly_brac
+rvalue -> ID ( <args> )
+Current token:                                     right_curly_brac
+statement -> ε
+Current token:                                     right_curly_brac
+rvalue -> ID ( <args> )
+Current token:                                     right_curly_brac
+statement -> ε
+Current token:                        if           keyword         
+statement -> if ( <expression> ) { <statement> } else { <statement> } <statement>
+Current token:           write                     ID              
+rvalue -> $ID
+Current token:           Faktorial ne              string          
+args -> <term> <arg_n>
+Current token:                                     right_bracket   
+arg_n -> ε
+Current token:                                     right_bracket   
+statement -> <rvalue> ; <statement>
+Current token:                                     right_curly_brac
+rvalue -> ID ( <args> )
+Current token:                                     right_curly_brac
+statement -> ε
+Current token:           $vysl                     ID              
+statement -> $ID <assign> ; <statement>
+Current token:                                     equal_sign      
+assign -> = <rvalue>
+Current token: 1                                   integer         
+rvalue -> ID ( <args> )
+Current token:                        while        keyword         
+statement -> while ( <expression> ) { <statement> } <statement>
+Current token:           $vysl                     ID              
+statement -> $ID <assign> ; <statement>
+Current token:                                     equal_sign      
+assign -> = <rvalue>
+Current token:           $vysl                     ID              
+rvalue -> ID ( <args> )
+Current token:           $a                        ID              
+statement -> $ID <assign> ; <statement>
+Current token:                                     equal_sign      
+assign -> = <rvalue>
+Current token:           $a                        ID              
+rvalue -> ID ( <args> )
+Current token:                                     right_curly_brac
+rvalue -> ID ( <args> )
+Current token:                                     right_curly_brac
+statement -> ε
+Current token:           write                     ID              
+rvalue -> $ID
+Current token:           Vysledek je:              string          
+args -> <term> <arg_n>
+Current token:                                     comma           
+arg_n -> , <args>
+Current token:                                     comma           
+arg_n -> , <args>
+Current token:                                     right_bracket   
+arg_n -> ε
+Current token:                                     right_bracket   
+statement -> <rvalue> ; <statement>
+Current token:                                     right_curly_brac
+rvalue -> ID ( <args> )
+Current token:                                     right_curly_brac
+statement -> ε
+Current token:                                     EOF             
+rvalue -> ID ( <args> )
+Current token:                                     EOF             
+statement -> ε
+Current token:                                     EOF             
+program -> EOF
+
+

@@ -26,6 +26,8 @@ bool stack_push(SymbolStack* stack, Oper_type operType, DataType dataType);
 
 void stack_pop(SymbolStack* stack);
 
+void stack_pop_count(SymbolStack* stack, int cnt);
+
 void stack_clear(SymbolStack* stack);
 
 SSElement* stack_get_top_term(SymbolStack* stack);

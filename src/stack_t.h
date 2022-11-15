@@ -54,7 +54,7 @@ bool SUFF##stack_push(SUFF##stack_t* stack, TDATA data) \
     if (!new)\
         return false;\
     new->data = data;\
-    new->next = NULL;\
+    new->next = stack->top;\
     stack->top = new;\
 }\
 \

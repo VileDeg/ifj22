@@ -42,3 +42,48 @@ int  deci string       keyword      type
 4                                   integer         
                        if           keyword         
                                     left_bracket    
+          write                     ID              
+                                    left_bracket    
+          Chyba pri na              string          
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                       if           keyword         
+                                    left_bracket    
+          write                     ID              
+                                    left_bracket    
+          Faktorial ne              string          
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $vysl                     ID              
+                                    equal_sign      
+1                                   integer         
+                       while        keyword         
+                                    left_bracket    
+          $vysl                     ID              
+                                    equal_sign      
+          $vysl                     ID              
+          $a                        ID              
+                                    equal_sign      
+          $a                        ID              
+                                    right_curly_brac
+          write                     ID              
+                                    left_bracket    
+          Vysledek je:              string          
+                                    comma           
+          $vysl                     ID              
+                                    comma           
+          
+                         string          
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                                    EOF             
+
+

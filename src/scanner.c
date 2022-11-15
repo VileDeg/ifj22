@@ -117,8 +117,8 @@ int scanner_get_next_token(Token *Token)
         {
             if (sign != '<')
             {
-                PRINT_ERROR_LEX("wrong file start");
-                return ERROR_LEXICAL;
+                PRINT_ERROR_RET(ERROR_LEXICAL, "wrong file start");
+                //return ERROR_LEXICAL;
             }
                 
             is_correct_file_start = true;
@@ -300,12 +300,12 @@ int scanner_get_next_token(Token *Token)
 
                 //If there were no signs matches, then a lexical error is written out.
                 //PRINT_ERROR("[LEXICAL ERROR]:%d:%d: invalid sign: \"%c\"\n", line_counter, sign_counter, sign);
-                PRINT_ERROR_LEX("%d:%d: invalid sign: \"%c\"", line_counter, sign_counter, sign);
+                PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: invalid sign: \"%c\"", line_counter, sign_counter, sign);
                 // fprintf(stderr, "\033[1;31m");  //!! Color of the error message.
                 // fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid sign: \"%c\"\n", line_counter, sign_counter, sign);
                 // fprintf(stderr, "\033[0m");
 
-                return ERROR_LEXICAL;
+                
 
             case(STATE_PROLOG_ONE):
                 if (sign == 'p')
@@ -316,9 +316,9 @@ int scanner_get_next_token(Token *Token)
                 {
                     //Error handling. 
                     str_add_sign(String, sign);
-                    PRINT_ERROR_LEX("wrong prolog");
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "wrong prolog");
                     
-                    return ERROR_LEXICAL; 
+                     
                 }
                 break;
             
@@ -331,9 +331,9 @@ int scanner_get_next_token(Token *Token)
                 {
                     //Error handling. 
                     str_add_sign(String, sign);
-                    PRINT_ERROR_LEX("wrong prolog");
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "wrong prolog");
                     
-                    return ERROR_LEXICAL; 
+                     
                 }
                 break;
 
@@ -346,9 +346,9 @@ int scanner_get_next_token(Token *Token)
                 {
                     //Error handling. 
                     str_add_sign(String, sign);
-                    PRINT_ERROR_LEX("wrong prolog");
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "wrong prolog");
                     
-                    return ERROR_LEXICAL; 
+                     
                 }
                 break;
 
@@ -371,9 +371,9 @@ int scanner_get_next_token(Token *Token)
                 {
                     //Error handling. 
                     str_add_sign(String, sign);
-                    PRINT_ERROR_LEX("wrong character after '?'");
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "wrong character after '?'");
                     
-                    return ERROR_LEXICAL; 
+                     
                 }
 
                 break;
@@ -390,9 +390,9 @@ int scanner_get_next_token(Token *Token)
                 {
                     //Error handling. 
                     str_add_sign(String, sign);
-                    PRINT_ERROR_LEX("Character after the closing character '?>'");
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "Character after the closing character '?>'");
                     
-                    return ERROR_LEXICAL; 
+                     
                 }
                 
                 return 0;
@@ -414,8 +414,8 @@ int scanner_get_next_token(Token *Token)
                     else
                     {
                         break;
-                        PRINT_ERROR_LEX("Wrong ID or keyword");
-                        return ERROR_LEXICAL; 
+                        PRINT_ERROR_RET(ERROR_LEXICAL, "Wrong ID or keyword");
+                         
                     }
                     sign = getchar_modified();
                 }
@@ -454,9 +454,9 @@ int scanner_get_next_token(Token *Token)
                     {
                         //Error handling. 
                         str_add_sign(String, sign);
-                        PRINT_ERROR_LEX("%d:%d: wrong form of integer: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
+                        PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of integer: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                         
-                        return ERROR_LEXICAL; 
+                         
                     }
                     
                     sign = getchar_modified();
@@ -496,9 +496,9 @@ int scanner_get_next_token(Token *Token)
                 else 
                 {
                     str_add_sign(String, sign);
-                    PRINT_ERROR_LEX("%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
-                    return ERROR_LEXICAL;
+                    
                 }
 
             //Handle an exponent using plus or minus.
@@ -518,9 +518,9 @@ int scanner_get_next_token(Token *Token)
                 else
                 {
                     str_add_sign(String, sign);
-                    PRINT_ERROR_LEX("%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
-                    return ERROR_LEXICAL;
+                    
                 }
             
             //The last stage of processing the exponent.
@@ -534,9 +534,9 @@ int scanner_get_next_token(Token *Token)
                     else
                     {
                         str_add_sign(String, sign);
-                        PRINT_ERROR_LEX("%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
+                        PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                         
-                        return ERROR_LEXICAL; 
+                         
                     }
                          
                     sign = getchar_modified();                      
@@ -560,9 +560,9 @@ int scanner_get_next_token(Token *Token)
                 else
                 {
                     str_add_sign(String, sign);
-                    PRINT_ERROR_LEX("%d:%d: wrong form of decimal: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of decimal: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
-                    return ERROR_LEXICAL; 
+                     
                 }
                 break;
 
@@ -587,9 +587,9 @@ int scanner_get_next_token(Token *Token)
                 else if (!isdigit(sign))
                 {
                     str_add_sign(String, sign);
-                    PRINT_ERROR_LEX("%d:%d: wrong form of decimal: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of decimal: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
-                    return ERROR_LEXICAL; 
+                     
                 }
                 
                 sign = getchar_modified();
@@ -692,9 +692,9 @@ int scanner_get_next_token(Token *Token)
                 {
                     //Error handling. 
                     str_add_sign(String, sign);
-                    PRINT_ERROR_LEX("%d:%d: wrong сharacter \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong сharacter \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
-                    return ERROR_LEXICAL; 
+                     
                 }
                 
                 break;
@@ -715,9 +715,9 @@ int scanner_get_next_token(Token *Token)
                 {
                     str_add_sign(String,'!');
                     str_add_sign(String,sign);
-                    PRINT_ERROR_LEX("%d:%d: unsuitable combination of characters: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: unsuitable combination of characters: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
-                    return ERROR_LEXICAL;
+                    
                 }
                 break;
             
@@ -729,9 +729,9 @@ int scanner_get_next_token(Token *Token)
                 {
                     str_add_sign(String,'!');
                     str_add_sign(String,sign);
-                    PRINT_ERROR_LEX("%d:%d: unsuitable combination of characters: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: unsuitable combination of characters: \"%s\"", line_counter, sign_counter, Token->value.String->ptr);
                     
-                    return ERROR_LEXICAL;
+                    
                 }
                 break;
 
@@ -837,16 +837,16 @@ int scanner_get_next_token(Token *Token)
                     }
                     else if (sign == '$')
                     {
-                        PRINT_ERROR_LEX("%d:%d: unterminated string", line_counter, sign_counter);
-                        return ERROR_LEXICAL;
+                        PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: unterminated string", line_counter, sign_counter);
+                        
                     }
                     // else if (sign == '\n') //!! надо чтоб считывало \n знак в строке? 
                     //     break;
                     else if (sign == EOF) //(sign == '\n' || sign == EOF)
                     {
-                        PRINT_ERROR_LEX("%d:%d: no end of string", line_counter, sign_counter);
+                        PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: no end of string", line_counter, sign_counter);
                         
-                        return ERROR_LEXICAL;
+                        
                     }
                     
                     str_add_sign(String, sign);

@@ -1,0 +1,198 @@
+.IFJcode22
+DEFVAR GF@$TMP_REG1
+DEFVAR GF@$TMP_REG2
+DEFVAR GF@$TMP_REG3
+DEFVAR GF@$EXPR_REG
+
+# Function reads
+LABEL @reads
+PUSHFRAME
+DEFVAR LF@res
+READ LF@res string
+POPFRAME
+RETURN
+
+# Function readi
+LABEL @readi
+PUSHFRAME
+DEFVAR LF@res
+READ LF@res int
+POPFRAME
+RETURN
+
+# Function readf
+LABEL @readf
+PUSHFRAME
+DEFVAR LF@res
+READ LF@res float
+POPFRAME
+RETURN
+
+# Function write
+LABEL @write
+PUSHFRAME
+DEFVAR LF@to_write
+DEFVAR LF@type
+TYPE LF@type LF@arg_count
+JUMPIFNEQ @write_end LF@type string@int
+DEFVAR LF@cond
+LT LF@cond LF@arg_count int@1
+JUMPIFEQ @write_end LF@cond bool@true
+LABEL @write_loop
+POPS LF@to_write
+WRITE LF@to_write
+SUB LF@arg_count LF@arg_count int@1
+GT LF@cond LF@arg_count int@0
+JUMPIFEQ @write_loop LF@cond bool@true
+LABEL @write_end
+POPFRAME
+RETURN
+
+# Function strlen
+LABEL @strlen
+PUSHFRAME
+DEFVAR LF@res
+STRLEN LF@res LF@-0
+POPFRAME
+RETURN
+
+# Function substring
+LABEL @substring
+PUSHFRAME
+DEFVAR LF@res
+MOVE LF@res string@
+DEFVAR LF@length
+CREATEFRAME
+DEFVAR TF@-0
+MOVE TF@-0 LF@-0
+CALL @strlen
+MOVE LF@length TF@res
+DEFVAR LF@cond
+LT LF@cond LF@-1 int@0
+JUMPIFEQ @substring_end LF@cond bool@true
+LT LF@cond LF@-2 int@0
+JUMPIFEQ @substring_end LF@cond bool@true
+GT LF@cond LF@-1 LF@-2
+JUMPIFEQ @substring_end LF@cond bool@true
+LT LF@cond LF@-1 LF@length
+JUMPIFEQ @substring_end LF@cond bool@false
+GT LF@cond LF@-2 LF@length
+JUMPIFEQ @substring_end LF@cond bool@true
+DEFVAR LF@index
+MOVE LF@index LF@-1
+DEFVAR LF@char
+LABEL @substring_loop
+GETCHAR LF@char LF@-0 LF@index
+CONCAT LF@res LF@res LF@char
+ADD LF@index LF@index int@1
+LT LF@cond LF@index LF@-2
+JUMPIFEQ @substring_loop LF@cond bool@true
+LABEL @substring_end
+POPFRAME
+RETURN
+
+# Function ord
+LABEL @ord
+PUSHFRAME
+DEFVAR LF@res
+MOVE LF@res int@0
+DEFVAR LF@length
+CREATEFRAME
+DEFVAR TF@-0
+MOVE TF@-0 LF@-0
+CALL @strlen
+MOVE LF@length TF@res
+DEFVAR LF@cond
+GT LF@cond LF@length int@0
+JUMPIFEQ @ord_end LF@cond bool@false
+STRI2INT LF@res LF@-0 int@0
+LABEL @ord_end
+POPFRAME
+RETURN
+
+# Function chr
+LABEL @chr
+PUSHFRAME
+DEFVAR LF@res
+MOVE LF@res string@
+DEFVAR LF@cond
+GT LF@cond LF@-0 int@255
+JUMPIFEQ $chr_end LF@cond bool@true
+LT LF@cond LF@-0 int@0
+JUMPIFEQ $chr_end LF@cond bool@true
+INT2CHAR LF@res LF@-0
+LABEL @chr_end
+POPFRAME
+RETURN
+
+DEFVAR GF@$a
+PUSHS int@4
+POPS GF@$a
+
+# if
+PUSHS LF@$a
+PUSHS nil@nil
+POPS GF@$TMP_REG1
+POPS GF@$TMP_REG1
+PUSHS bool@false
+POPS GF@$EXPR_REG
+JUMPIFEQ @_0_0 GF@$EXPR_REG bool@false
+CREATEFRAME
+PUSHS string@Chyba\032pri\032nacitani\032celeho\032cisla!\010
+DEFVAR TF@arg_count
+MOVE TF@arg_count int@1
+CALL @write
+JUMP @_0_1
+# else
+LABEL @_0_0
+# if end
+LABEL @_0_1
+
+
+# if
+PUSHS LF@$a
+PUSHS int@0
+LTS
+POPS GF@$EXPR_REG
+JUMPIFEQ @_0_2 GF@$EXPR_REG bool@false
+CREATEFRAME
+PUSHS string@Faktorial\032nelze\032spocitat\010
+DEFVAR TF@arg_count
+MOVE TF@arg_count int@1
+CALL @write
+JUMP @_0_3
+# else
+LABEL @_0_2
+DEFVAR GF@$vysl
+PUSHS int@1
+POPS GF@$vysl
+
+# while
+LABEL @_1_2
+PUSHS LF@$a
+PUSHS int@0
+GTS
+POPS GF@$EXPR_REG
+JUMPIFEQ @_1_3 GF@$EXPR_REG bool@false
+PUSHS LF@$vysl
+PUSHS LF@$a
+MULS
+POPS GF@$vysl
+PUSHS LF@$a
+PUSHS int@1
+SUBS
+POPS GF@$a
+JUMP @_1_2
+# loop
+LABEL @_1_3
+
+CREATEFRAME
+PUSHS string@\010
+PUSHS LF@$vysl
+PUSHS string@Vysledek\032je:\032
+DEFVAR TF@arg_count
+MOVE TF@arg_count int@3
+CALL @write
+# if end
+LABEL @_0_5
+

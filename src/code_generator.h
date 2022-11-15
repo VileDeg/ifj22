@@ -21,20 +21,7 @@ extern FILE* g_CodegenOut;
  
 extern str_t g_Code;
 
-#define EMIT(_text)                              \
-    if (!str_concat(&g_Code, (_text))) return false
 
-#define EMIT_NL(_text)                            \
-    if (!str_concat(&g_Code, (_text"\n"))) return false
-
-#define MAX_DIGITS 50
-
-#define EMIT_INT(_number)                \
-    do {                                \
-        char _str[MAX_DIGITS];           \
-        sprintf(_str, "%ld", (_number));  \
-        EMIT(_str);                      \
-    } while (0)
 
 /**
  * Generation of header code.
@@ -65,7 +52,8 @@ void code_generator_terminate();
  */
 void code_generator_flush(FILE* file);
 
-//bool emit_bool_value(bool value);
+bool emit_push_bool_literal(bool value);
+
 bool emit_pop();
 
 /**
@@ -260,6 +248,8 @@ bool emit_stack_sec_float2int();
  * @return true if success.
  */
 bool emit_label(const char* name, int64_t deep, int64_t index);
+
+bool emit_if_head();
 
 /**
  * Generation of if start.

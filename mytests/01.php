@@ -1,9 +1,7 @@
 <?php
 declare(strict_types=1);
 
-if (5 + 1 - 3)
-{}
-else
-{}
+$vysl = 1;
+write("Vysledek je: ", $vysl, "\n");
 
 return 0;

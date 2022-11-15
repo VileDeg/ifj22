@@ -6,9 +6,12 @@
 #include "stack_t.h"
 #include "debug.h"
 
-#define FIND_ID(_id) symtable_find(pd->in_local_scope ? &pd->localTable : &pd->globalTable, _id)
+#define TK_STR(_tk) _tk.value.String->ptr
+#define FIND_CURRENT_ID symtable_find(pd->in_local_scope ? &pd->localTable : &pd->globalTable, TK_STR(pd->token))
 
-typedef struct 
+//#define FIND_ID(_id) symtable_find(pd->in_local_scope ? &pd->localTable : &pd->globalTable, _id)
+
+typedef struct
 {
     TSymtable globalTable;
 	TSymtable localTable;

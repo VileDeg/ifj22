@@ -85,6 +85,12 @@ void stack_pop(SymbolStack* stack)
     stack_print(stack, __func__);
 }
 
+void stack_pop_count(SymbolStack* stack, int cnt)
+{
+    while(cnt-- != 0) 
+        stack_pop(stack);
+}
+
 void stack_clear(SymbolStack* stack)
 {
     IFJ22_ASSERT(stack, "Stack is null.");
@@ -121,13 +127,13 @@ bool stack_push_after_top_term(SymbolStack* stack, Oper_type operType, DataType 
 				prev->next = new;
 			}
 
+            stack_print(stack, __func__);
 			return true;
 		}
 
 		prev = curr;
 	}
-    stack_print(stack, __func__);
-
+    
 	return false;
 }
 

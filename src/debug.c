@@ -154,7 +154,7 @@ int test_stdin(FILE* scan_out)
     while (tk.type != token_EOF)
     {
         result = scanner_get_next_token(&tk);
-        if (result != TOKEN_OK)
+        if (result != SUCCESS)
             break;
 
         debug_print_token(tk);
@@ -246,7 +246,7 @@ int test_scanner(FILE* source, bool show_source_contents,
         while (tk.type != token_EOF)
         {
             retcode = scanner_get_next_token(&tk);
-            if (retcode != TOKEN_OK)
+            if (retcode != SUCCESS)
                 break;
 
             debug_print_token(tk);

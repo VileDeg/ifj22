@@ -48,8 +48,8 @@
         "LT LF@cond LF@arg_count int@1\n"              \
         "JUMPIFEQ @write_end LF@cond bool@true\n"   \
         "LABEL @write_loop\n"                       \
-        "POPS @to_write\n"                          \
-        "WRITE @to_write\n"                         \
+        "POPS LF@to_write\n"                          \
+        "WRITE LF@to_write\n"                         \
         "SUB LF@arg_count LF@arg_count int@1\n"           \
         "GT LF@cond LF@arg_count int@0\n"              \
         "JUMPIFEQ @write_loop LF@cond bool@true\n"  \
@@ -174,6 +174,21 @@
 str_t g_Code;
 FILE* g_CodegenOut = NULL;
 
+#define EMIT(_text)                              \
+    if (!str_concat(&g_Code, (_text))) return false
+
+#define EMIT_NL(_text)                            \
+    if (!str_concat(&g_Code, (_text"\n"))) return false
+
+#define MAX_DIGITS 50
+
+#define EMIT_INT(_number)                \
+    do {                                \
+        char _str[MAX_DIGITS];           \
+        sprintf(_str, "%ld", (_number));  \
+        EMIT(_str);                      \
+    } while (0)
+
 bool emit_header() {
     EMIT_NL(".IFJcode22\n"
            "DEFVAR GF@$TMP_REG1\n"
@@ -216,7 +231,13 @@ void code_generator_flush(FILE* file) {
     //code_generator_finish();
 }
 
-
+bool emit_push_bool_literal(bool value)
+{
+    EMIT("PUSHS bool@");
+    EMIT(value ? "true" : "false");
+    EMIT("\n");
+    return true;
+}
 // bool emit_body_open() {
 //     EMIT_NL("# PROGRAM BODY\n"
 //            "CREATEFRAME\n"
@@ -470,7 +491,7 @@ bool emit_function_pass_param_push(Token token) {
 bool emit_function_pass_param_count(int64_t count)
 {
     EMIT("DEFVAR TF@arg_count\n");
-    EMIT("MOVE TF@arg_count ");
+    EMIT("MOVE TF@arg_count int@");
     EMIT_INT(count);
     EMIT("\n");
 
@@ -676,9 +697,14 @@ bool emit_label(const char* name, int64_t deep, int64_t index) {
 }
 
 
-bool emit_if_open(const char* name, int64_t deep, int64_t index) {
-    EMIT_NL("# if");
+bool emit_if_head()
+{
+    EMIT_NL("\n# if");
 
+    return true;
+}
+
+bool emit_if_open(const char* name, int64_t deep, int64_t index) {
     EMIT("JUMPIFEQ @");
     EMIT(name);
     EMIT("_");
@@ -710,15 +736,15 @@ bool emit_else(const char* name, int64_t deep, int64_t index) {
 
 bool emit_if_close(const char* name, int64_t deep, int64_t index) {
     EMIT_NL("# if end");
-
     if (!emit_label(name, deep, index)) return false;
+    EMIT("\n");
 
     return true;
 }
 
 
 bool emit_while_head(const char* name, int64_t deep, int64_t index) {
-    EMIT_NL("# while");
+    EMIT_NL("\n# while");
 
     if(!emit_label(name, deep, index)) return false;
 
@@ -748,9 +774,10 @@ bool emit_while_close(const char* name, int64_t deep, int64_t index) {
     EMIT_INT(index - 1);
     EMIT("\n");
 
-    EMIT_NL("# loop");
 
+    EMIT_NL("# loop");
     if(!emit_label(name, deep, index)) return false;
+    EMIT("\n");
 
     return true;
 }

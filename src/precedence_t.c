@@ -6,26 +6,11 @@
 #include "code_generator.h"
 #include "parser.h"
 
-#define RES result
 
-#define ERROR_RET(_retcode) \
-    do { \
-		stack_clear(&Stack); \
-		return _retcode; \
-	} while(0)
-
-#define RESULT(_funccall) \
-    if (RES = _funccall) \
-        ERROR_RET(RES); \
-    else {} 
-
-#define INTERNAL(_expr) \
-    if (!_expr) \
-        ERROR_RET(ERROR_INTERNAL);
 
 // Precedence table.
 int64_t precedence_table[TAB_SIZE][TAB_SIZE] = {
-    {REDUCE, SHIFT , REDUCE, REDUCE, SHIFT, REDUCE, SHIFT, SHIFT },
+    {REDUCE, SHIFT , REDUCE, REDUCE, SHIFT, REDUCE, SHIFT, REDUCE},
     {REDUCE, REDUCE, REDUCE, REDUCE, SHIFT, REDUCE, SHIFT, REDUCE},
     {SHIFT , SHIFT , REDUCE, SHIFT , SHIFT, REDUCE, SHIFT, REDUCE},
     {SHIFT , SHIFT , REDUCE, SHIFT , SHIFT, REDUCE, SHIFT, REDUCE},
@@ -122,7 +107,7 @@ DataType type_info(ParserData* pd)
     switch(pd->token.type) 
     {
         case token_ID:
-            data = FIND_ID(pd->token.value.String->ptr);//symtable_find(&pd->localTable, pd->token.value.String->ptr);
+            data = FIND_CURRENT_ID;
             if(!data)
                 return TYPE_UNDEF;
             return data->type;
@@ -132,6 +117,8 @@ DataType type_info(ParserData* pd)
             return TYPE_FLOAT;
         case token_string:
             return TYPE_STRING;
+        case token_null:
+            return TYPE_NULL;
         default:
             return TYPE_UNDEF;
     }
@@ -177,7 +164,8 @@ Rule_type rule_info(SSElement* oper1, SSElement* oper2, SSElement* oper3)
 // FIX ME add NULL and NIL semantic
 uint32_t implicit_conversion(Rule_type rule, DataType* dataType, bool* type_equal, SSElement* oper1, SSElement* oper2, SSElement* oper3) 
 {
-    switch(rule) {
+    switch(rule) 
+    {
         case RULE_ID:
             if(oper1->dataType == TYPE_UNDEF)
                 return ERROR_SEM_UNDEF_VAR;
@@ -226,10 +214,7 @@ uint32_t implicit_conversion(Rule_type rule, DataType* dataType, bool* type_equa
             break;
         case RULE_EQ:
         case RULE_NEQ:
-            if(oper1->dataType != oper3->dataType)
-                *type_equal = false;
-            else
-                *type_equal = true;
+            *type_equal = (oper1->dataType == oper3->dataType);
             *dataType = TYPE_BOOL;
             break;
         case RULE_LT:
@@ -245,7 +230,7 @@ uint32_t implicit_conversion(Rule_type rule, DataType* dataType, bool* type_equa
         default:
             break;
     }
-    return REDUCE_OK;
+    return SUCCESS;
 }
 
 uint32_t num_of_symbols_to_reduce(bool* reduceFound)
@@ -268,7 +253,6 @@ uint32_t num_of_symbols_to_reduce(bool* reduceFound)
 
 uint64_t reduce(ParserData* pd) 
 {
-    int result = REDUCE_OK;
     Rule_type RuleType;
     
     DataType dataType;
@@ -280,29 +264,31 @@ uint64_t reduce(ParserData* pd)
     SSElement* oper1 = NULL;
     SSElement* oper2 = NULL;
     SSElement* oper3 = NULL;
-    if (SymbolCnt == 1 && reduceFound) {   
+    if (SymbolCnt == 1 && reduceFound) 
+    {   
         oper1 = Stack.top;
-        if ((oper1->operType == DATA_ID)  || (oper1->operType == DATA_INT) || (oper1->operType == DATA_FLOAT) || 
-            (oper1->operType == DATA_STRING) || (oper1->operType == DATA_NULL))  {
+        if ((oper1->operType == DATA_ID)     || (oper1->operType == DATA_INT) || (oper1->operType == DATA_FLOAT) || 
+            (oper1->operType == DATA_STRING) || (oper1->operType == DATA_NULL))
             RuleType = RULE_ID;
-        } else {
+        else
             RuleType = RULE_N;
-        }
-    } else if (SymbolCnt == 3 && reduceFound) 
+    }
+    else if (SymbolCnt == 3 && reduceFound)
     {
         oper1 = Stack.top->next->next;
         oper2 = Stack.top->next;
         oper3 = Stack.top;
         RuleType = rule_info(oper1, oper2, oper3);
-        
-    } else 
+    } 
+    else 
         return ERROR_SYNTAX;
 
     if (RuleType == RULE_N)
         return ERROR_SYNTAX;
 
     bool type_equal = false; // <-- for '===' and '!==' operators
-    RESULT(implicit_conversion(RuleType, &dataType, &type_equal, oper1, oper2, oper3));
+    if (implicit_conversion(RuleType, &dataType, &type_equal, oper1, oper2, oper3) != SUCCESS)
+        return ERROR_SYNTAX;
 
     if (RuleType == RULE_EQ || RuleType == RULE_NEQ)
     {
@@ -310,24 +296,37 @@ uint64_t reduce(ParserData* pd)
             CODEGEN(emit_stack_operation, RuleType);
         else
         {
-            EMIT("PUSHS bool@");
-            EMIT_NL(type_equal ? "true" : "false");
+            CODEGEN(emit_pop);
+            CODEGEN(emit_pop);
+            CODEGEN(emit_push_bool_literal, type_equal);
         }
     }
     else
         CODEGEN(emit_stack_operation, RuleType);
     
-    ++SymbolCnt;
-    while(SymbolCnt != 0) 
-    {
-        stack_pop(&Stack);
-        SymbolCnt--;
-    }
+    stack_pop_count(&Stack, SymbolCnt + 1);
 
     stack_push(&Stack, OPER_E, dataType);
 
-    return REDUCE_OK;
+    return SUCCESS;
 }
+
+#define RES result
+
+#define ERROR_RET(_retcode) \
+    do { \
+		stack_clear(&Stack); \
+		return _retcode; \
+	} while(0)
+
+#define RESULT(_funccall) \
+    if ((RES = _funccall)) \
+        ERROR_RET(RES); \
+    else {} 
+
+#define INTERNAL(_expr) \
+    if (!(_expr)) \
+        ERROR_RET(ERROR_INTERNAL);
 
 int64_t expression_parsing(ParserData* pd) 
 {
@@ -339,6 +338,7 @@ int64_t expression_parsing(ParserData* pd)
     
     // [x,y] = index for precedence table
     Oper_type currSymbol;
+    Oper_type stackSymbol;
     SSElement* stackTerm;
 
     bool success = false;
@@ -346,8 +346,8 @@ int64_t expression_parsing(ParserData* pd)
     do
     {
         currSymbol = term_info(&pd->token);
-        stackTerm = stack_get_top_term(&Stack);
-        INTERNAL(stackTerm);
+        INTERNAL(stackTerm = stack_get_top_term(&Stack));
+        stackSymbol = stackTerm->operType;
 
         DataType symbolDataType = type_info(pd);
         // if (symbolDataType == TYPE_UNDEF)
@@ -402,5 +402,5 @@ int64_t expression_parsing(ParserData* pd)
     stack_clear(&Stack);
 
     pd->last_rule_was_eps = true; // <-- we use this to avoid reading next token
-    return EXPRESSION_OK;
+    return SUCCESS;
 }
