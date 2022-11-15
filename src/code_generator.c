@@ -1,20 +1,5 @@
 #include "code_generator.h"
 
-#define EMIT(text)                              \
-    if (!str_concat(&code, (text))) return false
-
-#define EMIT_NL(text)                            \
-    if (!str_concat(&code, (text"\n"))) return false
-
-#define EMIT_INT(number)                \
-    do {                                \
-        char str[MAX_DIGITS];           \
-        sprintf(str, "%ld", (number));  \
-        EMIT(str);                      \
-    } while (0)
-
-#define MAX_DIGITS 50
-
 #if 1
 /**
 * GENERATOR OF BUILT-IN FUNCTIONS
@@ -131,7 +116,7 @@
         "DEFVAR TF@-0\n"                            \
         "MOVE TF@-0 LF@-0\n"                        \
         "CALL @strlen\n"                            \
-        "MOVE LF@length TP@res\n"                   \
+        "MOVE LF@length TF@res\n"                   \
         "DEFVAR LF@cond\n"                          \
         "GT LF@cond LF@length int@0\n"              \
         "JUMPIFEQ @ord_end LF@cond bool@false\n"    \
@@ -158,8 +143,36 @@
         "RETURN\n" BFNEND
 
 #endif
-static str_t code;
 
+//Added builtins
+//function ===() : void
+#define FUNCTION_OPERATOR_EQUAL\
+    "# Operator '==='\n"                \
+    "LABEL @op_eq\n"\
+    "PUSHFRAME\n"\
+    "CREATEFRAME\n"\
+    "DEFVAR TF@op1\n" \
+    "DEFVAR TF@op2\n" \
+    "DEFVAR TF@type1\n" \
+    "DEFVAR TF@type2\n" \
+    "POPS TF@op1\n"\
+    "PUSHS TF@op1\n"\
+    "POPS TF@op2\n"\
+    "PUSHS TF@op2\n"\
+    "TYPE TF@type1 TF@op1\n"\
+    "TYPE TF@type2 TF@op2\n"\
+    "JUMPIFNEQ @type_neq TF@$type1 TF@$type2\n"\
+    "EQS\n"\
+    "JUMP @op_eq_end\n"\
+    "LABEL @type_neq\n"\
+    "LABEL @op_eq_end\n"\
+    "POPFRAME\n"                            \
+    "RETURN\n" BFNEND
+
+
+
+str_t g_Code;
+FILE* g_CodegenOut = NULL;
 
 bool emit_header() {
     EMIT_NL(".IFJcode22\n"
@@ -185,7 +198,7 @@ bool emit_built_in_funcs() {
 
 
 bool code_generator_init() {
-    if (!str_const(&code)) return false;
+    if (!str_const(&g_Code)) return false;
     if (!emit_header()) return false;
     if (!emit_built_in_funcs()) return false;
     return true;
@@ -193,13 +206,13 @@ bool code_generator_init() {
 
 
 void code_generator_terminate() {
-    str_dest(&code);
+    str_dest(&g_Code);
 }
 
 
 void code_generator_flush(FILE* file) {
-    fprintf(file, "%s", code.ptr);
-    str_clear(&code);
+    fprintf(file, "%s", g_Code.ptr);
+    str_clear(&g_Code);
     //code_generator_finish();
 }
 
@@ -387,7 +400,9 @@ bool emit_value_from_token(Token token) {
             EMIT("string@");
             EMIT(tmp.ptr);
             break;
-
+        case token_null:
+            EMIT("nil@nil");
+            break;
         case token_ID:
             EMIT("LF@");
             EMIT(token.value.String->ptr);
@@ -474,31 +489,12 @@ bool emit_function_return(const char* name) {
 }
 
 
-// bool emit_input(const char* var, DataType type) {
-//     EMIT_NL("WRITE GF@input_prompt");
-
-//     EMIT("READ LF@");
-//     EMIT(var);
-//     EMIT(" ");
-//     switch (type) {
-//         case TYPE_FLOAT:
-//             EMIT_NL("float");
-//             break;
-
-//         case TYPE_INT:
-//             EMIT_NL("int");
-//             break;
-
-//         case TYPE_STRING:
-//             EMIT_NL("string");
-//             break;
-
-//         default:
-//             return false;
-//     }
-
-//     return true;
-// }
+bool emit_bool_value(bool value)
+{
+    EMIT("bool@");
+    EMIT(value ? "true" : "false");
+    return true;
+}
 
 
 bool emit_exp_res() {
@@ -516,6 +512,14 @@ bool emit_push(Token token) {
     return true;
 }
 
+
+bool emit_pop()
+{
+    EMIT_NL("POPS GF@$TMP_REG1");
+    return true;
+}
+
+//static int64_t s_EqCounter = 0;
 
 bool emit_stack_operation(Rule_type rule) {
     switch (rule) {
@@ -543,7 +547,21 @@ bool emit_stack_operation(Rule_type rule) {
             break;
 
         case RULE_EQ:
+            // char str[MAX_DIGITS];
+            // sprintf(str, "%d", s_EqCounter);
+            // EMIT_NL("POPS GF@$TMP_REG1\n"
+            //         "TYPE GF@$TMP_REG1 GF@$TMP_REG1\n"
+            //         "POPS GF@$TMP_REG2\n"
+            //         "TYPE GF@$TMP_REG2 GF@$TMP_REG2\n"
+            //         "POPS GF@$TMP_REG2\n"
+            //         "JUMPIFNEQ  GF@$TMP_REG1 GF@$TMP_REG2");
+            // EMIT("LABEL @eq");
+            // EMIT(str); EMIT("\n");
+            
+
+
             EMIT_NL("EQS");
+            // ++s_EqCounter;
             break;
 
         case RULE_NEQ:
@@ -586,13 +604,24 @@ bool emit_stack_concat() {
 }
 
 
-bool emit_stack_pop_res(const char* var, DataType res_type, DataType var_type, const char* frame) {
-    if (var_type == TYPE_INT && res_type == TYPE_FLOAT) {
-        EMIT_NL("FLOAT2INTS");
-    } else if (var_type == TYPE_FLOAT && res_type == TYPE_INT) {
-        EMIT_NL("INT2FLOATS");
-    } //TODO: TYPE_BOOL ??
+// bool emit_stack_pop_res(const char* var, DataType res_type, DataType var_type, const char* frame) {
+//     if (var_type == TYPE_INT && res_type == TYPE_FLOAT) {
+//         EMIT_NL("FLOAT2INTS");
+//     } else if (var_type == TYPE_FLOAT && res_type == TYPE_INT) {
+//         EMIT_NL("INT2FLOATS");
+//     } //TODO: TYPE_BOOL ??
 
+//     EMIT("POPS ");
+//     EMIT(frame);
+//     EMIT("@");
+//     EMIT(var);
+//     EMIT("\n");
+
+//     return true;
+// }
+
+bool emit_stack_pop_res(const char* var, const char* frame) 
+{
     EMIT("POPS ");
     EMIT(frame);
     EMIT("@");
@@ -601,7 +630,6 @@ bool emit_stack_pop_res(const char* var, DataType res_type, DataType var_type, c
 
     return true;
 }
-
 
 bool emit_stack_top_int2float() {
     EMIT_NL("INT2FLOATS");

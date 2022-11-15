@@ -6,6 +6,8 @@
 #include "stack_t.h"
 #include "debug.h"
 
+#define FIND_ID(_id) symtable_find(pd->in_local_scope ? &pd->localTable : &pd->globalTable, _id)
+
 typedef struct 
 {
     TSymtable globalTable;

@@ -70,6 +70,7 @@ typedef enum {
     token_float,               // Number (type float).
     //token_exponent,            // Number (type exponent).
     token_string,              // String.
+    token_null,                // null
     token_minus,               // "-"
     token_plus,                // "+"
     token_multiply,            // "*"

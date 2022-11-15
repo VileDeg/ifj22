@@ -53,7 +53,11 @@ bool determine_type(str_t *String, Token *Token)
     else if (str_cmp(String, "int"))
         Token->value.keyword = keyword_int;
     else if (str_cmp(String, "null"))
+    {
+        Token->type = token_null;
         Token->value.keyword = keyword_null;
+        return 0;
+    }
     else if (str_cmp(String, "return"))
         Token->value.keyword = keyword_return;
     else if (str_cmp(String, "string"))

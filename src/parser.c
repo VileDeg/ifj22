@@ -96,7 +96,7 @@
 #define ID_FOUND symtable_find(pd->in_local_scope ? &pd->localTable : &pd->globalTable, token_str)
 	
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-FILE* s_CodegenOut = NULL;
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #define EPSRULE pd->last_rule_was_eps = true
@@ -172,18 +172,18 @@ static void free_data(ParserData* pd)
 	symtable_clear(&pd->localTable);
 }
 
-static int type			 (ParserData* pd);
-static int term			 (ParserData* pd);
-static int assign		 (ParserData* pd);
-static int rvalue		 (ParserData* pd);
-static int statement	 (ParserData* pd);
-static int func_type	 (ParserData* pd);
-static int args			 (ParserData* pd);
-static int arg_n		 (ParserData* pd);
-static int params		 (ParserData* pd);
-static int param_n		 (ParserData* pd);
-static int program		 (ParserData* pd);
-static int begin		 (ParserData* pd);
+static int type		(ParserData* pd);
+static int term		(ParserData* pd);
+static int assign	(ParserData* pd);
+static int rvalue	(ParserData* pd);
+static int statement(ParserData* pd);
+static int func_type(ParserData* pd);
+static int args		(ParserData* pd);
+static int arg_n	(ParserData* pd);
+static int params	(ParserData* pd);
+static int param_n	(ParserData* pd);
+static int program	(ParserData* pd);
+static int begin	(ParserData* pd);
 
 static int term(ParserData* pd)
 {
@@ -778,10 +778,10 @@ int parse_file(FILE* fptr)
 	scanner_set_file(fptr);
 	scanner_set_string(&string);
 
-	s_CodegenOut = stdout;
+	g_CodegenOut = stdout;
 
     int result = begin(&pd);
-	code_generator_flush(s_CodegenOut);
+	code_generator_flush(g_CodegenOut);
 	code_generator_terminate();
 
 	goto free;

@@ -12,7 +12,7 @@ static const char* dtstr[NUMFDT] = {
     "NULL"
 };
 
-#define NUMFOPT 20
+#define NUMFOPT 21
 static const char* opstr[NUMFOPT] = {
     "+",       
     "-",       
@@ -31,7 +31,8 @@ static const char* opstr[NUMFOPT] = {
     "id",        
     "int",       
     "float",     
-    "string",    
+    "string",
+    "null",   
 
     "$",    
     "REDUCE",   

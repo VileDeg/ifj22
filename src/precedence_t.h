@@ -38,6 +38,7 @@ typedef enum {
     DATA_INT,       // int
     DATA_FLOAT,     // float
     DATA_STRING,    // string
+    DATA_NULL,      // null
     
     OPER_DOLLAR,    // $
     OPER_REDUCE,   // reduce (Must be < OPER_EXPR !!)

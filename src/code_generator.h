@@ -10,16 +10,31 @@
 #include "scanner.h"
 #include "precedence_t.h"
 
-extern FILE* s_CodegenOut;
+extern FILE* g_CodegenOut;
 #ifdef IFJ22_DEBUG
-#define CODEGEN(_funcptr, ...) do { if (!_funcptr(__VA_ARGS__)) return ERROR_INTERNAL;\
-	IFJ22_ASSERT(s_CodegenOut, "Code generator output file not found");\
-	code_generator_flush(s_CodegenOut); }while(0)
+	#define CODEGEN(_funcptr, ...) do { if (!_funcptr(__VA_ARGS__)) return ERROR_INTERNAL;\
+		IFJ22_ASSERT(g_CodegenOut, "Code generator output file not found");\
+		code_generator_flush(g_CodegenOut); }while(0)
 #else
-#define CODEGEN(_funcptr, ...) if (!_funcptr(__VA_ARGS__)) return ERROR_INTERNAL
+	#define CODEGEN(_funcptr, ...) if (!_funcptr(__VA_ARGS__)) return ERROR_INTERNAL
 #endif //IFJ22_DEBUG
+ 
+extern str_t g_Code;
 
-//typedef int Rule_type;
+#define EMIT(_text)                              \
+    if (!str_concat(&g_Code, (_text))) return false
+
+#define EMIT_NL(_text)                            \
+    if (!str_concat(&g_Code, (_text"\n"))) return false
+
+#define MAX_DIGITS 50
+
+#define EMIT_INT(_number)                \
+    do {                                \
+        char _str[MAX_DIGITS];           \
+        sprintf(_str, "%ld", (_number));  \
+        EMIT(_str);                      \
+    } while (0)
 
 /**
  * Generation of header code.
@@ -50,17 +65,8 @@ void code_generator_terminate();
  */
 void code_generator_flush(FILE* file);
 
-// /**
-//  * Main beginning generation.
-//  * @return true if success.
-//  */
-// bool emit_body_open();
-
-// /**
-//  * Main end generation.
-//  * @return true if success.
-//  */
-// bool emit_body_close();
+//bool emit_bool_value(bool value);
+bool emit_pop();
 
 /**
  * Generation of function beginning.
@@ -213,12 +219,10 @@ bool emit_stack_concat();
 /**
  * Generation of popping result from stack.
  * @param var
- * @param res_type
- * @param var_type
  * @param frame
  * @return true if success.
  */
-bool emit_stack_pop_res(const char* var, DataType res_type, DataType var_type, const char* frame);
+bool emit_stack_pop_res(const char* var, const char* frame);
 
 /**
  * Generation of converting top element

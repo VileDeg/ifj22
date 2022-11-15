@@ -14,17 +14,17 @@
 		return _retcode; \
 	} while(0)
 
-#define RESULT_ERR_CHECK(_funccall) \
+#define RESULT(_funccall) \
     if (RES = _funccall) \
         ERROR_RET(RES); \
     else {} 
 
-#define INTERN_ERR_CHECK(_expr) \
+#define INTERNAL(_expr) \
     if (!_expr) \
         ERROR_RET(ERROR_INTERNAL);
 
 // Precedence table.
-int64_t precedent_table[TAB_SIZE][TAB_SIZE] = {
+int64_t precedence_table[TAB_SIZE][TAB_SIZE] = {
     {REDUCE, SHIFT , REDUCE, REDUCE, SHIFT, REDUCE, SHIFT, SHIFT },
     {REDUCE, REDUCE, REDUCE, REDUCE, SHIFT, REDUCE, SHIFT, REDUCE},
     {SHIFT , SHIFT , REDUCE, SHIFT , SHIFT, REDUCE, SHIFT, REDUCE},
@@ -46,7 +46,7 @@ Index_num index_info(Oper_type item) {
         case OPER_MUL:       // *
         case OPER_DIV:       // /
             return INDEX_1;
-        case OPER_E:        // ===
+        case OPER_EQ:        // ===
         case OPER_NEQ:       // !==
             return INDEX_2;
         case OPER_LT:        // <
@@ -62,6 +62,7 @@ Index_num index_info(Oper_type item) {
         case DATA_FLOAT:
         case DATA_INT:
         case DATA_STRING:
+        case DATA_NULL:
             return INDEX_6;
         default:
             return INDEX_7;
@@ -69,6 +70,8 @@ Index_num index_info(Oper_type item) {
 }
 
 Oper_type term_info(Token* token) {
+    // if (token->type == token_keyword && token->value.keyword == keyword_null)
+    //     return DATA_NULL;
     Token_types tokenType = token->type;
     switch(tokenType) {
         case token_minus:
@@ -82,7 +85,7 @@ Oper_type term_info(Token* token) {
         case token_divide:
             return OPER_DIV;
         case token_equal:
-            return OPER_E;
+            return OPER_EQ;
         case token_not_equal:
             return OPER_NEQ;
         case token_less:
@@ -105,11 +108,12 @@ Oper_type term_info(Token* token) {
             return DATA_FLOAT;
         case token_string:
             return DATA_STRING;
+        case token_null:
+            return DATA_NULL;
         default:
             return OPER_DOLLAR;
     }
 }
-
 
 DataType type_info(ParserData* pd) 
 {
@@ -118,7 +122,7 @@ DataType type_info(ParserData* pd)
     switch(pd->token.type) 
     {
         case token_ID:
-            data = symtable_find(&pd->localTable, pd->token.value.String->ptr);
+            data = FIND_ID(pd->token.value.String->ptr);//symtable_find(&pd->localTable, pd->token.value.String->ptr);
             if(!data)
                 return TYPE_UNDEF;
             return data->type;
@@ -151,7 +155,7 @@ Rule_type rule_info(SSElement* oper1, SSElement* oper2, SSElement* oper3)
                 return RULE_MUL;
             case OPER_DIV:
                 return RULE_DIV;
-            case OPER_E:
+            case OPER_EQ:
                 return RULE_EQ;
             case OPER_NEQ:
                 return RULE_NEQ;
@@ -171,85 +175,78 @@ Rule_type rule_info(SSElement* oper1, SSElement* oper2, SSElement* oper3)
         return RULE_N;
 }
 // FIX ME add NULL and NIL semantic
-uint32_t type_change (Rule_type rule, DataType* dataType, SSElement* oper1, SSElement* oper2, SSElement* oper3) {
+uint32_t implicit_conversion(Rule_type rule, DataType* dataType, bool* type_equal, SSElement* oper1, SSElement* oper2, SSElement* oper3) 
+{
     switch(rule) {
         case RULE_ID:
-            if(oper1->dataType == TYPE_UNDEF) {
+            if(oper1->dataType == TYPE_UNDEF)
                 return ERROR_SEM_UNDEF_VAR;
-            }
+
             *dataType = oper1->dataType;
             break;
         case RULE_BR:
-            if(oper2->dataType == TYPE_UNDEF) {
+            if(oper2->dataType == TYPE_UNDEF)
                 return ERROR_SEM_UNDEF_VAR;
-            }
+
             *dataType = oper2->dataType;
             break;
         case RULE_ADD:                                                          // FIX better solution for if/else if
         case RULE_SUB:
         case RULE_MUL:
-            if(oper1->dataType == TYPE_INT && oper3->dataType == TYPE_INT) {
+            if(oper1->dataType == TYPE_INT && oper3->dataType == TYPE_INT)
                 *dataType = TYPE_INT;
-            } else if(oper1->dataType == TYPE_FLOAT && oper3->dataType == TYPE_FLOAT) {
+            else if(oper1->dataType == TYPE_FLOAT && oper3->dataType == TYPE_FLOAT)
                 *dataType = TYPE_FLOAT;
-            } else if(oper1->dataType == TYPE_INT && oper3->dataType == TYPE_FLOAT) {
+            else if(oper1->dataType == TYPE_INT && oper3->dataType == TYPE_FLOAT)
+            {
                 *dataType = TYPE_FLOAT;
                 CODEGEN(emit_stack_top_int2float);
-            } else if(oper1->dataType == TYPE_FLOAT && oper3->dataType == TYPE_INT) {
+            }
+            else if(oper1->dataType == TYPE_FLOAT && oper3->dataType == TYPE_INT)
+            {
                 *dataType = TYPE_FLOAT;
                 CODEGEN(emit_stack_sec_int2float);
-            } else {
-                return ERROR_SEM_EXPRESSION;
             }
+            else
+                return ERROR_SEM_EXPRESSION;
             break;
         case RULE_DIV:
-            if(oper1->dataType == TYPE_INT && oper3->dataType == TYPE_FLOAT) {
-                *dataType = TYPE_FLOAT;
+            if(oper1->dataType == TYPE_INT && oper3->dataType == TYPE_FLOAT) 
                 CODEGEN(emit_stack_top_int2float);
-            } else if(oper1->dataType == TYPE_FLOAT && oper3->dataType == TYPE_INT) {
-                *dataType = TYPE_FLOAT;
+            else if(oper1->dataType == TYPE_FLOAT && oper3->dataType == TYPE_INT) 
                 CODEGEN(emit_stack_sec_int2float);
-            } else if(oper1->dataType == TYPE_FLOAT && oper3->dataType == TYPE_FLOAT) {
-                *dataType = TYPE_FLOAT;
-            } else {
+            else 
                 return ERROR_SEM_EXPRESSION;
-            }
+            *dataType = TYPE_FLOAT;
             break;
         case RULE_DOT:
-            if(oper1->dataType == TYPE_STRING && oper3->dataType == TYPE_STRING) {
-                *dataType = TYPE_STRING;
-            } else {
+            if(oper1->dataType != TYPE_STRING || oper3->dataType != TYPE_STRING)
                 return ERROR_SEM_EXPRESSION;
-            }
+            *dataType = TYPE_STRING;
             break;
         case RULE_EQ:
-            if(oper1->dataType != oper3->dataType) {                                    // FIX GENCODE add NIL function
-                if((oper1->dataType != TYPE_NULL) || (oper3->dataType != TYPE_NULL)) 
-                    *dataType = TYPE_BOOL;
-                    // BOOL = false
-            }
-            break;
         case RULE_NEQ:
-            if(oper1->dataType == oper3->dataType) {
-                *dataType = TYPE_BOOL;
-                // BOOL = false
-            }
+            if(oper1->dataType != oper3->dataType)
+                *type_equal = false;
+            else
+                *type_equal = true;
+            *dataType = TYPE_BOOL;
             break;
         case RULE_LT:
         case RULE_GT:
         case RULE_LEQ:
         case RULE_GEQ:
             *dataType = TYPE_BOOL;
-            if(((oper1->dataType != TYPE_BOOL) || (oper3->dataType != TYPE_BOOL)) || ((oper3->dataType != TYPE_STRING) && (oper1->dataType != TYPE_STRING))) {
-                return ERROR_SEM_EXPRESSION;
-            }
+            // if((oper1->dataType != TYPE_BOOL || oper3->dataType != TYPE_BOOL) || 
+            // oper3->dataType != TYPE_STRING && oper1->dataType != TYPE_STRING) {
+            //     return ERROR_SEM_EXPRESSION;
+            //}
             break;
         default:
             break;
     }
     return REDUCE_OK;
 }
-
 
 uint32_t num_of_symbols_to_reduce(bool* reduceFound)
 {
@@ -283,14 +280,15 @@ uint64_t reduce(ParserData* pd)
     SSElement* oper1 = NULL;
     SSElement* oper2 = NULL;
     SSElement* oper3 = NULL;
-    if(SymbolCnt == 1 && reduceFound) {   
+    if (SymbolCnt == 1 && reduceFound) {   
         oper1 = Stack.top;
-        if((oper1->operType == DATA_ID) || (oper1->operType == DATA_INT) || (oper1->operType == DATA_FLOAT) || (oper1->operType == DATA_STRING)) {
+        if ((oper1->operType == DATA_ID)  || (oper1->operType == DATA_INT) || (oper1->operType == DATA_FLOAT) || 
+            (oper1->operType == DATA_STRING) || (oper1->operType == DATA_NULL))  {
             RuleType = RULE_ID;
         } else {
             RuleType = RULE_N;
         }
-    } else if(SymbolCnt == 3 && reduceFound) 
+    } else if (SymbolCnt == 3 && reduceFound) 
     {
         oper1 = Stack.top->next->next;
         oper2 = Stack.top->next;
@@ -300,19 +298,24 @@ uint64_t reduce(ParserData* pd)
     } else 
         return ERROR_SYNTAX;
 
-    if(RuleType == RULE_N)
+    if (RuleType == RULE_N)
         return ERROR_SYNTAX;
 
-    RESULT_ERR_CHECK(type_change(RuleType, &dataType, oper1, oper2, oper3));
+    bool type_equal = false; // <-- for '===' and '!==' operators
+    RESULT(implicit_conversion(RuleType, &dataType, &type_equal, oper1, oper2, oper3));
 
-    // if(RuleType == RULE_DOT) {
-    //     if(dataType == TYPE_STRING) {
-    if (RuleType != RULE_ID)
+    if (RuleType == RULE_EQ || RuleType == RULE_NEQ)
+    {
+        if (RuleType == RULE_EQ && type_equal || RuleType == RULE_NEQ && !type_equal)
+            CODEGEN(emit_stack_operation, RuleType);
+        else
+        {
+            EMIT("PUSHS bool@");
+            EMIT_NL(type_equal ? "true" : "false");
+        }
+    }
+    else
         CODEGEN(emit_stack_operation, RuleType);
-        // } else {
-        //     return ERROR_SEM_EXPRESSION;
-        // }
-    //}
     
     ++SymbolCnt;
     while(SymbolCnt != 0) 
@@ -332,7 +335,7 @@ int64_t expression_parsing(ParserData* pd)
     
     stack_init(&Stack);
 
-    INTERN_ERR_CHECK(stack_push(&Stack, OPER_DOLLAR, TYPE_UNDEF));
+    INTERNAL(stack_push(&Stack, OPER_DOLLAR, TYPE_UNDEF));
     
     // [x,y] = index for precedence table
     Oper_type currSymbol;
@@ -344,30 +347,33 @@ int64_t expression_parsing(ParserData* pd)
     {
         currSymbol = term_info(&pd->token);
         stackTerm = stack_get_top_term(&Stack);
-        INTERN_ERR_CHECK(stackTerm);
+        INTERNAL(stackTerm);
 
         DataType symbolDataType = type_info(pd);
         // if (symbolDataType == TYPE_UNDEF)
         //     ERROR_RET(ERROR_SEM_UNDEF_VAR);
-
-        switch(precedent_table[index_info(stackTerm->operType)][index_info(currSymbol)]) 
+        Index_num xIndex = index_info(stackTerm->operType);
+        Index_num yIndex = index_info(currSymbol);
+        Sign_type signType = precedence_table[xIndex][yIndex];
+        switch(signType) 
         {
             case SHIFT:
-                INTERN_ERR_CHECK(stack_push_after_top_term(&Stack, OPER_REDUCE, TYPE_UNDEF));
+                INTERNAL(stack_push_after_top_term(&Stack, OPER_REDUCE, TYPE_UNDEF));
 
-                INTERN_ERR_CHECK(stack_push(&Stack, currSymbol, symbolDataType));
+                INTERNAL(stack_push(&Stack, currSymbol, symbolDataType));
 
-                if (currSymbol == DATA_ID || currSymbol == DATA_INT || currSymbol == DATA_FLOAT || currSymbol == DATA_STRING)
+                if (currSymbol == DATA_ID || currSymbol == DATA_INT || currSymbol == DATA_FLOAT || 
+                    currSymbol == DATA_STRING || currSymbol == DATA_NULL)
                     CODEGEN(emit_push, pd->token);
 
-                RESULT_ERR_CHECK(scanner_get_next_token(&pd->token));
+                RESULT(scanner_get_next_token(&pd->token));
                 break;
             case EQUAL:
-                INTERN_ERR_CHECK(stack_push(&Stack, currSymbol, symbolDataType));
-                RESULT_ERR_CHECK(scanner_get_next_token(&pd->token))
+                INTERNAL(stack_push(&Stack, currSymbol, symbolDataType));
+                RESULT(scanner_get_next_token(&pd->token))
                 break;
             case REDUCE:
-                RESULT_ERR_CHECK(reduce(pd));
+                RESULT(reduce(pd));
                 break;
             case NONE:
                 if(currSymbol == stackTerm->operType && currSymbol == OPER_DOLLAR) 
@@ -381,45 +387,16 @@ int64_t expression_parsing(ParserData* pd)
 
     SSElement* lastNonterm = Stack.top;
 
-    INTERN_ERR_CHECK(lastNonterm);
+    INTERNAL(lastNonterm);
     if (lastNonterm->operType != OPER_E)
         ERROR_RET(ERROR_SYNTAX);
 
     if(pd->lhs_var != NULL) 
     {
-        char *frame = "LF";
-        if(!pd->in_local_scope) frame = "GF";
+        char *frame = pd->in_local_scope ? "LF" : "GF";
 
-        switch (pd->lhs_var->type) 
-        {
-            case TYPE_INT:
-                if (lastNonterm->dataType == TYPE_STRING)
-                    ERROR_RET(ERROR_SEM_TYPE_COMPAT);
-
-                CODEGEN(emit_stack_pop_res, pd->lhs_var->id, lastNonterm->dataType, TYPE_INT, frame);
-                break;
-            case TYPE_FLOAT:
-                if (lastNonterm->dataType == TYPE_STRING)
-                    ERROR_RET(ERROR_SEM_TYPE_COMPAT);
-
-                CODEGEN(emit_stack_pop_res, pd->lhs_var->id, lastNonterm->dataType, TYPE_FLOAT, frame);
-                break;
-            case TYPE_BOOL:
-                CODEGEN(emit_stack_pop_res, pd->lhs_var->id, lastNonterm->dataType, TYPE_BOOL, frame);
-                break;
-            case TYPE_STRING:
-                if (lastNonterm->dataType != TYPE_STRING || lastNonterm->dataType != TYPE_BOOL)
-                    ERROR_RET(ERROR_SEM_TYPE_COMPAT);
-
-                CODEGEN(emit_stack_pop_res, pd->lhs_var->id, TYPE_STRING, TYPE_STRING, frame);
-                break;
-            case TYPE_UNDEF:
-                CODEGEN(emit_stack_pop_res, pd->lhs_var->id, lastNonterm->dataType, TYPE_UNDEF, frame);
-                break;
-            default:
-                IFJ22_ASSERT(false, "Unsupported type.");
-                break;
-        }
+        CODEGEN(emit_stack_pop_res, pd->lhs_var->id, frame);
+        pd->lhs_var->type = lastNonterm->dataType;
     }
 
     stack_clear(&Stack);
