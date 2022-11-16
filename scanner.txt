@@ -1,31 +1,3 @@
---------------------File contents: --------------------
-
-<?php
-declare(strict_types=1);
-// Program 1: Vypocet faktorialu (iterativne)
-
-// Hlavni telo programu
-//write("Zadejte cislo pro vypocet faktorialu\n");
-//$a = readi();
-$a = 4;
-
-if ($a === null) {
-	write("Chyba pri nacitani celeho cisla!\n");
-} else {}
-
-if ($a < 0) {
-	write("Faktorial nelze spocitat\n");
-} else {
-	$vysl = 1;
-	while ($a > 0) {
-		$vysl = $vysl * $a;
-		$a = $a - 1;
-	}
-	write("Vysledek je: ", $vysl, "\n");
-}
-
-
-
 --------------------List of tokens: --------------------
 
 int  deci string       keyword      type            
@@ -37,53 +9,14 @@ int  deci string       keyword      type
 1                                   integer         
                                     right_bracket   
                                     semicolon       
-          $a                        ID              
-                                    equal_sign      
-4                                   integer         
-                       if           keyword         
-                                    left_bracket    
-          write                     ID              
-                                    left_bracket    
-          Chyba pri na              string          
-                                    right_bracket   
-                                    semicolon       
-                                    right_curly_brac
-                       else         keyword         
-                                    left_curly_brack
-                                    right_curly_brac
-                       if           keyword         
-                                    left_bracket    
-          write                     ID              
-                                    left_bracket    
-          Faktorial ne              string          
-                                    right_bracket   
-                                    semicolon       
-                                    right_curly_brac
-                       else         keyword         
-                                    left_curly_brack
-          $vysl                     ID              
-                                    equal_sign      
-1                                   integer         
                        while        keyword         
                                     left_bracket    
-          $vysl                     ID              
-                                    equal_sign      
-          $vysl                     ID              
-          $a                        ID              
-                                    equal_sign      
-          $a                        ID              
-                                    right_curly_brac
-          write                     ID              
+                       while        keyword         
                                     left_bracket    
-          Vysledek je:              string          
-                                    comma           
-          $vysl                     ID              
-                                    comma           
-          
-                         string          
-                                    right_bracket   
-                                    semicolon       
                                     right_curly_brac
+                                    right_curly_brac
+                       return       keyword         
+0                                   integer         
                                     EOF             
 
 

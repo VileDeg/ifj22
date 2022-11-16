@@ -1,0 +1,2 @@
+./buildnrun.sh
+echo $?

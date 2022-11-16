@@ -3,9 +3,9 @@ declare(strict_types=1);
 // Program 1: Vypocet faktorialu (iterativne)
 
 // Hlavni telo programu
-//write("Zadejte cislo pro vypocet faktorialu\n");
-//$a = readi();
-$a = 4;
+write("Zadejte cislo pro vypocet faktorialu\n");
+$a = readi();
+//$a = 6;
 
 if ($a === null) {
 	write("Chyba pri nacitani celeho cisla!\n");

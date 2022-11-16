@@ -6,8 +6,6 @@
 #include "code_generator.h"
 #include "parser.h"
 
-
-
 // Precedence table.
 int64_t precedence_table[TAB_SIZE][TAB_SIZE] = {
     {REDUCE, SHIFT , REDUCE, REDUCE, SHIFT, REDUCE, SHIFT, REDUCE},
@@ -364,7 +362,7 @@ int64_t expression_parsing(ParserData* pd)
 
                 if (currSymbol == DATA_ID || currSymbol == DATA_INT || currSymbol == DATA_FLOAT || 
                     currSymbol == DATA_STRING || currSymbol == DATA_NULL)
-                    CODEGEN(emit_push, pd->token);
+                    CODEGEN(emit_push, pd->token, pd->in_local_scope);
 
                 RESULT(scanner_get_next_token(&pd->token));
                 break;

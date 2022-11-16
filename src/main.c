@@ -9,7 +9,7 @@ static FILE* open_file(const char* filepath, const char* modes)
 {
     IFJ22_ASSERT(filesopened <= MAX_FILES, "");
     FILE* ret = fopen(filepath, modes);
-    IFJ22_ASSERT(ret != NULL, "");
+    IFJ22_ASSERT(ret, "");
     open_files[filesopened] = ret;
     ++filesopened;
     return ret;
@@ -28,22 +28,21 @@ int main(void)
     int ret = 0;
     //FILE* source  = open_file("..//ifj-testsuite-master/tests/lex/strings/escape_bad_2.php", "r");
     //FILE* source  = open_file("../mytests/01.php", "r");
-    FILE* source  = open_file("../tests/IFJ22_examples/example1.php", "r");
+    FILE* source  = open_file("../ifj-testsuite/tests/lex/comments/block_in_line.php", "r");
+    //FILE* source  = open_file("../tests/IFJ22_examples/example1.php", "r");
     FILE* scanout = open_file("../scanner.txt", "w");
     FILE* parsout = open_file("../parser.txt", "w");
     FILE* exprout = open_file("../expr.txt", "w");
+    FILE* codegenout = open_file("../code.ifjc22", "w");
     {
-        
-#if 0
-        //ret = test_scanner(source, true, stdout);
-        ret = test_stdin(scanout); //<--- for python tests
-#else
-        debug_setup(source, true, scanout, parsout, exprout);
+        bool in = 1;
+        FILE* input = in ? stdin : source;
+
+        debug_setup(input, true, scanout, parsout, exprout, stdout);
         {
-            ret = parse_file(source);
+            ret = parse_file(input);
         }
         debug_terminate(scanout, parsout);
-#endif
     }
     close_all_files();
     return ret;    

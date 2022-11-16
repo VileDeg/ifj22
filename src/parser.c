@@ -198,14 +198,16 @@ static int term(ParserData* pd)
 {
 	#define CHECK_FUNC_PARAM_TYPE(_typelett)\
 		if (pd->rhs_func->params->ptr[pd->param_index] != _typelett)\
-			PRINT_ERROR_RET(ERROR_SEM_TYPE_COMPAT, "function parameter type incompatible.");
+			return ERROR_SEM_TYPE_COMPAT;
+			//PRINT_ERROR_RET(ERROR_SEM_TYPE_COMPAT, "function parameter type incompatible.");
 
 	RULE_OPEN;
 	{
 		if (!strcmp(pd->rhs_func->id, "write")) // if function is "write"
 		{
 			if (IS_VAR_ID && !FIND_CURRENT_ID)
-				PRINT_ERROR_RET(ERROR_SEM_UNDEF_VAR, "undefined variable passed as parameter.");
+				return ERROR_SEM_UNDEF_VAR;
+				//PRINT_ERROR_RET(ERROR_SEM_UNDEF_VAR, "undefined variable passed as parameter.");
 
 			// we need to store args to stack to pass them in inverse order
 			tkstack_push(&s_TokenStack, pd->token);
@@ -219,9 +221,10 @@ static int term(ParserData* pd)
 		}
 
 		if (pd->rhs_func->params->len == pd->param_index)
-				PRINT_ERROR_RET(ERROR_SEM_TYPE_COMPAT, "invalid number of parameters passed.");
+				return ERROR_SEM_TYPE_COMPAT;
+				//PRINT_ERROR_RET(ERROR_SEM_TYPE_COMPAT, "invalid number of parameters passed.");
 
-			CODEGEN(emit_function_pass_param, pd->token, pd->param_index);
+			CODEGEN(emit_function_pass_param, pd->token, pd->param_index, pd->in_local_scope);
 
 		//<term> -> INT_VALUE
 		if (TOKEN_IS(integer))
@@ -251,7 +254,8 @@ static int term(ParserData* pd)
 
 			TData* var = FIND_CURRENT_ID;
 			if (!var) 
-				PRINT_ERROR_RET(ERROR_SEM_UNDEF_VAR, "undefined variable passed as parameter.");
+				//PRINT_ERROR_RET(ERROR_SEM_UNDEF_VAR, "undefined variable passed as parameter.");
+				return ERROR_SEM_UNDEF_VAR;
 			switch (var->type)
 			{
 			case TYPE_INT:
@@ -295,7 +299,7 @@ static int args(ParserData* pd)
 
 					tk.value.String = &tk_str;
 
-					{ CODEGEN(emit_function_pass_param_push, tk); }
+					{ CODEGEN(emit_function_pass_param_push, tk, pd->in_local_scope); }
 					
 					tkstack_pop(&s_TokenStack);
 					str_dest(&tk_str);
@@ -416,7 +420,7 @@ static int rvalue(ParserData* pd)
 					
 					CODEGEN(emit_function_call, pd->rhs_func->id);
 					if (pd->lhs_var)
-						CODEGEN(emit_function_res_assign, pd->lhs_var->id, pd->lhs_var->type, pd->rhs_func->type);
+						CODEGEN(emit_function_res_assign, pd->lhs_var->id, pd->in_local_scope);
 					
 				}
 				else
@@ -559,16 +563,15 @@ static int statement(ParserData* pd)
 		{
 			_DPRNR(3);
 
-			//GET_NEXT_TOKEN();
-			CHECK_RULE(expression_parsing);
+			NEXT_TK_CHECK_RULE(expression_parsing);
 			NEXT_TK_CHECK_TYPE(semicolon);
 		}
 		//<statement> -> <rvalue> ; <statement>
 		else if (RULE_GOOD(rvalue))
 		{
 			_DPRNR(4);
-			NEXT_TK_CHECK_TYPE(semicolon);
 
+			NEXT_TK_CHECK_TYPE(semicolon);
 			NEXT_TK_CHECK_RULE(statement);
 		}
 		//<statement> -> ε
@@ -759,6 +762,8 @@ static int begin(ParserData* pd)
 			NEXT_TK_CHECK_TYPE(semicolon);
 		}
 
+		{ CODEGEN(emit_program_body_open); }
+
 		CHECK_RULE(program);
 	}
     return SUCCESS;
@@ -774,7 +779,7 @@ int parse_file(FILE* fptr)
 	scanner_set_file(fptr);
 	scanner_set_string(&string);
 
-	g_CodegenOut = stdout;
+	//g_CodegenOut = stdout;
 
     int result = begin(&pd);
 	code_generator_flush(g_CodegenOut);

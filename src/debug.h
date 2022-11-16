@@ -58,7 +58,7 @@
     void debug_print_token(Token tk);
 
     void debug_setup(FILE* source, bool show_source_contents, 
-        FILE* scan_out, FILE* pars_out, FILE* expr_out);
+        FILE* scan_out, FILE* pars_out, FILE* expr_out, FILE* codegen_out);
 
     void debug_terminate();
 

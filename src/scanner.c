@@ -115,11 +115,11 @@ int scanner_get_next_token(Token *Token)
         
         if(is_correct_file_start == false)
         {
-            if (sign != '<')
-            {
-                PRINT_ERROR_RET(ERROR_LEXICAL, "wrong file start");
-                //return ERROR_LEXICAL;
-            }
+            // if (sign != '<')
+            // {
+            //     PRINT_ERROR_RET(ERROR_LEXICAL, "wrong file start");
+            //     //return ERROR_LEXICAL;
+            // }
                 
             is_correct_file_start = true;
         }

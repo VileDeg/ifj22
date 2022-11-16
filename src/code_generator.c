@@ -146,28 +146,28 @@
 
 //Added builtins
 //function ===() : void
-#define FUNCTION_OPERATOR_EQUAL\
-    "# Operator '==='\n"                \
-    "LABEL @op_eq\n"\
-    "PUSHFRAME\n"\
-    "CREATEFRAME\n"\
-    "DEFVAR TF@op1\n" \
-    "DEFVAR TF@op2\n" \
-    "DEFVAR TF@type1\n" \
-    "DEFVAR TF@type2\n" \
-    "POPS TF@op1\n"\
-    "PUSHS TF@op1\n"\
-    "POPS TF@op2\n"\
-    "PUSHS TF@op2\n"\
-    "TYPE TF@type1 TF@op1\n"\
-    "TYPE TF@type2 TF@op2\n"\
-    "JUMPIFNEQ @type_neq TF@$type1 TF@$type2\n"\
-    "EQS\n"\
-    "JUMP @op_eq_end\n"\
-    "LABEL @type_neq\n"\
-    "LABEL @op_eq_end\n"\
-    "POPFRAME\n"                            \
-    "RETURN\n" BFNEND
+// #define FUNCTION_OPERATOR_EQUAL\
+//     "# Operator '==='\n"                \
+//     "LABEL @op_eq\n"\
+//     "PUSHFRAME\n"\
+//     "CREATEFRAME\n"\
+//     "DEFVAR TF@op1\n" \
+//     "DEFVAR TF@op2\n" \
+//     "DEFVAR TF@type1\n" \
+//     "DEFVAR TF@type2\n" \
+//     "POPS TF@op1\n"\
+//     "PUSHS TF@op1\n"\
+//     "POPS TF@op2\n"\
+//     "PUSHS TF@op2\n"\
+//     "TYPE TF@type1 TF@op1\n"\
+//     "TYPE TF@type2 TF@op2\n"\
+//     "JUMPIFNEQ @type_neq TF@$type1 TF@$type2\n"\
+//     "EQS\n"\
+//     "JUMP @op_eq_end\n"\
+//     "LABEL @type_neq\n"\
+//     "LABEL @op_eq_end\n"\
+//     "POPFRAME\n"                            \
+//     "RETURN\n" BFNEND
 
 
 
@@ -194,7 +194,8 @@ bool emit_header() {
            "DEFVAR GF@$TMP_REG1\n"
            "DEFVAR GF@$TMP_REG2\n"
            "DEFVAR GF@$TMP_REG3\n"
-           "DEFVAR GF@$EXPR_REG\n");
+           "DEFVAR GF@$EXPR_REG\n"
+           "JUMP @program_body\n");
     return true;
 }
 
@@ -229,6 +230,12 @@ void code_generator_flush(FILE* file) {
     fprintf(file, "%s", g_Code.ptr);
     str_clear(&g_Code);
     //code_generator_finish();
+}
+
+bool emit_program_body_open()
+{
+    EMIT_NL("LABEL @program_body");
+    return true;
 }
 
 bool emit_push_bool_literal(bool value)
@@ -360,15 +367,17 @@ bool emit_function_call(const char* name) {
 }
 
 
-bool emit_function_res_assign(const char* var, DataType var_type, DataType res_type) {
-    if (var_type == TYPE_INT && res_type == TYPE_FLOAT) {
-        EMIT_NL("FLOAT2INT TF@res TF@res");
-    } else if (var_type == TYPE_FLOAT && res_type == TYPE_INT) {
-        EMIT_NL("INT2FLOAT TF@res TF@res");
-    }
+bool emit_function_res_assign(const char* var_name, bool local_frame)
+{
+    // if (var_type == TYPE_INT && res_type == TYPE_FLOAT) {
+    //     EMIT_NL("FLOAT2INT TF@res TF@res");
+    // } else if (var_type == TYPE_FLOAT && res_type == TYPE_INT) {
+    //     EMIT_NL("INT2FLOAT TF@res TF@res");
+    // }
 
-    EMIT("MOVE LF@");
-    EMIT(var);
+    EMIT("MOVE ");
+    EMIT(local_frame ? "LF@" : "GF@");
+    EMIT(var_name);
     EMIT_NL(" TF@res");
 
     return true;
@@ -390,7 +399,7 @@ bool emit_function_param_declare(const char* name, int64_t index) {
 }
 
 
-bool emit_value_from_token(Token token) {
+bool emit_value_from_token(Token token, bool local_frame) {
     char term[MAX_DIGITS];
     unsigned char c;
     str_t tmp;
@@ -425,7 +434,7 @@ bool emit_value_from_token(Token token) {
             EMIT("nil@nil");
             break;
         case token_ID:
-            EMIT("LF@");
+            EMIT(local_frame ? "LF@" : "GF@");
             EMIT(token.value.String->ptr);
             break;
 
@@ -464,7 +473,7 @@ bool emit_function_before_pass_params() {
 // }
 
 
-bool emit_function_pass_param(Token token, int64_t index) {
+bool emit_function_pass_param(Token token, int64_t index, bool local_frame) {
     EMIT("DEFVAR TF@-");
     EMIT_INT(index);
     EMIT("\n");
@@ -472,16 +481,16 @@ bool emit_function_pass_param(Token token, int64_t index) {
     EMIT("MOVE TF@-");
     EMIT_INT(index);
     EMIT(" ");
-    if (!emit_value_from_token(token)) return false;
+    if (!emit_value_from_token(token, local_frame)) return false;
     EMIT("\n");
 
     return true;
 }
 
 
-bool emit_function_pass_param_push(Token token) {
+bool emit_function_pass_param_push(Token token, bool local_frame) {
     EMIT("PUSHS ");
-    if (!emit_value_from_token(token)) return false;
+    if (!emit_value_from_token(token, local_frame)) return false;
     EMIT("\n");
 
     return true;
@@ -525,9 +534,9 @@ bool emit_exp_res() {
 }
 
 
-bool emit_push(Token token) {
+bool emit_push(Token token, bool local_frame) {
     EMIT("PUSHS ");
-    if (!emit_value_from_token(token)) return false;
+    if (!emit_value_from_token(token, local_frame)) return false;
     EMIT("\n");
 
     return true;

@@ -35,6 +35,8 @@ bool emit_header();
  */
 bool emit_built_in_funcs();
 
+bool emit_program_body_open();
+
 /**
  * Starting generation of code.
  * @return true if success.
@@ -107,14 +109,9 @@ bool emit_define_var(const char* var, bool in_local_scope);
  */
 bool emit_function_call(const char* name);
 
-/**
- * Generation of function result assignment.
- * @param var
- * @param var_type
- * @param res_type
- * @return true if success.
- */
-bool emit_function_res_assign(const char* var, DataType var_type, DataType res_type);
+
+//bool emit_function_res_assign(const char* var, DataType var_type, DataType res_type);
+bool emit_function_res_assign(const char* var_name, bool local_frame);
 
 /**
  * Generation of local variables from parameters.
@@ -129,7 +126,7 @@ bool emit_function_param_declare(const char* name, int64_t index);
  * @param token
  * @return true if success.
  */
-bool emit_value_from_token(Token token);
+bool emit_value_from_token(Token token, bool local_frame);
 
 /**
  * Generation of part before passing parameters into function.
@@ -152,14 +149,14 @@ bool emit_function_before_pass_params();
  * @param index
  * @return true if success.
  */
-bool emit_function_pass_param(Token token, int64_t index);
+bool emit_function_pass_param(Token token, int64_t index, bool local_frame);
 
 /**
  * Generation of passing parameters into function by stack.
  * @param token
  * @return true if success.
  */
-bool emit_function_pass_param_push(Token token);
+bool emit_function_pass_param_push(Token token, bool local_frame);
 
 bool emit_function_pass_param_count(int64_t count);
 
@@ -189,7 +186,7 @@ bool emit_exp_res();
  * @param token
  * @return true if success.
  */
-bool emit_push(Token token);
+bool emit_push(Token token, bool local_frame);
 
 /**
  * Generation of code for stack operation.
