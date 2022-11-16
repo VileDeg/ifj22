@@ -1,4 +1,3 @@
 make
-make
 cd out
-./ifj22
+./ifj22 -src

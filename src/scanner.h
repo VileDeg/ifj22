@@ -95,12 +95,12 @@ typedef enum {
     token_end                  // "?<"
 } Token_types;
 
-typedef union
+typedef struct
 {
     unsigned integer;      //Value for processing integer value.
-    double   decimal;            //Value for processing double value.
-    str_t*   String;        //Array for processing strings.
-    Keywords keyword;          //Keyword.
+    double   decimal;      //Value for processing double value.
+    str_t*   String ;      //Array for processing strings.
+    Keywords keyword;      //Keyword.
 } Token_value;
 
 
@@ -110,7 +110,7 @@ typedef struct {
     Token_types type; //Type of token.
 } Token;
 
-void scanner_reset();
+//void scanner_reset();
 
 void scanner_set_file(FILE* fptr);
 
@@ -119,14 +119,14 @@ FILE* scanner_get_file();
 void scanner_set_string(str_t* str);
 
 //Comparing string we've gotten and compares with KW. In case it isn't a KW -> it's an ID.
-bool determine_type(str_t *String, Token *Token);
+//bool determine_type(str_t *String, Token *Token);
 
 //Gets a character from stdin and track location of lines and signs.
-int getchar_modified();
+//int getchar_modified();
 
 //Function for reading string from stdin and converting into token.
 int scanner_get_next_token(Token *token);
 
-void scanner_free();
+//void scanner_free();
 
 #endif

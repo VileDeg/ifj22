@@ -1,186 +1,16 @@
 #include "code_generator.h"
-
-#if 1
-/**
-* GENERATOR OF BUILT-IN FUNCTIONS
-*/
-#define BFNEND "\n"
-/// function reads() : ?string
-#define FUNCTION_READS              \
-        "# Function reads\n"        \
-        "LABEL @reads\n"            \
-        "PUSHFRAME\n"               \
-        "DEFVAR LF@res\n"           \
-        "READ LF@res string\n"      \
-        "POPFRAME\n"                \
-        "RETURN\n" BFNEND
-
-/// function readi() : ?int
-#define FUCNTION_READI          \
-        "# Function readi\n"    \
-        "LABEL @readi\n"        \
-        "PUSHFRAME\n"           \
-        "DEFVAR LF@res\n"       \
-        "READ LF@res int\n"     \
-        "POPFRAME\n"            \
-        "RETURN\n" BFNEND
-
-/// function readf() : ?float
-#define FUNCTION_READF              \
-        "# Function readf\n"        \
-        "LABEL @readf\n"            \
-        "PUSHFRAME\n"               \
-        "DEFVAR LF@res\n"           \
-        "READ LF@res float\n"       \
-        "POPFRAME\n"                \
-        "RETURN\n" BFNEND
-
-/// function write ( term1 , term2 , ..., term𝑛 ) : void
-#define FUNCTION_WRITE                              \
-        "# Function write\n"                        \
-        "LABEL @write\n"                            \
-        "PUSHFRAME\n"                               \
-        "DEFVAR LF@to_write\n"                      \
-        "DEFVAR LF@type\n"                          \
-        "TYPE LF@type LF@arg_count\n"                  \
-        "JUMPIFNEQ @write_end LF@type string@int\n" \
-        "DEFVAR LF@cond\n"                          \
-        "LT LF@cond LF@arg_count int@1\n"              \
-        "JUMPIFEQ @write_end LF@cond bool@true\n"   \
-        "LABEL @write_loop\n"                       \
-        "POPS LF@to_write\n"                          \
-        "WRITE LF@to_write\n"                         \
-        "SUB LF@arg_count LF@arg_count int@1\n"           \
-        "GT LF@cond LF@arg_count int@0\n"              \
-        "JUMPIFEQ @write_loop LF@cond bool@true\n"  \
-        "LABEL @write_end\n"                        \
-        "POPFRAME\n"                                \
-        "RETURN\n" BFNEND
-
-/// function strlen(string $𝑠) : int
-#define FUNCTION_STRLEN                 \
-        "# Function strlen\n"           \
-        "LABEL @strlen\n"               \
-        "PUSHFRAME\n"                   \
-        "DEFVAR LF@res\n"               \
-        "STRLEN LF@res LF@-0\n"         \
-        "POPFRAME\n"                    \
-        "RETURN\n" BFNEND
-
-/// function substring(string $𝑠, int $𝑖, int $𝑗) : ?string
-#define FUNCTION_SUBSTRING                              \
-        "# Function substring\n"                        \
-        "LABEL @substring\n"                            \
-        "PUSHFRAME\n"                                   \
-        "DEFVAR LF@res\n"                               \
-        "MOVE LF@res string@\n"                         \
-        "DEFVAR LF@length\n"                            \
-        "CREATEFRAME\n"                                 \
-        "DEFVAR TF@-0\n"                                \
-        "MOVE TF@-0 LF@-0\n"                            \
-        "CALL @strlen\n"                                \
-        "MOVE LF@length TF@res\n"                       \
-        "DEFVAR LF@cond\n"                              \
-        "LT LF@cond LF@-1 int@0\n"                      \
-        "JUMPIFEQ @substring_end LF@cond bool@true\n"   \
-        "LT LF@cond LF@-2 int@0\n"                      \
-        "JUMPIFEQ @substring_end LF@cond bool@true\n"   \
-        "GT LF@cond LF@-1 LF@-2\n"                      \
-        "JUMPIFEQ @substring_end LF@cond bool@true\n"   \
-        "LT LF@cond LF@-1 LF@length\n"                  \
-        "JUMPIFEQ @substring_end LF@cond bool@false\n"  \
-        "GT LF@cond LF@-2 LF@length\n"                  \
-        "JUMPIFEQ @substring_end LF@cond bool@true\n"   \
-        "DEFVAR LF@index\n"                             \
-        "MOVE LF@index LF@-1\n"                         \
-        "DEFVAR LF@char\n"                              \
-        "LABEL @substring_loop\n"                       \
-        "GETCHAR LF@char LF@-0 LF@index\n"              \
-        "CONCAT LF@res LF@res LF@char\n"                \
-        "ADD LF@index LF@index int@1\n"                 \
-        "LT LF@cond LF@index LF@-2\n"                   \
-        "JUMPIFEQ @substring_loop LF@cond bool@true\n"  \
-        "LABEL @substring_end\n"                        \
-        "POPFRAME\n"                                    \
-        "RETURN\n" BFNEND
-
-/// function ord(string $c) : int
-#define FUNCTION_ORD                                \
-        "# Function ord\n"                          \
-        "LABEL @ord\n"                              \
-        "PUSHFRAME\n"                               \
-        "DEFVAR LF@res\n"                           \
-        "MOVE LF@res int@0\n"                       \
-        "DEFVAR LF@length\n"                        \
-        "CREATEFRAME\n"                             \
-        "DEFVAR TF@-0\n"                            \
-        "MOVE TF@-0 LF@-0\n"                        \
-        "CALL @strlen\n"                            \
-        "MOVE LF@length TF@res\n"                   \
-        "DEFVAR LF@cond\n"                          \
-        "GT LF@cond LF@length int@0\n"              \
-        "JUMPIFEQ @ord_end LF@cond bool@false\n"    \
-        "STRI2INT LF@res LF@-0 int@0\n"             \
-        "LABEL @ord_end\n"                          \
-        "POPFRAME\n"                                \
-        "RETURN\n" BFNEND
-
-/// function chr(int $i) : string
-#define FUNCTION_CHR                            \
-        "# Function chr\n"                      \
-        "LABEL @chr\n"                          \
-        "PUSHFRAME\n"                           \
-        "DEFVAR LF@res\n"                       \
-        "MOVE LF@res string@\n"                 \
-        "DEFVAR LF@cond\n"                      \
-        "GT LF@cond LF@-0 int@255\n"            \
-        "JUMPIFEQ $chr_end LF@cond bool@true\n" \
-        "LT LF@cond LF@-0 int@0\n"              \
-        "JUMPIFEQ $chr_end LF@cond bool@true\n" \
-        "INT2CHAR LF@res LF@-0\n"               \
-        "LABEL @chr_end\n"                      \
-        "POPFRAME\n"                            \
-        "RETURN\n" BFNEND
-
-#endif
-
-//Added builtins
-//function ===() : void
-// #define FUNCTION_OPERATOR_EQUAL\
-//     "# Operator '==='\n"                \
-//     "LABEL @op_eq\n"\
-//     "PUSHFRAME\n"\
-//     "CREATEFRAME\n"\
-//     "DEFVAR TF@op1\n" \
-//     "DEFVAR TF@op2\n" \
-//     "DEFVAR TF@type1\n" \
-//     "DEFVAR TF@type2\n" \
-//     "POPS TF@op1\n"\
-//     "PUSHS TF@op1\n"\
-//     "POPS TF@op2\n"\
-//     "PUSHS TF@op2\n"\
-//     "TYPE TF@type1 TF@op1\n"\
-//     "TYPE TF@type2 TF@op2\n"\
-//     "JUMPIFNEQ @type_neq TF@$type1 TF@$type2\n"\
-//     "EQS\n"\
-//     "JUMP @op_eq_end\n"\
-//     "LABEL @type_neq\n"\
-//     "LABEL @op_eq_end\n"\
-//     "POPFRAME\n"                            \
-//     "RETURN\n" BFNEND
-
-
+#include "builtins.h"
 
 str_t g_Code;
 FILE* g_CodegenOut = NULL;
 
-#define EMIT(_text)                              \
-    if (!str_concat(&g_Code, (_text))) return false
+#define EMIT(_text)\
+    if (!str_concat(&g_Code, (_text))) return false; else {}\
 
-#define EMIT_NL(_text)                            \
-    if (!str_concat(&g_Code, (_text"\n"))) return false
+#define EMIT_NL(_text)\
+        EMIT(_text"\n");
 
-#define MAX_DIGITS 50
+#define MAX_DIGITS 64
 
 #define EMIT_INT(_number)                \
     do {                                \
@@ -199,12 +29,14 @@ bool emit_header() {
     return true;
 }
 
-
 bool emit_built_in_funcs() {
     EMIT(FUNCTION_READS);
     EMIT(FUCNTION_READI);
     EMIT(FUNCTION_READF);
     EMIT(FUNCTION_WRITE);
+    EMIT(FUNCTION_FLOATVAL);
+    EMIT(FUNCTION_INTVAL);
+    EMIT(FUNCTION_STRVAL);
     EMIT(FUNCTION_STRLEN);
     EMIT(FUNCTION_SUBSTRING);
     EMIT(FUNCTION_ORD);
@@ -232,9 +64,21 @@ void code_generator_flush(FILE* file) {
     //code_generator_finish();
 }
 
+bool emit_clear_stack()
+{
+    EMIT_NL("CLEARS");
+    return true;
+}
+
 bool emit_program_body_open()
 {
     EMIT_NL("LABEL @program_body");
+    return true;
+}
+
+bool emit_program_body_close()
+{
+    EMIT_NL("CLEARS");
     return true;
 }
 
@@ -245,24 +89,14 @@ bool emit_push_bool_literal(bool value)
     EMIT("\n");
     return true;
 }
-// bool emit_body_open() {
-//     EMIT_NL("# PROGRAM BODY\n"
-//            "CREATEFRAME\n"
-//            "PUSHFRAME");
-//     return true;
-// }
 
+bool emit_function_open(const char* name) 
+{
+    EMIT("JUMP @");
+    EMIT(name);
+    EMIT_NL("_skip");
 
-// bool emit_body_close() {
-//     EMIT_NL("# PROGRAM END\n"
-//            "POPFRAME\n"
-//            "CLEARS");
-//     return true;
-// }
-
-
-bool emit_function_open(const char* name) {
-    EMIT("# Function ");
+    EMIT("\n# Function ");
     EMIT(name);
     EMIT("\n");
 
@@ -270,26 +104,22 @@ bool emit_function_open(const char* name) {
     EMIT(name);
     EMIT("\n");
 
-    //EMIT_NL("PUSHFRAME");
-    EMIT_NL("CREATEFRAME");
+    //EMIT_NL("CREATEFRAME");
     EMIT_NL("PUSHFRAME");
 
     return true;
 }
 
 
-bool emit_function_close(const char* name) {
-    // EMIT("# ");
-    // EMIT(name);
-    // EMIT_NL(" end");
-
-    // EMIT("LABEL @");
-    // EMIT(name);
-    // EMIT_NL("_end");
-
+bool emit_function_close(const char* name) 
+{
     EMIT_NL("POPFRAME");
 
-    EMIT_NL("RETURN");
+    EMIT_NL("RETURN\n");
+
+    EMIT("LABEL @");
+    EMIT(name);
+    EMIT_NL("_skip");
 
     return true;
 }
@@ -399,20 +229,21 @@ bool emit_function_param_declare(const char* name, int64_t index) {
 }
 
 
-bool emit_value_from_token(Token token, bool local_frame) {
+bool emit_value_from_token(Token token, bool local_frame) 
+{
     char term[MAX_DIGITS];
     unsigned char c;
     str_t tmp;
     if (!str_const(&tmp)) return false;
     switch (token.type) {
         case token_integer:
-            sprintf(term, "%d", token.value.integer);
+            snprintf(term, MAX_DIGITS, "%d", token.value.integer);
             EMIT("int@");
             EMIT(term);
             break;
 
         case token_float:
-            sprintf(term, "%f", token.value.decimal);
+            snprintf(term, MAX_DIGITS, "%a", token.value.decimal);
             EMIT("float@");
             EMIT(term);
             break;
@@ -780,7 +611,11 @@ bool emit_while_close(const char* name, int64_t deep, int64_t index) {
     EMIT("_");
     EMIT_INT(deep);
     EMIT("_");
+
+
     EMIT_INT(index - 1);
+    
+    
     EMIT("\n");
 
 

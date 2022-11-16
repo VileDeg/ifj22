@@ -1,6 +1,8 @@
 #ifndef __ERRORS__
 #define __ERRORS__
 
+#include <signal.h>
+
 // #define TOKEN_OK 0
 // #define RULE_OK 0
 // #define REDUCE_OK 0
@@ -19,13 +21,17 @@
 
 #define NUMFERRORS 9
 
+
+
+
 extern const char* g_ErrStr[NUMFERRORS];
+
+// fprintf(stderr, "\033[1;31m");
+// fprintf(stderr, "\033[0m");
 
 #define _PRERRH(_errstr, _fmt, ...)\
     do{\
-        fprintf(stderr, "\033[1;31m");\
         fprintf(stderr, "[%s]: " _fmt "\n%s", _errstr, __VA_ARGS__);\
-        fprintf(stderr, "\033[0m");\
     } while(0)\
     
 #define _PRERR(...) _PRERRH(__VA_ARGS__, "")
@@ -44,5 +50,21 @@ extern const char* g_ErrStr[NUMFERRORS];
 // #define PRINT_ERROR_SEM_EXPR(...) _PRERR("ERROR_SEMANTIC_EXPRESSION", __VA_ARGS__)
 // #define PRINT_ERROR_SEM_OTHER(...) _PRERR("ERROR_SEMANTIC_OTHER", __VA_ARGS__)
 // #define PRINT_ERROR_INTERN(...) _PRERR("ERROR_INTERNAL", __VA_ARGS__)
+
+#ifdef IFJ22_DEBUG
+
+    #define IFJ22_DEBUGBRK raise(SIGTRAP)
+    #define IFJ22_ASSERT(val, msg)\
+        do{\
+        if (!(val))\
+        {\
+            fprintf(stderr, "[%s]::ASSERT on line: %d, in function: %s\n\t%s\n",\
+                __FILE__, __LINE__, __func__, msg);\
+            IFJ22_DEBUGBRK;\
+        }\
+        } while(0)
+#else
+#define IFJ22_ASSERT(val, msg)
+#endif //IFJ22_DEBUG
 
 #endif //__ERRORS__

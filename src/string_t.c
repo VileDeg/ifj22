@@ -74,3 +74,13 @@ bool str_cmp(str_t *first, const char *second)
 {
     return !strcmp(first->ptr, second);
 }
+
+// void str_cpy(str_t* dst, str_t* src)
+// {
+//     dst = 
+// }
+
+char str_last_sign(str_t* str)
+{
+    return str->ptr[str->len-1];
+}

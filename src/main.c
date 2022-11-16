@@ -1,5 +1,9 @@
+#include <string.h>
+
 #include "debug.h"
+#include "errors.h"
 #include "parser.h"
+#include "code_generator.h"
 
 #define MAX_FILES 16
 static FILE* open_files[MAX_FILES];
@@ -21,28 +25,37 @@ static void close_all_files()
         fclose(open_files[i]);
 }
 
-int main(void)
+int main(int argc, char** argv)
 {
     populate_rule_definitions();
 
     int ret = 0;
     //FILE* source  = open_file("..//ifj-testsuite-master/tests/lex/strings/escape_bad_2.php", "r");
     //FILE* source  = open_file("../mytests/01.php", "r");
-    FILE* source  = open_file("../ifj-testsuite/tests/lex/comments/block_in_line.php", "r");
+    FILE* source  = open_file("../ifj-testsuite/tests/lex/characters/ampersant.php", "r");
     //FILE* source  = open_file("../tests/IFJ22_examples/example1.php", "r");
-    FILE* scanout = open_file("../scanner.txt", "w");
-    FILE* parsout = open_file("../parser.txt", "w");
-    FILE* exprout = open_file("../expr.txt", "w");
+    
     FILE* codegenout = open_file("../code.ifjc22", "w");
     {
-        bool in = 1;
-        FILE* input = in ? stdin : source;
+        //bool in = 1;
 
-        debug_setup(input, true, scanout, parsout, exprout, stdout);
+        if (argc > 1 && !strcmp(argv[1], "-src"))
         {
-            ret = parse_file(input);
+            FILE* scanout = open_file("../scanner.txt", "w");
+            FILE* parsout = open_file("../parser.txt", "w");
+            FILE* exprout = open_file("../expr.txt", "w");
+
+            debug_setup(source, true, scanout, parsout, exprout, stdout);
+            {
+                ret = parse_file(source);
+            }
+            debug_terminate(scanout, parsout);
         }
-        debug_terminate(scanout, parsout);
+        else
+        {
+            g_CodegenOut = stdout;
+            ret = parse_file(stdin);
+        }
     }
     close_all_files();
     return ret;    

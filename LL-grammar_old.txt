@@ -1,13 +1,13 @@
-<begin> -> <?php declare ( strict_types = 1 ) ; <program> <end>
-<end> -> ?>
-<end> -> EOF
+<begin> -> <?php declare ( strict_types = 1 ) ; <program>
 <program> -> function ID ( <params> ) : <func_type> { <statement> } <program>
-<program> -> <statement>
-<statement> -> $ID <assign> ; <program>
-<statement> -> if ( <expression> ) { <statement> } else { <statement> } <program>
-<statement> -> while ( <expression> ) { <statement> } <program>
-<statement> -> return <expression> ; <program>
-<statement> -> <rvalue> ; <program>
+<program> -> ?>
+<program> -> EOF
+<program> -> <statement> <program>
+<statement> -> $ID <assign> ; <statement>
+<statement> -> if ( <expression> ) { <statement> } else { <statement> } <statement>
+<statement> -> while ( <expression> ) { <statement> } <statement>
+<statement> -> return <expression> ; <statement>
+<statement> -> <rvalue> ; <statement>
 <statement> -> ε
 <assign> -> = <rvalue>
 <assign> -> ε

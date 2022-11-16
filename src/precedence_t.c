@@ -291,16 +291,17 @@ uint64_t reduce(ParserData* pd)
     if (RuleType == RULE_EQ || RuleType == RULE_NEQ)
     {
         if (RuleType == RULE_EQ && type_equal || RuleType == RULE_NEQ && !type_equal)
-            CODEGEN(emit_stack_operation, RuleType);
+            { CODEGEN(emit_stack_operation, RuleType); }
         else
         {
-            CODEGEN(emit_pop);
-            CODEGEN(emit_pop);
-            CODEGEN(emit_push_bool_literal, type_equal);
+            // CODEGEN(emit_pop);
+            // CODEGEN(emit_pop);
+            { CODEGEN(emit_clear_stack); }
+            { CODEGEN(emit_push_bool_literal, type_equal); }
         }
     }
     else
-        CODEGEN(emit_stack_operation, RuleType);
+        { CODEGEN(emit_stack_operation, RuleType); }
     
     stack_pop_count(&Stack, SymbolCnt + 1);
 
@@ -348,8 +349,10 @@ int64_t expression_parsing(ParserData* pd)
         stackSymbol = stackTerm->operType;
 
         DataType symbolDataType = type_info(pd);
+
         // if (symbolDataType == TYPE_UNDEF)
         //     ERROR_RET(ERROR_SEM_UNDEF_VAR);
+
         Index_num xIndex = index_info(stackTerm->operType);
         Index_num yIndex = index_info(currSymbol);
         Sign_type signType = precedence_table[xIndex][yIndex];
@@ -393,7 +396,7 @@ int64_t expression_parsing(ParserData* pd)
     {
         char *frame = pd->in_local_scope ? "LF" : "GF";
 
-        CODEGEN(emit_stack_pop_res, pd->lhs_var->id, frame);
+        { CODEGEN(emit_stack_pop_res, pd->lhs_var->id, frame); }
         pd->lhs_var->type = lastNonterm->dataType;
     }
 

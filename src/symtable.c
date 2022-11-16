@@ -1,7 +1,9 @@
-#include "symtable.h"
-#include "string_t.h"
 #include <stdlib.h>
 #include <string.h>
+
+#include "symtable.h"
+#include "string_t.h"
+#include "errors.h"
 
 
 size_t hash_function(const char *str) {
@@ -23,7 +25,8 @@ void symtable_init(TSymtable *st) {
 }
 
 
-TItem *item_const(const char *key, bool *alloc_failed) {
+TItem *item_const(const char *key, bool *alloc_failed) 
+{
     TItem *new_item = calloc(sizeof(TItem), 1);
     if (new_item == NULL)
         goto mem_fail;
@@ -37,7 +40,7 @@ TItem *item_const(const char *key, bool *alloc_failed) {
         goto params_const_fail;
     strcpy(new_item->key, key);
     strcpy(new_item->data.id, key);
-    new_item->data.type = TYPE_NULL;
+    new_item->data.type = TYPE_UNDEF;
     new_item->next = NULL;
     return new_item;
 params_const_fail:
@@ -104,7 +107,13 @@ bool symtable_add_param(TData *data, int64_t data_type) {
                 return false;
             }
             break;
+        case (TYPE_UNDEF):
+            if (!str_add_sign(data->params, 'u')) {
+                return false;
+            }
+            break;
         default:
+            IFJ22_ASSERT(false, "Wrong type.");
             break;
     }
     return true;
@@ -171,6 +180,7 @@ void symtable_clear(TSymtable *st) {
                 str_dest(to_delete->data.params);
                 free(to_delete->data.params);
             }
+            free(to_delete->data.id);
             free(to_delete);
             to_delete = tmp;
         }

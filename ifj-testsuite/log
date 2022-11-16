@@ -105,10 +105,7 @@ TEST 12: ./tests/lex/comments/multiline_nested_bad.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 0 Expected: [1, 2].
+SUCCESS
 
 ********************
 TEST 13: ./tests/lex/comments/unending.php
@@ -126,10 +123,7 @@ TEST 14: ./tests/lex/ids/func_all.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
+SUCCESS
 
 ********************
 TEST 15: ./tests/lex/ids/func_dolar.php
@@ -147,10 +141,7 @@ TEST 16: ./tests/lex/ids/func_letters.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
+SUCCESS
 
 ********************
 TEST 17: ./tests/lex/ids/func_numbers.php
@@ -159,10 +150,7 @@ TEST 17: ./tests/lex/ids/func_numbers.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
+SUCCESS
 
 ********************
 TEST 18: ./tests/lex/ids/func_starting_number.php
@@ -180,10 +168,7 @@ TEST 19: ./tests/lex/ids/func_starting_underscore.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
+SUCCESS
 
 ********************
 TEST 20: ./tests/lex/ids/func_underscore.php
@@ -192,10 +177,7 @@ TEST 20: ./tests/lex/ids/func_underscore.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
+SUCCESS
 
 ********************
 TEST 21: ./tests/lex/ids/var_all.php
@@ -222,7 +204,7 @@ TEST 23: ./tests/lex/ids/var_no_dolar.php
 PROGRAM INPUT:
 
 ----
-ERROR: test timeout (ifjcomp interpret)
+SUCCESS
 
 ********************
 TEST 24: ./tests/lex/ids/var_numbers.php
@@ -240,10 +222,7 @@ TEST 25: ./tests/lex/ids/var_starting_number.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 0 Expected: [1, 2].
+SUCCESS
 
 ********************
 TEST 26: ./tests/lex/ids/var_starting_underscore.php
@@ -315,11 +294,7 @@ TEST 33: ./tests/lex/numbers/float_exp_2.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-*** stack smashing detected ***: terminated
-
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -6 Expected: [0].
+SUCCESS
 
 ********************
 TEST 34: ./tests/lex/numbers/float_exp_3.php
@@ -346,11 +321,7 @@ TEST 36: ./tests/lex/numbers/float_exp_dot_1.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-*** stack smashing detected ***: terminated
-
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -6 Expected: [0].
+SUCCESS
 
 ********************
 TEST 37: ./tests/lex/numbers/float_exp_dot_2.php
@@ -368,11 +339,7 @@ TEST 38: ./tests/lex/numbers/float_exp_dot_3.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-*** stack smashing detected ***: terminated
-
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -6 Expected: [0].
+SUCCESS
 
 ********************
 TEST 39: ./tests/lex/numbers/float_exp_zeroes.php
@@ -498,10 +465,7 @@ TEST 52: ./tests/lex/prolog_epilog/bad_epilog.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 0 Expected: [1, 2].
+SUCCESS
 
 ********************
 TEST 53: ./tests/lex/prolog_epilog/bad_prolog_1.php
@@ -738,10 +702,7 @@ TEST 78: ./tests/sem/builtins/conversion_multiple_params.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 3 Expected: [4].
+SUCCESS
 
 ********************
 TEST 79: ./tests/sem/builtins/conversion_of_null.php
@@ -750,10 +711,7 @@ TEST 79: ./tests/sem/builtins/conversion_of_null.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 3 Expected: [0].
+SUCCESS
 
 ********************
 TEST 80: ./tests/sem/builtins/conversion_ok.php
@@ -762,10 +720,7 @@ TEST 80: ./tests/sem/builtins/conversion_ok.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 3 Expected: [0].
+SUCCESS
 
 ********************
 TEST 81: ./tests/sem/builtins/conversion_to_same.php
@@ -774,10 +729,7 @@ TEST 81: ./tests/sem/builtins/conversion_to_same.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 3 Expected: [0].
+SUCCESS
 
 ********************
 TEST 82: ./tests/sem/builtins/ord_bad.php
@@ -786,10 +738,7 @@ TEST 82: ./tests/sem/builtins/ord_bad.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [4].
+SUCCESS
 
 ********************
 TEST 83: ./tests/sem/builtins/ord_ok.php
@@ -807,10 +756,7 @@ TEST 84: ./tests/sem/builtins/read_bad_params.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [4].
+SUCCESS
 
 ********************
 TEST 85: ./tests/sem/builtins/read_ok.php
@@ -828,10 +774,7 @@ TEST 86: ./tests/sem/builtins/strlen_bad_param.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [4].
+SUCCESS
 
 ********************
 TEST 87: ./tests/sem/builtins/strlen_empty.php
@@ -849,11 +792,7 @@ TEST 88: ./tests/sem/builtins/strlen_ok.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-[1;31m[(]: internal error.
-[0m
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
+SUCCESS
 
 ********************
 TEST 89: ./tests/sem/builtins/substring_bad_params.php
@@ -862,10 +801,7 @@ TEST 89: ./tests/sem/builtins/substring_bad_params.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [4].
+SUCCESS
 
 ********************
 TEST 90: ./tests/sem/builtins/substring_fewer_params.php
@@ -883,11 +819,7 @@ TEST 91: ./tests/sem/builtins/substring_ok.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-[1;31m[(]: internal error.
-[0m
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
+SUCCESS
 
 ********************
 TEST 92: ./tests/sem/builtins/write_no_parameters.php
@@ -896,7 +828,7 @@ TEST 92: ./tests/sem/builtins/write_no_parameters.php
 PROGRAM INPUT:
 
 ----
-ERROR: test timeout (ifjcomp interpret)
+SUCCESS
 
 ********************
 TEST 93: ./tests/sem/builtins/write_with_multiple_params.php
@@ -905,10 +837,7 @@ TEST 93: ./tests/sem/builtins/write_with_multiple_params.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [0].
+SUCCESS
 
 ********************
 TEST 94: ./tests/sem/builtins/write_with_one_param.php
@@ -917,10 +846,7 @@ TEST 94: ./tests/sem/builtins/write_with_one_param.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [0].
+SUCCESS
 
 ********************
 TEST 95: ./tests/sem/expressions/undefined_variable_1.php
@@ -944,7 +870,7 @@ PROGRAM INPUT:
 Compiler error output:
 <empty>
 ----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 0 Expected: [5].
+ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [5].
 
 ********************
 TEST 97: ./tests/sem/expressions/undefined_variable_3.php
@@ -968,7 +894,7 @@ PROGRAM INPUT:
 Compiler error output:
 <empty>
 ----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [0].
+ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
 
 ********************
 TEST 99: ./tests/sem/functions/argument_type_null.php
@@ -980,7 +906,7 @@ PROGRAM INPUT:
 Compiler error output:
 <empty>
 ----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [0].
+ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
 
 ********************
 TEST 100: ./tests/sem/functions/assignment_call_without_return_value.php
@@ -989,10 +915,7 @@ TEST 100: ./tests/sem/functions/assignment_call_without_return_value.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
+SUCCESS
 
 ********************
 TEST 101: ./tests/sem/functions/bad_argument_count_1.php
@@ -1016,7 +939,7 @@ PROGRAM INPUT:
 Compiler error output:
 <empty>
 ----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [4].
+ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [4].
 
 ********************
 TEST 103: ./tests/sem/functions/bad_argument_type_1.php
@@ -1028,7 +951,7 @@ PROGRAM INPUT:
 Compiler error output:
 <empty>
 ----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [4].
+ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [4].
 
 ********************
 TEST 104: ./tests/sem/functions/bad_argument_type_2.php
@@ -1040,7 +963,7 @@ PROGRAM INPUT:
 Compiler error output:
 <empty>
 ----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [4].
+ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [4].
 
 ********************
 TEST 105: ./tests/sem/functions/bad_argument_type_3.php
@@ -1052,7 +975,7 @@ PROGRAM INPUT:
 Compiler error output:
 <empty>
 ----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [4].
+ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [4].
 
 ********************
 TEST 106: ./tests/sem/functions/bad_argument_type_4.php
@@ -1064,7 +987,7 @@ PROGRAM INPUT:
 Compiler error output:
 <empty>
 ----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [4].
+ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [4].
 
 ********************
 TEST 107: ./tests/sem/functions/bad_argument_type_null.php
@@ -1076,7 +999,7 @@ PROGRAM INPUT:
 Compiler error output:
 <empty>
 ----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [4].
+ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [4].
 
 ********************
 TEST 108: ./tests/sem/functions/call_without_definition.php
@@ -1085,7 +1008,10 @@ TEST 108: ./tests/sem/functions/call_without_definition.php
 PROGRAM INPUT:
 
 ----
-ERROR: test timeout (ifjcomp interpret)
+Compiler error output:
+<empty>
+----
+ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [3].
 
 ********************
 TEST 109: ./tests/sem/functions/function_return_expr_without type.php
@@ -1097,7 +1023,7 @@ PROGRAM INPUT:
 Compiler error output:
 <empty>
 ----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [6].
+ERROR: Unexpected exit code of IFJ compiler. Actual: 0 Expected: [6].
 
 ********************
 TEST 110: ./tests/sem/functions/function_return_no_expr_with_type.php
@@ -1118,10 +1044,7 @@ TEST 111: ./tests/sem/functions/main_no_return.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
+SUCCESS
 
 ********************
 TEST 112: ./tests/sem/functions/main_return_no_expr.php
@@ -1142,10 +1065,7 @@ TEST 113: ./tests/sem/functions/redefinition_different.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [3].
+SUCCESS
 
 ********************
 TEST 114: ./tests/sem/functions/redefinition_same.php
@@ -1154,10 +1074,7 @@ TEST 114: ./tests/sem/functions/redefinition_same.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [3].
+SUCCESS
 
 ********************
 TEST 115: ./tests/sem/functions/return_invalid_type_1.php
@@ -1169,7 +1086,7 @@ PROGRAM INPUT:
 Compiler error output:
 <empty>
 ----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [4].
+ERROR: Unexpected exit code of IFJ compiler. Actual: 0 Expected: [4].
 
 ********************
 TEST 116: ./tests/sem/functions/return_invalid_type_2.php
@@ -1181,7 +1098,7 @@ PROGRAM INPUT:
 Compiler error output:
 <empty>
 ----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [4].
+ERROR: Unexpected exit code of IFJ compiler. Actual: 0 Expected: [4].
 
 ********************
 TEST 117: ./tests/sem/functions/return_invalid_type_3.php
@@ -1193,7 +1110,7 @@ PROGRAM INPUT:
 Compiler error output:
 <empty>
 ----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [4].
+ERROR: Unexpected exit code of IFJ compiler. Actual: 0 Expected: [4].
 
 ********************
 TEST 118: ./tests/sem/functions/simple_call_with_return_value.php
@@ -1202,10 +1119,7 @@ TEST 118: ./tests/sem/functions/simple_call_with_return_value.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
+SUCCESS
 
 ********************
 TEST 119: ./tests/syn/expression/arith_operators_float.php
@@ -1346,7 +1260,7 @@ TEST 132: ./tests/syn/function/bad_keyword_1.php
 PROGRAM INPUT:
 
 ----
-ERROR: test timeout (ifjcomp interpret)
+SUCCESS
 
 ********************
 TEST 133: ./tests/syn/function/bad_keyword_2.php
@@ -1382,10 +1296,7 @@ TEST 136: ./tests/syn/function/bad_params_2.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [2].
+SUCCESS
 
 ********************
 TEST 137: ./tests/syn/function/bad_params_3.php
@@ -1394,10 +1305,7 @@ TEST 137: ./tests/syn/function/bad_params_3.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [1, 2].
+SUCCESS
 
 ********************
 TEST 138: ./tests/syn/function/bad_params_4.php
@@ -1406,10 +1314,7 @@ TEST 138: ./tests/syn/function/bad_params_4.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [2].
+SUCCESS
 
 ********************
 TEST 139: ./tests/syn/function/bad_params_5.php
@@ -1418,10 +1323,7 @@ TEST 139: ./tests/syn/function/bad_params_5.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [2].
+SUCCESS
 
 ********************
 TEST 140: ./tests/syn/function/bad_params_6.php
@@ -1439,10 +1341,7 @@ TEST 141: ./tests/syn/function/bad_params_7.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [2].
+SUCCESS
 
 ********************
 TEST 142: ./tests/syn/function/bad_params_return.php
@@ -1508,10 +1407,7 @@ TEST 148: ./tests/syn/function/comment.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
+SUCCESS
 
 ********************
 TEST 149: ./tests/syn/function/nested_functions.php
@@ -1577,7 +1473,7 @@ PROGRAM INPUT:
 Compiler error output:
 <empty>
 ----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [0].
+ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
 
 ********************
 TEST 156: ./tests/syn/function/param_types_optional.php
@@ -1589,7 +1485,7 @@ PROGRAM INPUT:
 Compiler error output:
 <empty>
 ----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [0].
+ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
 
 ********************
 TEST 157: ./tests/syn/function/return_float.php
@@ -1598,10 +1494,7 @@ TEST 157: ./tests/syn/function/return_float.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
+SUCCESS
 
 ********************
 TEST 158: ./tests/syn/function/return_string.php
@@ -1610,10 +1503,7 @@ TEST 158: ./tests/syn/function/return_string.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
+SUCCESS
 
 ********************
 TEST 159: ./tests/syn/function/return_types.php
@@ -1622,10 +1512,7 @@ TEST 159: ./tests/syn/function/return_types.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
+SUCCESS
 
 ********************
 TEST 160: ./tests/syn/function/return_types_optional.php
@@ -1634,10 +1521,7 @@ TEST 160: ./tests/syn/function/return_types_optional.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
+SUCCESS
 
 ********************
 TEST 161: ./tests/syn/function/return_type_optional_void.php
@@ -1646,7 +1530,11 @@ TEST 161: ./tests/syn/function/return_type_optional_void.php
 PROGRAM INPUT:
 
 ----
-SUCCESS
+Compiler error output:
+[ERROR_LEXICAL]: wrong character after '?'
+
+----
+ERROR: Unexpected exit code of IFJ compiler. Actual: 1 Expected: [2].
 
 ********************
 TEST 162: ./tests/syn/statement/assignment.php
@@ -1655,10 +1543,7 @@ TEST 162: ./tests/syn/statement/assignment.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [0].
+SUCCESS
 
 ********************
 TEST 163: ./tests/syn/statement/bad_assign_1.php
@@ -1667,7 +1552,7 @@ TEST 163: ./tests/syn/statement/bad_assign_1.php
 PROGRAM INPUT:
 
 ----
-ERROR: test timeout (ifjcomp interpret)
+SUCCESS
 
 ********************
 TEST 164: ./tests/syn/statement/bad_assign_2.php
@@ -1721,7 +1606,11 @@ TEST 169: ./tests/syn/statement/bad_call_3.php
 PROGRAM INPUT:
 
 ----
-SUCCESS
+Compiler error output:
+[ERROR_SEM_ID_DEF]: function is already defined.
+
+----
+ERROR: Unexpected exit code of IFJ compiler. Actual: 3 Expected: [2].
 
 ********************
 TEST 170: ./tests/syn/statement/bad_call_4.php
@@ -1766,10 +1655,7 @@ TEST 174: ./tests/syn/statement/bad_call_8.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-<empty>
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [2].
+SUCCESS
 
 ********************
 TEST 175: ./tests/syn/statement/bad_if_1.php
@@ -1895,7 +1781,7 @@ PROGRAM INPUT:
 Compiler error output:
 <empty>
 ----
-ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [0].
+ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [0].
 
 ********************
 TEST 188: ./tests/syn/statement/if.php

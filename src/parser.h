@@ -24,6 +24,7 @@ typedef struct
     bool in_param_list;
     bool last_rule_was_eps;
     bool in_local_scope;
+    bool func_questionmark;
     
     int  param_index;
     int  label_index;

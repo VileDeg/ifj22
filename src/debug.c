@@ -7,6 +7,7 @@
 #include "errors.h"
 #include "code_generator.h"
 
+bool g_DebugOn = false;
 FILE* g_DebugOut = NULL;
 static FILE* s_ScanOut  = NULL;
 static FILE* s_ParsOut  = NULL;
@@ -138,34 +139,34 @@ void print_file_contents(FILE* src)
     DEBUGPR(VSPACE "\n");
 }
 
-int test_stdin(FILE* scan_out)
-{
-    IFJ22_ASSERT(scan_out, "");
+// int test_stdin(FILE* scan_out)
+// {
+//     IFJ22_ASSERT(scan_out, "");
     
-    str_t string;
-    str_const(&string);
-    scanner_set_file(stdin);
-    scanner_set_string(&string);
+//     str_t string;
+//     str_const(&string);
+//     scanner_set_file(stdin);
+//     scanner_set_string(&string);
 
-    set_debug_out(scan_out);
-    HEADER("List of tokens: ");
-    DEBUGPR(s_TokenDebugFormat, "int", "deci", "string", "keyword", "type");
-    Token tk;
-    int result;
-    while (tk.type != token_EOF)
-    {
-        result = scanner_get_next_token(&tk);
-        if (result != SUCCESS)
-            break;
+//     set_debug_out(scan_out);
+//     HEADER("List of tokens: ");
+//     DEBUGPR(s_TokenDebugFormat, "int", "deci", "string", "keyword", "type");
+//     Token tk;
+//     int result;
+//     while (tk.type != token_EOF)
+//     {
+//         result = scanner_get_next_token(&tk);
+//         if (result != SUCCESS)
+//             break;
 
-        debug_print_token(tk);
-    }
-    DEBUGPR(VSPACE);
+//         debug_print_token(tk);
+//     }
+//     DEBUGPR(VSPACE);
 
-    str_dest(&string);
+//     str_dest(&string);
 
-    return result;
-}
+//     return result;
+// }
 
 
 void debug_setup(FILE* source, bool show_source_contents, 
@@ -174,6 +175,8 @@ void debug_setup(FILE* source, bool show_source_contents,
     if (!scan_out && !pars_out)
         return;
     
+    g_DebugOn = true;
+
     s_ScanOut = scan_out;
     s_ParsOut = pars_out;
     s_ExprOut = expr_out;

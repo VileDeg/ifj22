@@ -37,6 +37,8 @@ bool emit_built_in_funcs();
 
 bool emit_program_body_open();
 
+bool emit_program_body_close();
+
 /**
  * Starting generation of code.
  * @return true if success.
@@ -57,6 +59,8 @@ void code_generator_flush(FILE* file);
 bool emit_push_bool_literal(bool value);
 
 bool emit_pop();
+
+bool emit_clear_stack();
 
 /**
  * Generation of function beginning.

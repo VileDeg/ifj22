@@ -43,6 +43,7 @@ static const char* opstr[NUMFOPT] = {
 static int s_Iter = 0;
 void stack_print(SymbolStack* stack, const char* func)
 {
+    if (!g_DebugOn) return;
     EXPRDBGPR("-%d :: %s\n", s_Iter, func);
     int cnt = 0;
     for(SSElement *tmp = stack->top; tmp != NULL; tmp = tmp->next, cnt++) 
