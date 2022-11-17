@@ -10,6 +10,7 @@ where username is your github username.
 - Информативные названия функций
 ## TODO
 Scanner:
+- Вернуть union
 - Вернуть проверку на первый символ == '<'
 - Пофиксить обработку комментов (некоторые тесты проходят хотя не должны)
 - $5var -> ошибка + проблемы с $
@@ -18,7 +19,7 @@ Scanner:
 - Empty file -> syntax error? 
 - Документация(в коде и в .pdf)
 Code generator:
-- Выписывать код только в самом конце когда никакой ошибки нет
+- ? Выписывать код только в самом конце когда никакой ошибки нет
 ## Source files
 - debug.h    - declares functions for testing/debugging.
 - scanner.h  - scanner.

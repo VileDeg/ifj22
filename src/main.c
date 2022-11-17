@@ -30,15 +30,12 @@ int main(int argc, char** argv)
     populate_rule_definitions();
 
     int ret = 0;
-    //FILE* source  = open_file("..//ifj-testsuite-master/tests/lex/strings/escape_bad_2.php", "r");
     //FILE* source  = open_file("../mytests/01.php", "r");
-    FILE* source  = open_file("../ifj-testsuite/tests/lex/characters/ampersant.php", "r");
     //FILE* source  = open_file("../tests/IFJ22_examples/example1.php", "r");
+    FILE* source  = open_file("../ifj-testsuite/tests/sem/functions/argument_type_conversion.php", "r");
     
     FILE* codegenout = open_file("../code.ifjc22", "w");
     {
-        //bool in = 1;
-
         if (argc > 1 && !strcmp(argv[1], "-src"))
         {
             FILE* scanout = open_file("../scanner.txt", "w");

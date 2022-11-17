@@ -18,7 +18,7 @@ int64_t precedence_table[TAB_SIZE][TAB_SIZE] = {
     {SHIFT , SHIFT , SHIFT , SHIFT , SHIFT, NONE  , SHIFT, NONE  }
 };
 
-static SymbolStack Stack;
+//static SymbolStack Stack;
 
 Index_num index_info(Oper_type item) {
     switch(item) {
@@ -98,31 +98,11 @@ Oper_type term_info(Token* token) {
     }
 }
 
-DataType type_info(ParserData* pd) 
-{
-    TData *data = NULL;
-    
-    switch(pd->token.type) 
-    {
-        case token_ID:
-            data = FIND_CURRENT_ID;
-            if(!data)
-                return TYPE_UNDEF;
-            return data->type;
-        case token_integer:
-            return TYPE_INT;
-        case token_float:
-            return TYPE_FLOAT;
-        case token_string:
-            return TYPE_STRING;
-        case token_null:
-            return TYPE_NULL;
-        default:
-            return TYPE_UNDEF;
-    }
-}
+//<-- function id doesn't belong here
 
-Rule_type rule_info(SSElement* oper1, SSElement* oper2, SSElement* oper3) 
+
+
+Rule_type rule_info(Symbol* oper1, Symbol* oper2, Symbol* oper3) 
 {
     if(oper1->operType == OPER_LBR && oper2->operType == OPER_E && oper3->operType == OPER_RBR) 
         return RULE_BR;
@@ -160,7 +140,7 @@ Rule_type rule_info(SSElement* oper1, SSElement* oper2, SSElement* oper3)
         return RULE_N;
 }
 // FIX ME add NULL and NIL semantic
-uint32_t implicit_conversion(Rule_type rule, DataType* dataType, bool* type_equal, SSElement* oper1, SSElement* oper2, SSElement* oper3) 
+uint32_t implicit_conversion(Rule_type rule, DataType* dataType, bool* type_equal, Symbol* oper1, Symbol* oper2, Symbol* oper3) 
 {
     switch(rule) 
     {
@@ -231,9 +211,9 @@ uint32_t implicit_conversion(Rule_type rule, DataType* dataType, bool* type_equa
     return SUCCESS;
 }
 
-uint32_t num_of_symbols_to_reduce(bool* reduceFound)
+uint32_t num_of_symbols_to_reduce(bool* reduceFound, SymbolStack* stack)
 {
-    SSElement* curr = Stack.top;
+    Symbol* curr = stack->top;
     uint32_t cnt = 0;
     *reduceFound = false;
     for(; curr != NULL; cnt++) 
@@ -249,7 +229,7 @@ uint32_t num_of_symbols_to_reduce(bool* reduceFound)
     return cnt;
 }
 
-uint64_t reduce(ParserData* pd) 
+uint64_t reduce(ParserData* pd, SymbolStack* stack) 
 {
     Rule_type RuleType;
     
@@ -257,14 +237,14 @@ uint64_t reduce(ParserData* pd)
 
     bool reduceFound = false;
 
-    int64_t SymbolCnt = num_of_symbols_to_reduce(&reduceFound);
+    int64_t SymbolCnt = num_of_symbols_to_reduce(&reduceFound, stack);
 
-    SSElement* oper1 = NULL;
-    SSElement* oper2 = NULL;
-    SSElement* oper3 = NULL;
+    Symbol* oper1 = NULL;
+    Symbol* oper2 = NULL;
+    Symbol* oper3 = NULL;
     if (SymbolCnt == 1 && reduceFound) 
     {   
-        oper1 = Stack.top;
+        oper1 = stack->top;
         if ((oper1->operType == DATA_ID)     || (oper1->operType == DATA_INT) || (oper1->operType == DATA_FLOAT) || 
             (oper1->operType == DATA_STRING) || (oper1->operType == DATA_NULL))
             RuleType = RULE_ID;
@@ -273,9 +253,9 @@ uint64_t reduce(ParserData* pd)
     }
     else if (SymbolCnt == 3 && reduceFound)
     {
-        oper1 = Stack.top->next->next;
-        oper2 = Stack.top->next;
-        oper3 = Stack.top;
+        oper1 = stack->top->next->next;
+        oper2 = stack->top->next;
+        oper3 = stack->top;
         RuleType = rule_info(oper1, oper2, oper3);
     } 
     else 
@@ -294,8 +274,6 @@ uint64_t reduce(ParserData* pd)
             { CODEGEN(emit_stack_operation, RuleType); }
         else
         {
-            // CODEGEN(emit_pop);
-            // CODEGEN(emit_pop);
             { CODEGEN(emit_clear_stack); }
             { CODEGEN(emit_push_bool_literal, type_equal); }
         }
@@ -303,9 +281,9 @@ uint64_t reduce(ParserData* pd)
     else
         { CODEGEN(emit_stack_operation, RuleType); }
     
-    stack_pop_count(&Stack, SymbolCnt + 1);
+    stack_pop_count(stack, SymbolCnt + 1);
 
-    stack_push(&Stack, OPER_E, dataType);
+    stack_push(stack, OPER_E, dataType);
 
     return SUCCESS;
 }
@@ -314,7 +292,7 @@ uint64_t reduce(ParserData* pd)
 
 #define ERROR_RET(_retcode) \
     do { \
-		stack_clear(&Stack); \
+		stack_clear(&stack); \
 		return _retcode; \
 	} while(0)
 
@@ -327,31 +305,53 @@ uint64_t reduce(ParserData* pd)
     if (!(_expr)) \
         ERROR_RET(ERROR_INTERNAL);
 
+#define TYPE_INFO(_ret)\
+    TData* _data = NULL;\
+    if (pd->token.type == token_ID)\
+    {\
+        if (pd->token.value.String->ptr[0] != '$')\
+            ERROR_RET(ERROR_SYNTAX);\
+        _data = symtable_find(pd->in_local_scope ? &pd->localTable : &pd->globalTable, pd->token.value.String->ptr);\
+        if(!_data)\
+            ERROR_RET(ERROR_SEM_UNDEF_VAR);\
+        _ret = _data->type;\
+    }\
+    else\
+    {\
+        switch(pd->token.type)\
+        {\
+            case token_integer: _ret = TYPE_INT;    break;\
+            case token_float:   _ret = TYPE_FLOAT;  break;\
+            case token_string:  _ret = TYPE_STRING; break;\
+            case token_null:    _ret = TYPE_NULL;   break;\
+            default:            _ret = TYPE_UNDEF;\
+        }\
+    }
+
 int64_t expression_parsing(ParserData* pd) 
 {
-    int64_t RES = ERROR_SYNTAX;
-    
-    stack_init(&Stack);
+    int64_t RES;
 
-    INTERNAL(stack_push(&Stack, OPER_DOLLAR, TYPE_UNDEF));
+    SymbolStack stack;
+    stack_init(&stack);
+
+    INTERNAL(stack_push(&stack, OPER_DOLLAR, TYPE_UNDEF));
     
     // [x,y] = index for precedence table
     Oper_type currSymbol;
     Oper_type stackSymbol;
-    SSElement* stackTerm;
+    Symbol* stackTerm;
 
     bool success = false;
 
     do
     {
         currSymbol = term_info(&pd->token);
-        INTERNAL(stackTerm = stack_get_top_term(&Stack));
+        INTERNAL(stackTerm = stack_get_top_term(&stack));
         stackSymbol = stackTerm->operType;
 
-        DataType symbolDataType = type_info(pd);
-
-        // if (symbolDataType == TYPE_UNDEF)
-        //     ERROR_RET(ERROR_SEM_UNDEF_VAR);
+        DataType symbolDataType;
+        TYPE_INFO(symbolDataType);
 
         Index_num xIndex = index_info(stackTerm->operType);
         Index_num yIndex = index_info(currSymbol);
@@ -359,9 +359,9 @@ int64_t expression_parsing(ParserData* pd)
         switch(signType) 
         {
             case SHIFT:
-                INTERNAL(stack_push_after_top_term(&Stack, OPER_REDUCE, TYPE_UNDEF));
+                INTERNAL(stack_push_after_top_term(&stack, OPER_REDUCE, TYPE_UNDEF));
 
-                INTERNAL(stack_push(&Stack, currSymbol, symbolDataType));
+                INTERNAL(stack_push(&stack, currSymbol, symbolDataType));
 
                 if (currSymbol == DATA_ID || currSymbol == DATA_INT || currSymbol == DATA_FLOAT || 
                     currSymbol == DATA_STRING || currSymbol == DATA_NULL)
@@ -370,11 +370,11 @@ int64_t expression_parsing(ParserData* pd)
                 RESULT(scanner_get_next_token(&pd->token));
                 break;
             case EQUAL:
-                INTERNAL(stack_push(&Stack, currSymbol, symbolDataType));
+                INTERNAL(stack_push(&stack, currSymbol, symbolDataType));
                 RESULT(scanner_get_next_token(&pd->token))
                 break;
             case REDUCE:
-                RESULT(reduce(pd));
+                RESULT(reduce(pd, &stack));
                 break;
             case NONE:
                 if(currSymbol == stackTerm->operType && currSymbol == OPER_DOLLAR) 
@@ -386,21 +386,32 @@ int64_t expression_parsing(ParserData* pd)
     }
     while (!success);
 
-    SSElement* lastNonterm = Stack.top;
+    Symbol* lastNonterm = stack.top;
 
     INTERNAL(lastNonterm);
     if (lastNonterm->operType != OPER_E)
         ERROR_RET(ERROR_SYNTAX);
 
-    if(pd->lhs_var != NULL) 
+    if(pd->rvalue_assign) //pd->lhs_var != NULL
     {
         char *frame = pd->in_local_scope ? "LF" : "GF";
 
-        { CODEGEN(emit_stack_pop_res, pd->lhs_var->id, frame); }
-        pd->lhs_var->type = lastNonterm->dataType;
+        const char* id = NULL;
+        if (pd->lhs_var)
+        {
+            id = pd->lhs_var->id;
+            pd->lhs_var->type = lastNonterm->dataType;
+        }
+        else
+        {
+            id = pd->var_name.ptr;
+            pd->var_type = lastNonterm->dataType;
+        }
+
+        { CODEGEN(emit_stack_pop_res, id, frame); }
     }
 
-    stack_clear(&Stack);
+    stack_clear(&stack);
 
     pd->last_rule_was_eps = true; // <-- we use this to avoid reading next token
     return SUCCESS;

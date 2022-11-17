@@ -46,7 +46,7 @@ void stack_print(SymbolStack* stack, const char* func)
     if (!g_DebugOn) return;
     EXPRDBGPR("-%d :: %s\n", s_Iter, func);
     int cnt = 0;
-    for(SSElement *tmp = stack->top; tmp != NULL; tmp = tmp->next, cnt++) 
+    for(Symbol *tmp = stack->top; tmp != NULL; tmp = tmp->next, cnt++) 
     {
         EXPRDBGPR("\t%d: %-8s %s\n", cnt, opstr[tmp->operType], dtstr[tmp->dataType]);
     }
@@ -65,7 +65,7 @@ void stack_init(SymbolStack* stack)
 bool stack_push(SymbolStack* stack, Oper_type operType, DataType dataType) 
 {
     IFJ22_ASSERT(stack, "Stack is null.");
-    SSElement *new = malloc(sizeof(SSElement));
+    Symbol *new = malloc(sizeof(Symbol));
     if (new == NULL)
         return false;
     new->operType = operType;
@@ -80,7 +80,7 @@ bool stack_push(SymbolStack* stack, Oper_type operType, DataType dataType)
 void stack_pop(SymbolStack* stack) 
 {
     IFJ22_ASSERT(stack, "Stack is null.");
-    SSElement *tmp = stack->top;
+    Symbol *tmp = stack->top;
     stack->top = tmp->next;
     free(tmp);
     stack_print(stack, __func__);
@@ -103,13 +103,13 @@ void stack_clear(SymbolStack* stack)
 
 bool stack_push_after_top_term(SymbolStack* stack, Oper_type operType, DataType dataType)
 {
-    SSElement* prev = NULL;
+    Symbol* prev = NULL;
 
-	for (SSElement* curr = stack->top; curr != NULL; curr = curr->next)
+	for (Symbol* curr = stack->top; curr != NULL; curr = curr->next)
 	{
 		if (curr->operType < OPER_REDUCE)
 		{
-			SSElement* new = malloc(sizeof(SSElement));
+			Symbol* new = malloc(sizeof(Symbol));
 
 			if (new == NULL)
 				return false;
@@ -138,11 +138,11 @@ bool stack_push_after_top_term(SymbolStack* stack, Oper_type operType, DataType 
 	return false;
 }
 
-SSElement* stack_get_top_term(SymbolStack* stack) 
+Symbol* stack_get_top_term(SymbolStack* stack) 
 {
-    SSElement *tmp = stack->top;
+    Symbol *tmp = stack->top;
     
-    for(SSElement *tmp = stack->top; tmp != NULL; tmp = tmp->next) 
+    for(Symbol *tmp = stack->top; tmp != NULL; tmp = tmp->next) 
     {
         if(tmp->operType < OPER_REDUCE)
             return tmp;

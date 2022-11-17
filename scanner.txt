@@ -1,0 +1,42 @@
+--------------------File contents: --------------------
+
+//compiler 0
+//
+<?php
+declare(strict_types=1);
+
+function fun (float $p1, int $p2) : void
+{}
+
+fun(1, 0.5);
+
+return 0;
+
+
+--------------------List of tokens: --------------------
+
+int  deci string       keyword      type            
+                                    prolog          
+          declare                   ID              
+                                    left_bracket    
+          strict_types              ID              
+                                    equal_sign      
+1                                   integer         
+                                    right_bracket   
+                                    semicolon       
+                       function     keyword         
+          fun                       ID              
+                                    left_bracket    
+                       float        keyword         
+          $p1                       ID              
+                                    comma           
+                       int          keyword         
+          $p2                       ID              
+                                    right_bracket   
+                                    colon           
+                       void         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+          fun                       ID              
+                                    left_bracket    
+1                                   integer         

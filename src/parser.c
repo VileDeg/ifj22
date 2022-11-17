@@ -90,6 +90,7 @@
 	} while(0)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#define TK_STR(_tk) _tk.value.String->ptr
 
 #define HAS_DOLLAR (TK_STR(pd->token)[0] == '$')
 
@@ -104,12 +105,16 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define ADD_ID_FROM_TK(_dst)\
-	do{\
+#define FIND_ID(_id) symtable_find(pd->in_local_scope ? &pd->localTable : &pd->globalTable, _id)
+#define FIND_CURRENT_ID FIND_ID(TK_STR(pd->token))
+
+#define ADD_ID(_dst, _id)\
+	do {\
 		bool _err = false;\
-		_dst = symtable_add_symbol(pd->in_local_scope ? &pd->localTable : &pd->globalTable, TK_STR(pd->token), &_err);\
+		_dst = symtable_add_symbol(pd->in_local_scope ? &pd->localTable : &pd->globalTable, _id, &_err);\
 		if (_err) INTERNAL_ERROR_RET;\
-	}while(0)
+	} while(0)
+#define ADD_CURRENT_ID(_dst) ADD_ID(_dst, TK_STR(pd->token))
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #define EPSRULE pd->last_rule_was_eps = true
@@ -130,12 +135,17 @@ static bool init_data(ParserData* pd)
     symtable_init(&pd->globalTable);
 	symtable_init(&pd->localTable);
 
-	pd->in_param_list = pd->last_rule_was_eps = 
-	pd->in_local_scope = pd->func_questionmark = false;
+	pd->in_param_list  = pd->last_rule_was_eps = 
+	pd->in_local_scope = pd->func_questionmark = 
+	pd->rvalue_assign  = false;
+
 	pd->rhs_func = pd->lhs_var = NULL;
+
 	pd->param_index = 0;
 	pd->label_deep = -1;
 	pd->label_index = 0;
+
+	str_const(&pd->var_name);
 
 	tkstack_init(&s_TokenStack);
 	strstack_init(&s_StringStack);
@@ -204,10 +214,10 @@ static void free_data(ParserData* pd)
 {
 	symtable_clear(&pd->globalTable);
 	symtable_clear(&pd->localTable);
+	str_dest(&pd->var_name);
 
 	str_dest(&s_TkStrBackup);
 }
-
 
 void backup_current_token(ParserData* pd)
 {
@@ -451,8 +461,6 @@ static int type(ParserData* pd)
 	RULE_CLOSE;
 }
 
-
-
 static int rvalue(ParserData* pd)
 {
 	RULE_OPEN;
@@ -463,32 +471,40 @@ static int rvalue(ParserData* pd)
 			_DPRNR(0);
 
 			{ //Check if function was defined
-				if ((pd->rhs_func = symtable_find(&pd->globalTable, TK_STR(pd->token))))
-				{
-					if (pd->lhs_var)
-						pd->lhs_var->type = pd->rhs_func->type;
-
-					CODEGEN(emit_function_before_pass_params);
-
-					NEXT_TK_CHECK_TOKEN(left_bracket);
-					{
-						NEXT_TK_CHECK_RULE(args);
-					}
-					NEXT_TK_CHECK_TOKEN(right_bracket);
-
-					if (strcmp(pd->rhs_func->id, "write") && pd->rhs_func->params->len != pd->param_index)
-						return ERROR_SEM_TYPE_COMPAT;
-					
-					CODEGEN(emit_function_call, pd->rhs_func->id);
-					if (pd->lhs_var)
-						CODEGEN(emit_function_res_assign, pd->lhs_var->id, pd->in_local_scope);
-					
-				}
-				else
+				if (!(pd->rhs_func = symtable_find(&pd->globalTable, TK_STR(pd->token))))
 				{
 					//TODO: if not YET defined, add temporary entry to symtable
 					return ERROR_SEM_ID_DEF;
 				}
+
+				//If function is called as part of variable definition
+				if (pd->rvalue_assign)
+				{
+					if (pd->lhs_var)
+						pd->lhs_var->type = pd->rhs_func->type;
+					else
+						pd->var_type = pd->rhs_func->type;
+				}
+
+				{ CODEGEN(emit_function_before_pass_params); }
+
+				NEXT_TK_CHECK_TOKEN(left_bracket);
+				{
+					NEXT_TK_CHECK_RULE(args);
+				}
+				NEXT_TK_CHECK_TOKEN(right_bracket);
+
+				if (strcmp(pd->rhs_func->id, "write") && 
+					pd->rhs_func->params->len != pd->param_index)
+					return ERROR_SEM_TYPE_COMPAT;
+				
+				{ CODEGEN(emit_function_call, pd->rhs_func->id); }
+				
+				//If function is called as part of variable definition
+				if (pd->rvalue_assign)
+					{ CODEGEN(emit_function_res_assign, 
+						pd->lhs_var ? pd->lhs_var->id : pd->var_name.ptr, 
+						pd->in_local_scope); }
 			}
 		}
 		//<rvalue> -> <expression>
@@ -496,16 +512,15 @@ static int rvalue(ParserData* pd)
 		{
 			_DPRNR(1);
 
-			backup_current_token(pd);
+			if (TOKEN_IS(right_curly_bracket))
+				return ERROR_SYNTAX;
 
-			//CHECK_RULE(expression_parsing);
+			backup_current_token(pd);
 			if ((RES = expression_parsing(pd)))
 			{
 				restore_previous_token(pd);
 				return RES;
 			}
-
-
 		}
 	}
 	RULE_CLOSE;
@@ -519,12 +534,20 @@ static int assign(ParserData* pd)
 		if (TOKEN_IS(equal_sign))
 		{
 			_DPRNR(0);
+
+			pd->rvalue_assign = true;
+
 			NEXT_TK_CHECK_RULE(rvalue);
+
+			pd->rvalue_assign = false;
 		}
 		//<assign> -> eps
 		else
 		{
 			_DPRNR(1);
+			//In this case variable is used as expression which means it has to be already defined
+			if (!pd->lhs_var)
+				return ERROR_SEM_UNDEF_VAR;
 			EPSRULE;
 		}
 	}
@@ -558,20 +581,18 @@ static int param_n(ParserData* pd)
 {
 	RULE_OPEN;
 	{
-		GET_NEXT_TOKEN();
-
 		//<param_n> -> , <type> $ ID <param_n>
 		if (TOKEN_IS(comma))
 		{
 			_DPRNR(0);
 
-			CHECK_RULE(type);
+			NEXT_TK_CHECK_RULE(type);
 
 			NEXT_TK_CHECK_VAR_ID;
 			{ //Add var to local table
 				if (FIND_CURRENT_ID)
 					PRINT_ERROR_RET(ERROR_SEM_ID_DEF, "parameter already defined.");
-				ADD_ID_FROM_TK(pd->lhs_var);
+				ADD_CURRENT_ID(pd->lhs_var);
 			}
 			
 			pd->param_index++;
@@ -604,7 +625,7 @@ static int params(ParserData* pd)
 			{ //Add var to local table
 				if (FIND_CURRENT_ID)
 					PRINT_ERROR_RET(ERROR_SEM_ID_DEF, "parameter already defined.");
-				ADD_ID_FROM_TK(pd->lhs_var);
+				ADD_CURRENT_ID(pd->lhs_var);
 			}
 			
 			{ CODEGEN(emit_function_param_declare, TK_STR(pd->token), pd->param_index); }
@@ -635,14 +656,28 @@ static int statement(ParserData* pd)
 			_DPRNR(0);
 
 			{
-				if (!(pd->lhs_var = FIND_CURRENT_ID)) 
+				//If variable is not yet defined we need to store it's name
+				//to later add it to symtable after assign is over. We do this so that 
+				//variable itself cannot be used in it's own definition as rhs value.
+				bool defined = true;
+				if (!(pd->lhs_var = FIND_CURRENT_ID))
 				{
-					ADD_ID_FROM_TK(pd->lhs_var);
-					{ CODEGEN(emit_define_var, pd->lhs_var->id, pd->in_local_scope); }		
+					defined = false;
+					str_clear(&pd->var_name);
+					str_concat(&pd->var_name, TK_STR(pd->token));
+				}
+				{ CODEGEN(emit_define_var, 
+					defined ? pd->lhs_var->id : pd->var_name.ptr, 
+					pd->in_local_scope); }
+
+				NEXT_TK_CHECK_RULE(assign);
+
+				if (!defined)
+				{
+					ADD_ID(pd->lhs_var, pd->var_name.ptr);
+					pd->lhs_var->type = pd->var_type;
 				}
 			}
-
-			NEXT_TK_CHECK_RULE(assign);
 
 			NEXT_TK_CHECK_TOKEN(semicolon);
 
@@ -765,10 +800,12 @@ static int program(ParserData* pd)
 			{ //Add func id to global table
 				if (FIND_CURRENT_ID) //Function already defined
 					PRINT_ERROR_RET(ERROR_SEM_ID_DEF, "function is already defined.");
-				ADD_ID_FROM_TK(pd->rhs_func);
+				ADD_CURRENT_ID(pd->rhs_func);
 			}		
 
 			pd->in_local_scope = true;
+
+			{ CODEGEN(emit_function_open, pd->rhs_func->id); }
 
 			NEXT_TK_CHECK_TOKEN(left_bracket);
 			{
@@ -779,8 +816,6 @@ static int program(ParserData* pd)
 
 			NEXT_TK_CHECK_RULE(func_type);
 			
-			{ CODEGEN(emit_function_open, pd->rhs_func->id); }
-
 			NEXT_TK_CHECK_TOKEN(left_curly_bracket);
 			{
 				NEXT_TK_CHECK_RULE(statement);
@@ -870,8 +905,6 @@ int parse_file(FILE* fptr)
 
 	scanner_set_file(fptr);
 	scanner_set_string(&string);
-
-	//g_CodegenOut = stdout;
 
     int result = begin(&pd);
 	code_generator_flush(g_CodegenOut);

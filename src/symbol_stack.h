@@ -7,17 +7,17 @@
 /*
  * @struct Stack element structure.
  */
-typedef struct ssElement {
+typedef struct symbol {
     Oper_type operType;
-    struct ssElement *next;
+    struct symbol *next;
     DataType dataType;
-} SSElement;
+} Symbol;
 
 /*
  * @struct Stack structure.
  */
 typedef struct {
-    SSElement *top;
+    Symbol *top;
 } SymbolStack;
 
 void stack_init(SymbolStack* stack);
@@ -30,7 +30,7 @@ void stack_pop_count(SymbolStack* stack, int cnt);
 
 void stack_clear(SymbolStack* stack);
 
-SSElement* stack_get_top_term(SymbolStack* stack);
+Symbol* stack_get_top_term(SymbolStack* stack);
 
 bool stack_push_after_top_term(SymbolStack* stack, Oper_type operType, DataType dataType);
 
