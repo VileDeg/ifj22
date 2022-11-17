@@ -18,8 +18,6 @@ int64_t precedence_table[TAB_SIZE][TAB_SIZE] = {
     {SHIFT , SHIFT , SHIFT , SHIFT , SHIFT, NONE  , SHIFT, NONE  }
 };
 
-//static SymbolStack Stack;
-
 Index_num index_info(Oper_type item) {
     switch(item) {
         case OPER_ADD:       // +
@@ -53,9 +51,7 @@ Index_num index_info(Oper_type item) {
 }
 
 Oper_type term_info(Token* token) {
-    // if (token->type == token_keyword && token->value.keyword == keyword_null)
-    //     return DATA_NULL;
-    Token_types tokenType = token->type;
+    Token_type tokenType = token->type;
     switch(tokenType) {
         case token_minus:
             return OPER_SUB;
@@ -98,10 +94,6 @@ Oper_type term_info(Token* token) {
     }
 }
 
-//<-- function id doesn't belong here
-
-
-
 Rule_type rule_info(Symbol* oper1, Symbol* oper2, Symbol* oper3) 
 {
     if(oper1->operType == OPER_LBR && oper2->operType == OPER_E && oper3->operType == OPER_RBR) 
@@ -139,7 +131,6 @@ Rule_type rule_info(Symbol* oper1, Symbol* oper2, Symbol* oper3)
     else
         return RULE_N;
 }
-// FIX ME add NULL and NIL semantic
 uint32_t implicit_conversion(Rule_type rule, DataType* dataType, bool* type_equal, Symbol* oper1, Symbol* oper2, Symbol* oper3) 
 {
     switch(rule) 
@@ -156,7 +147,7 @@ uint32_t implicit_conversion(Rule_type rule, DataType* dataType, bool* type_equa
 
             *dataType = oper2->dataType;
             break;
-        case RULE_ADD:                                                          // FIX better solution for if/else if
+        case RULE_ADD:                                                          
         case RULE_SUB:
         case RULE_MUL:
             if(oper1->dataType == TYPE_INT && oper3->dataType == TYPE_INT)
@@ -309,10 +300,10 @@ uint64_t reduce(ParserData* pd, SymbolStack* stack)
     TData* _data = NULL;\
     if (pd->token.type == token_ID)\
     {\
-        if (pd->token.value.String->ptr[0] != '$')\
+        if (pd->token.string->ptr[0] != '$')\
             ERROR_RET(ERROR_SYNTAX);\
-        _data = symtable_find(pd->in_local_scope ? &pd->localTable : &pd->globalTable, pd->token.value.String->ptr);\
-        if(!_data)\
+        _data = symtable_find(pd->in_local_scope ? &pd->localTable : &pd->globalTable, pd->token.string->ptr);\
+        if(!_data || pd->var_not_yet_def)\
             ERROR_RET(ERROR_SEM_UNDEF_VAR);\
         _ret = _data->type;\
     }\
@@ -328,6 +319,37 @@ uint64_t reduce(ParserData* pd, SymbolStack* stack)
         }\
     }
 
+DataType type_info(ParserData* pd, int* errcode)
+{
+    TData* data = NULL;
+    if (pd->token.type == token_ID)
+    {
+        if (pd->token.string->ptr[0] != '$')
+        {
+            *errcode = ERROR_SYNTAX;
+            return TYPE_UNDEF;
+        }
+        data = symtable_find(pd->in_local_scope ? &pd->localTable : &pd->globalTable, pd->token.string->ptr);
+        if(!data || pd->var_not_yet_def)
+        {
+            *errcode = ERROR_SEM_UNDEF_VAR;
+            return TYPE_UNDEF;
+        }
+        return data->type;
+    }
+    else
+    {
+        switch(pd->token.type)
+        {
+            case token_integer: return TYPE_INT;    
+            case token_float:   return TYPE_FLOAT;  
+            case token_string:  return TYPE_STRING; 
+            case token_null:    return TYPE_NULL;   
+            default:            return TYPE_UNDEF;
+        }
+    }
+}
+
 int64_t expression_parsing(ParserData* pd) 
 {
     int64_t RES;
@@ -337,7 +359,7 @@ int64_t expression_parsing(ParserData* pd)
 
     INTERNAL(stack_push(&stack, OPER_DOLLAR, TYPE_UNDEF));
     
-    // [x,y] = index for precedence table
+    // [x,y] = indices for precedence table
     Oper_type currSymbol;
     Oper_type stackSymbol;
     Symbol* stackTerm;
@@ -350,8 +372,10 @@ int64_t expression_parsing(ParserData* pd)
         INTERNAL(stackTerm = stack_get_top_term(&stack));
         stackSymbol = stackTerm->operType;
 
-        DataType symbolDataType;
-        TYPE_INFO(symbolDataType);
+        int errcode = SUCCESS;
+        DataType symbolDataType = type_info(pd, &errcode);
+        if (errcode != SUCCESS)
+            ERROR_RET(errcode);
 
         Index_num xIndex = index_info(stackTerm->operType);
         Index_num yIndex = index_info(currSymbol);
@@ -392,27 +416,14 @@ int64_t expression_parsing(ParserData* pd)
     if (lastNonterm->operType != OPER_E)
         ERROR_RET(ERROR_SYNTAX);
 
-    if(pd->rvalue_assign) //pd->lhs_var != NULL
+    if(pd->lhs_var)
     {
-        char *frame = pd->in_local_scope ? "LF" : "GF";
-
-        const char* id = NULL;
-        if (pd->lhs_var)
-        {
-            id = pd->lhs_var->id;
-            pd->lhs_var->type = lastNonterm->dataType;
-        }
-        else
-        {
-            id = pd->var_name.ptr;
-            pd->var_type = lastNonterm->dataType;
-        }
-
-        { CODEGEN(emit_stack_pop_res, id, frame); }
+        pd->lhs_var->type = lastNonterm->dataType;
+        { CODEGEN(emit_stack_pop_res, pd->lhs_var->id, pd->in_local_scope ? "LF" : "GF"); }
     }
 
     stack_clear(&stack);
 
-    pd->last_rule_was_eps = true; // <-- we use this to avoid reading next token
+    pd->block_next_token = true; // <-- we use this to avoid reading next token
     return SUCCESS;
 }

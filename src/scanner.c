@@ -38,43 +38,49 @@ void scanner_set_string(str_t* str)
 // }
 
 //Comparing string we've gotten and compares with KW. In case it isn't a KW -> it's an ID.
-bool determine_type(Token* tk) //tr_t *String, 
+bool determine_type(Token* tk)
 {
     //Whether an identifier has been set.
     bool flag_id = false;
-    str_t* str = tk->value.String;
-    
+    bool flag_null = false;
+    str_t* str = tk->string;
+    // if (str[0] == '?')
+    // {
+    //     tk->type = token_keyword;
+    //     return 0;
+    // }
+
     if (str_cmp(str, "else"))
-        tk->value.keyword = keyword_else;
-    else if (str_cmp(str, "float"))
-        tk->value.keyword = keyword_float;  
+        tk->keyword = keyword_else;
+    else if (str_cmp(str, "float") || str_cmp(str, "?float"))
+        tk->keyword = keyword_float;  
+    else if (str_cmp(str, "int") || str_cmp(str, "?int"))
+        tk->keyword = keyword_int;
+    else if (str_cmp(str, "string") || str_cmp(str, "?string"))
+        tk->keyword = keyword_string;
     else if (str_cmp(str, "function"))
-        tk->value.keyword = keyword_function;
+        tk->keyword = keyword_function;
     else if (str_cmp(str, "if"))
-        tk->value.keyword = keyword_if;
-    else if (str_cmp(str, "int"))
-        tk->value.keyword = keyword_int;
+        tk->keyword = keyword_if;
+    else if (str_cmp(str, "return"))
+        tk->keyword = keyword_return;
+    else if (str_cmp(str, "void"))
+        tk->keyword = keyword_void;
+    else if (str_cmp(str, "while"))
+        tk->keyword = keyword_while;
     else if (str_cmp(str, "null"))
     {
         tk->type = token_null;
-        tk->value.keyword = keyword_null;
-        return 0;
+        tk->keyword = keyword_null;
+        flag_null = true;
     }
-    else if (str_cmp(str, "return"))
-        tk->value.keyword = keyword_return;
-    else if (str_cmp(str, "string"))
-        tk->value.keyword = keyword_string;
-    else if (str_cmp(str, "void"))
-        tk->value.keyword = keyword_void;
-    else if (str_cmp(str, "while"))
-        tk->value.keyword = keyword_while;
     else
     {
         tk->type = token_ID;
         flag_id = true;
     } 
 
-    if (flag_id == false)
+    if (!flag_id && !flag_null)
         tk->type = token_keyword;
 
     return 0; //Scanner token was successful.
@@ -96,17 +102,17 @@ int getchar_modified()
     return term_sign;
 }
 
-void token_clear(Token *tk)
-{
-    memset(tk, 0, sizeof(Token));
-}
+// void token_clear(Token *tk)
+// {
+//     memset(tk, 0, sizeof(Token));
+// }
 
 //Function for reading string from stdin and converting into token.
 int scanner_get_next_token(Token* token)
 {
     str_clear(s_String);
-    token_clear(token);
-    token->value.String = s_String;
+    //token_clear(token);
+    token->string = s_String;
     
     int current_state = STATE_START; 
     int sign;                 //Sign which is taken one by one from the input string.
@@ -247,7 +253,14 @@ int scanner_get_next_token(Token* token)
                 }
                 
                 if (sign == '?')
-                {  
+                {
+                    int next = getchar_modified();
+                    if (next == 'f' || next == 'i' || next == 's')
+                        token->questionmark = true;
+                        //str_add_sign(s_String, sign);
+                        
+                    ungetc(next, s_Fptr);
+
                     current_state = STATE_QUESTION_MARK;
                     break;
                 }
@@ -396,7 +409,7 @@ int scanner_get_next_token(Token* token)
                 {
                     //Error handling. 
                     str_add_sign(s_String, sign);
-                    PRINT_ERROR_RET(ERROR_LEXICAL, "Character after the closing character '?>'");
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "Character after the closing squence '?>'");
                     
                      
                 }
@@ -426,7 +439,7 @@ int scanner_get_next_token(Token* token)
                     }
                     sign = getchar_modified();
                 }
-                determine_type(token); //s_String, 
+                determine_type(token);
                 //Returns the sign back to stream. 
                 ungetc(sign, s_Fptr);
 
@@ -461,7 +474,7 @@ int scanner_get_next_token(Token* token)
                     {
                         //Error handling. 
                         str_add_sign(s_String, sign);
-                        PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of integer: \"%s\"", line_counter, sign_counter, token->value.String->ptr);
+                        PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of integer: \"%s\"", line_counter, sign_counter, token->string->ptr);
                         
                          
                     }
@@ -473,7 +486,7 @@ int scanner_get_next_token(Token* token)
                     break;
 
                 //Converts string to int. 
-                token->value.integer = atoi(s_String->ptr);
+                token->integer = atoi(s_String->ptr);
                 token->type = token_integer;
                 current_state = STATE_START;
                 ungetc(sign, s_Fptr);
@@ -503,7 +516,7 @@ int scanner_get_next_token(Token* token)
                 else 
                 {
                     str_add_sign(s_String, sign);
-                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, token->value.String->ptr);
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, token->string->ptr);
                     
                     
                 }
@@ -525,7 +538,7 @@ int scanner_get_next_token(Token* token)
                 else
                 {
                     str_add_sign(s_String, sign);
-                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, token->value.String->ptr);
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, token->string->ptr);
                     
                     
                 }
@@ -541,7 +554,7 @@ int scanner_get_next_token(Token* token)
                     else
                     {
                         str_add_sign(s_String, sign);
-                        PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, token->value.String->ptr);
+                        PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, token->string->ptr);
                         
                          
                     }
@@ -550,7 +563,7 @@ int scanner_get_next_token(Token* token)
                 }
                 token->type = token_float;
                 //Converts string to a floating-point number (decimal).
-                token->value.decimal = atof(s_String->ptr);
+                token->decimal = atof(s_String->ptr);
                 //!!printf("%f", atof("83e2"));
                 ungetc(sign, s_Fptr);
                 
@@ -567,7 +580,7 @@ int scanner_get_next_token(Token* token)
                 else
                 {
                     str_add_sign(s_String, sign);
-                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of decimal: \"%s\"", line_counter, sign_counter, token->value.String->ptr);
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of decimal: \"%s\"", line_counter, sign_counter, token->string->ptr);
                     
                      
                 }
@@ -594,7 +607,7 @@ int scanner_get_next_token(Token* token)
                 else if (!isdigit(sign))
                 {
                     str_add_sign(s_String, sign);
-                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of decimal: \"%s\"", line_counter, sign_counter, token->value.String->ptr);
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of decimal: \"%s\"", line_counter, sign_counter, token->string->ptr);
                     
                      
                 }
@@ -602,7 +615,7 @@ int scanner_get_next_token(Token* token)
                 sign = getchar_modified();
             }        
             if (is_exponent == true) break;
-            token->value.decimal = atof(s_String->ptr);
+            token->decimal = atof(s_String->ptr);
             token->type = token_float;
 
             current_state = STATE_START;
@@ -699,7 +712,7 @@ int scanner_get_next_token(Token* token)
                 {
                     //Error handling. 
                     str_add_sign(s_String, sign);
-                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong сharacter \"%s\"", line_counter, sign_counter, token->value.String->ptr);
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong сharacter \"%s\"", line_counter, sign_counter, token->string->ptr);
                     
                      
                 }
@@ -722,7 +735,7 @@ int scanner_get_next_token(Token* token)
                 {
                     str_add_sign(s_String,'!');
                     str_add_sign(s_String,sign);
-                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: unsuitable combination of characters: \"%s\"", line_counter, sign_counter, token->value.String->ptr);
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: unsuitable combination of characters: \"%s\"", line_counter, sign_counter, token->string->ptr);
                     
                     
                 }
@@ -736,7 +749,7 @@ int scanner_get_next_token(Token* token)
                 {
                     str_add_sign(s_String,'!');
                     str_add_sign(s_String,sign);
-                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: unsuitable combination of characters: \"%s\"", line_counter, sign_counter, token->value.String->ptr);
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: unsuitable combination of characters: \"%s\"", line_counter, sign_counter, token->string->ptr);
                     
                     
                 }
@@ -907,7 +920,7 @@ int scanner_get_next_token(Token* token)
                     current_state = STATE_STRING_START; 
                     str_add_sign(s_String, '\\');
                     str_add_sign(s_String, sign);
-                    //PRINT_ERROR_LEX("%d:%d: invalid escape sequence: \"%s\"", line_counter, sign_counter, token->value.String->ptr);
+                    //PRINT_ERROR_LEX("%d:%d: invalid escape sequence: \"%s\"", line_counter, sign_counter, token->String->ptr);
                     
                     //return ERROR_LEXICAL;
                 }

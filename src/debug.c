@@ -66,12 +66,12 @@ static const char* tk_types_str[] = {
     "end                "
 };
 
-const char* debug_kw(Keywords kw)
+const char* debug_kw(Keyword kw)
 {
     return kw < max_kw ? kw_str[kw] : "**NIL**";
 }
 
-const char* debug_tk_type(Token_types tt)
+const char* debug_tk_type(Token_type tt)
 {
    return tt < max_kw_type ? tk_types_str[tt] : "**NIL**";
 }
@@ -79,12 +79,12 @@ const char* debug_tk_type(Token_types tt)
 //Token now contains union. Don't use this function
 void reset_token(Token* tk)
 {
-    tk->value.integer = 0;
-    tk->value.decimal = 0.f;
-    tk->value.keyword = 1000;
+    tk->integer = 0;
+    tk->decimal = 0.f;
+    tk->keyword = 1000;
     tk->type = 1000;
     
-    str_clear(tk->value.String);
+    str_clear(tk->string);
 }
 
 static const char* s_TokenDebugFormat = "%-4.4s %-4.4s %-12.12s %-12.12s %-16.16s\n";
@@ -97,26 +97,27 @@ void debug_print_token(Token tk)
     switch (tk.type)
     {
         case token_integer:
-            snprintf(str, mxlen, "%d", tk.value.integer);
+            snprintf(str, mxlen, "%d", tk.integer);
             
             DEBUGPR(s_TokenDebugFormat, str, "",
                 "", "", debug_tk_type(tk.type));
             break;
         case token_float:
         //case token_exponent:
-            snprintf(str, mxlen, "%g", tk.value.decimal);
+            snprintf(str, mxlen, "%g", tk.decimal);
             DEBUGPR(s_TokenDebugFormat, "", str,
                 "", "", debug_tk_type(tk.type));
             break;
+        case token_null:
         case token_keyword:
             DEBUGPR(s_TokenDebugFormat, "", "",
-                "", debug_kw(tk.value.keyword), debug_tk_type(tk.type));
+                "", debug_kw(tk.keyword), debug_tk_type(tk.type));
             break;
         default:
-            IFJ22_ASSERT(tk.value.String != NULL, "");
-            IFJ22_ASSERT(tk.value.String->ptr != NULL, "");
+            IFJ22_ASSERT(tk.string != NULL, "");
+            IFJ22_ASSERT(tk.string->ptr != NULL, "");
             DEBUGPR(s_TokenDebugFormat, "", "",
-                tk.value.String->ptr, "", debug_tk_type(tk.type));
+                tk.string->ptr, "", debug_tk_type(tk.type));
     }
 }
 

@@ -237,19 +237,19 @@ bool emit_value_from_token(Token token, bool local_frame)
     if (!str_const(&tmp)) return false;
     switch (token.type) {
         case token_integer:
-            snprintf(term, MAX_DIGITS, "%d", token.value.integer);
+            snprintf(term, MAX_DIGITS, "%d", token.integer);
             EMIT("int@");
             EMIT(term);
             break;
 
         case token_float:
-            snprintf(term, MAX_DIGITS, "%a", token.value.decimal);
+            snprintf(term, MAX_DIGITS, "%a", token.decimal);
             EMIT("float@");
             EMIT(term);
             break;
 
         case token_string:
-            for (int64_t i = 0; (c = (unsigned char) (token.value.String->ptr)[i]) != '\0'; i++) {
+            for (int64_t i = 0; (c = (unsigned char) (token.string->ptr)[i]) != '\0'; i++) {
                 if (c == '#' || c == '\\' || c <= 32 || !isprint(c)) {
                     str_add_sign(&tmp, '\\');
                     sprintf(term, "%03d", c);
@@ -266,7 +266,7 @@ bool emit_value_from_token(Token token, bool local_frame)
             break;
         case token_ID:
             EMIT(local_frame ? "LF@" : "GF@");
-            EMIT(token.value.String->ptr);
+            EMIT(token.string->ptr);
             break;
 
         default:

@@ -59,7 +59,7 @@ typedef enum {
     keyword_string,
     keyword_void,
     keyword_while
-} Keywords;
+} Keyword;
 
 //Enumeration of Token_types.
 typedef enum {
@@ -93,21 +93,27 @@ typedef enum {
     token_prologue,              // "<?php"
     token_dollar,              // "$"
     token_end                  // "?<"
-} Token_types;
+} Token_type;
 
-typedef struct
-{
-    unsigned integer;      //Value for processing integer value.
-    double   decimal;      //Value for processing double value.
-    str_t*   String ;      //Array for processing strings.
-    Keywords keyword;      //Keyword.
-} Token_value;
-
+// typedef union
+// {
+//     unsigned integer;      //Value for processing integer value.
+//     double   decimal;      //Value for processing double value.
+//     str_t*   String ;      //Array for processing strings.
+//     Keywords keyword;      //Keyword.
+// } Token_value;
 
 //Structure of token characteristics.
-typedef struct {
-    Token_value value;
-    Token_types type; //Type of token.
+typedef struct 
+{
+    union {
+        unsigned integer;      //Value for processing integer value.
+        double   decimal;      //Value for processing double value.
+        str_t*   string ;      //Array for processing strings.
+        Keyword  keyword;      //Keyword.
+    };
+    Token_type type; //Type of token.
+    bool questionmark;
 } Token;
 
 //void scanner_reset();

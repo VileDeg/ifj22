@@ -16,14 +16,15 @@ typedef struct
     TData* rhs_func;
     TData* lhs_var;
 
-    str_t    var_name;
-    DataType var_type;
+    // str_t    var_name;
+    // DataType var_type;
 
     bool in_param_list;
-    bool last_rule_was_eps;
+    bool block_next_token;
     bool in_local_scope;
     bool func_questionmark;
-    bool rvalue_assign;
+    bool var_not_yet_def;
+    //bool rvalue_assign;
     
     int  param_index;
     int  label_index;

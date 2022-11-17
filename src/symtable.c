@@ -85,38 +85,57 @@ TData *symtable_add_symbol(TSymtable *st, const char *key, bool *alloc_failed) {
 }
 
 
-bool symtable_add_param(TData *data, int64_t data_type) {
-    if (data == NULL) {
+bool symtable_add_param(TData *data, int64_t data_type, bool can_be_null) 
+{
+    if (!data)
         return false;
-    }
-    switch (data_type) {
-        case (TYPE_FLOAT):
-            if (!str_add_sign(data->params, 'f')) {
-                return false;
-            }
-            break;
 
-        case (TYPE_INT):
-            if (!str_add_sign(data->params, 'i')) {
-                return false;
-            }
-            break;
+    #define NUMFTYPES 4
+    static const int stype[NUMFTYPES] = { TYPE_FLOAT, TYPE_INT, TYPE_STRING, TYPE_UNDEF };
+    static const int slett[NUMFTYPES] = { 'f', 'i', 's', 'u' };
 
-        case (TYPE_STRING):
-            if (!str_add_sign(data->params, 's')) {
+    for (int i = 0; i < NUMFTYPES; ++i)
+    {
+        if (data_type == stype[i])
+        {
+            int sign = can_be_null ? 'z' - slett[i] + 'a' : slett[i];
+            if (!str_add_sign(data->params, sign))
                 return false;
-            }
-            break;
-        case (TYPE_UNDEF):
-            if (!str_add_sign(data->params, 'u')) {
-                return false;
-            }
-            break;
-        default:
-            IFJ22_ASSERT(false, "Wrong type.");
-            break;
+            return true;
+        }
     }
-    return true;
+
+    IFJ22_ASSERT(false, "Wrong type.");
+    return false;
+
+    // switch (data_type) {
+    //     case (TYPE_FLOAT):
+    //         if (!str_add_sign(data->params, can_be_null ? 'z'-'f': 'f')) {
+    //             return false;
+    //         }
+    //         break;
+
+    //     case (TYPE_INT):
+    //         if (!str_add_sign(data->params, 'i')) {
+    //             return false;
+    //         }
+    //         break;
+
+    //     case (TYPE_STRING):
+    //         if (!str_add_sign(data->params, 's')) {
+    //             return false;
+    //         }
+    //         break;
+    //     case (TYPE_UNDEF):
+    //         if (!str_add_sign(data->params, 'u')) {
+    //             return false;
+    //         }
+    //         break;
+    //     default:
+    //         IFJ22_ASSERT(false, "Wrong type.");
+    //         break;
+    // }
+    // return true;
 }
 
 

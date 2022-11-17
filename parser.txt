@@ -5,10 +5,10 @@
 <?php
 declare(strict_types=1);
 
-function fun (float $p1, int $p2) : void
+function fun (?string $p1, ?int $p2, ?float $p3) : void
 {}
 
-fun(1, 0.5);
+fun(null, null, null);
 
 return 0;
 
@@ -19,29 +19,53 @@ Current token:                                     prolog
 begin -> <?php declare ( strict_types = 1 ) ; <program> <end>
 Current token:                        function     keyword         
 program -> function ID ( <params> ) : <func_type> { <statement> } <program>
-Current token:                        float        keyword         
-type -> float
-Current token:                        float        keyword         
+Current token:                        string       keyword         
 params -> <type> $ID <param_n>
+Current token:                        string       keyword         
+type -> ? string
 Current token:                                     comma           
 param_n -> , <params>
 Current token:                        int          keyword         
-type -> int
+type -> ? int
+Current token:                                     comma           
+param_n -> , <params>
+Current token:                        float        keyword         
+type -> ? float
 Current token:                                     right_bracket   
 param_n -> , <params>
 Current token:                        void         keyword         
 func_type -> void
 Current token:                                     right_curly_brac
-rvalue -> ID ( <args> )
-Current token:                                     right_curly_brac
 statement -> ε
 Current token:           fun                       ID              
 program -> <statement>
 Current token:           fun                       ID              
+statement -> <rvalue> ; <program>
+Current token:           fun                       ID              
 rvalue -> $ID
-Current token: 1                                   integer         
+Current token:                        null         null            
 args -> <term> <arg_n>
-Current token: 1                                   integer         
-term -> INT_LITERAL
-Current token: 1                                   integer         
+Current token:                        null         null            
+term -> NULL
+Current token:                                     comma           
+arg_n -> , <args>
+Current token:                        null         null            
+term -> NULL
+Current token:                                     comma           
+arg_n -> , <args>
+Current token:                        null         null            
+term -> NULL
+Current token:                                     right_bracket   
+arg_n -> ε
+Current token:                        return       keyword         
+program -> <statement>
+Current token:                        return       keyword         
+statement -> return <expression> ; <program>
+Current token:                                     EOF             
+program -> <statement>
+Current token:                                     EOF             
 statement -> ε
+Current token:                                     EOF             
+end -> EOF
+
+

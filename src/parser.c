@@ -25,23 +25,23 @@
 		}while(0)
 	#define GET_NEXT_TOKEN()\
 		do {\
-			if (!pd->last_rule_was_eps) {\
+			if (!pd->block_next_token) {\
 				if ((RES = scanner_get_next_token(&pd->token)) != SUCCESS)\
 					return RES;\
 				if (g_DebugOn) { set_debug_out(get_scan_out());\
 					debug_print_token(pd->token); }\
 			} else\
-				pd->last_rule_was_eps = false;\
+				pd->block_next_token = false;\
 		}while(0)
 #else
 	#define _DPRNR(_n)
 	#define GET_NEXT_TOKEN()\
 		do {\
-			if (!pd->last_rule_was_eps) {\
+			if (!pd->block_next_token) {\
 				if ((RES = scanner_get_next_token(&pd->token)) != SUCCESS)\
 					return RES;\
 			} else\
-				pd->last_rule_was_eps = false;\
+				pd->block_next_token = false;\
 		}while(0)
 #endif
 
@@ -51,7 +51,7 @@
 
 #define TOKEN_IS(_postfix) (pd->token.type == token_##_postfix)
 
-#define KEYWORD_IS(_kw) (TOKEN_IS(keyword) && pd->token.value.keyword == keyword_##_kw)
+#define KEYWORD_IS(_kw) (TOKEN_IS(keyword) && pd->token.keyword == keyword_##_kw)
 
 //Never use with more than 1 argument!
 #define CHECK_TOKEN(_postfix, ...)\
@@ -90,7 +90,7 @@
 	} while(0)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#define TK_STR(_tk) _tk.value.String->ptr
+#define TK_STR(_tk) _tk.string->ptr
 
 #define HAS_DOLLAR (TK_STR(pd->token)[0] == '$')
 
@@ -117,8 +117,12 @@
 #define ADD_CURRENT_ID(_dst) ADD_ID(_dst, TK_STR(pd->token))
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#define EPSRULE pd->last_rule_was_eps = true
+#define BLOCK_NEXT_TOKEN pd->block_next_token = true
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#define TOKEN_IS_TYPE_KEYWORD (KEYWORD_IS(float) 	 || KEYWORD_IS(int) || KEYWORD_IS(string))
+
+#define TOKEN_IS_VALUE_TYPE   (TOKEN_IS_TYPE_KEYWORD || TOKEN_IS(null)  || TOKEN_IS(ID)	 	 )
 
 #endif
 GENERATE_STACK_DEFINITION(Token, tk)
@@ -127,7 +131,7 @@ GENERATE_STACK_DEFINITION(str_t, str)
 static tkstack_t  s_TokenStack;
 static strstack_t s_StringStack;
 
-static Token s_TokenBackup;
+// static Token s_TokenBackup;
 static str_t s_TkStrBackup;
 
 static bool init_data(ParserData* pd)
@@ -135,9 +139,9 @@ static bool init_data(ParserData* pd)
     symtable_init(&pd->globalTable);
 	symtable_init(&pd->localTable);
 
-	pd->in_param_list  = pd->last_rule_was_eps = 
-	pd->in_local_scope = pd->func_questionmark = 
-	pd->rvalue_assign  = false;
+	pd->in_param_list   = pd->block_next_token  = 
+	pd->in_local_scope  = pd->func_questionmark = 
+	pd->var_not_yet_def = false;
 
 	pd->rhs_func = pd->lhs_var = NULL;
 
@@ -145,7 +149,7 @@ static bool init_data(ParserData* pd)
 	pd->label_deep = -1;
 	pd->label_index = 0;
 
-	str_const(&pd->var_name);
+	//str_const(&pd->var_name);
 
 	tkstack_init(&s_TokenStack);
 	strstack_init(&s_StringStack);
@@ -170,37 +174,37 @@ static bool init_data(ParserData* pd)
 	if (!(data = symtable_add_symbol(&pd->globalTable, "floatval", &err)))
 		return false;
 	data->type = TYPE_FLOAT;
-	if (!symtable_add_param(data, TYPE_UNDEF)) return false;
+	if (!symtable_add_param(data, TYPE_UNDEF, true)) return false;
 
 	if (!(data = symtable_add_symbol(&pd->globalTable, "intval", &err)))
 		return false;
 	data->type = TYPE_INT;
-	if (!symtable_add_param(data, TYPE_UNDEF)) return false;
+	if (!symtable_add_param(data, TYPE_UNDEF, true)) return false;
 
 	if (!(data = symtable_add_symbol(&pd->globalTable, "strval", &err)))
 		return false;
 	data->type = TYPE_STRING;
-	if (!symtable_add_param(data, TYPE_UNDEF)) return false;
+	if (!symtable_add_param(data, TYPE_UNDEF, true)) return false;
 
 	if (!(data = symtable_add_symbol(&pd->globalTable, "strlen", &err)))
 		return false;
 	data->type = TYPE_INT;
-	if (!symtable_add_param(data, TYPE_STRING)) return false;
+	if (!symtable_add_param(data, TYPE_STRING, false)) return false;
 
 	if (!(data = symtable_add_symbol(&pd->globalTable, "substring", &err)))
 		return false;
 	data->type = TYPE_STRING;
-	if (!symtable_add_param(data, TYPE_STRING)) return false;
-	if (!symtable_add_param(data, TYPE_INT)) return false;
-	if (!symtable_add_param(data, TYPE_INT)) return false;
+	if (!symtable_add_param(data, TYPE_STRING, false)) return false;
+	if (!symtable_add_param(data, TYPE_INT, false)) return false;
+	if (!symtable_add_param(data, TYPE_INT, false)) return false;
 	
 	if (!(data = symtable_add_symbol(&pd->globalTable, "ord", &err)))
 		return false;
-	if (!symtable_add_param(data, TYPE_STRING)) return false;
+	if (!symtable_add_param(data, TYPE_STRING, false)) return false;
 
 	if (!(data = symtable_add_symbol(&pd->globalTable, "chr", &err)))
 		return false;
-	if (!symtable_add_param(data, TYPE_INT)) return false;
+	if (!symtable_add_param(data, TYPE_INT, false)) return false;
 
 
 	if (!(data = symtable_add_symbol(&pd->globalTable, "$EXPR_REG", &err)))
@@ -214,23 +218,38 @@ static void free_data(ParserData* pd)
 {
 	symtable_clear(&pd->globalTable);
 	symtable_clear(&pd->localTable);
-	str_dest(&pd->var_name);
+	//str_dest(&pd->var_name);
 
 	str_dest(&s_TkStrBackup);
 }
 
-void backup_current_token(ParserData* pd)
+void push_current_token(ParserData* pd)
 {
-	s_TokenBackup = pd->token;
-	str_dest(&s_TkStrBackup);
-	str_const(&s_TkStrBackup);
-	str_concat(&s_TkStrBackup, TK_STR(pd->token));
-	s_TokenBackup.value.String = &s_TkStrBackup;
+	tkstack_push(&s_TokenStack, pd->token);
+
+	if (!TOKEN_IS(ID)) //<-- only ID should have string parameter
+		return;
+
+	str_t tkstr;
+	str_const(&tkstr);
+	str_concat(&tkstr, TK_STR(pd->token));
+	strstack_push(&s_StringStack, tkstr);
 }
 
-void restore_previous_token(ParserData* pd)
+void pop_current_token(ParserData* pd)
 {
-	pd->token = s_TokenBackup;
+	str_dest(&s_TkStrBackup);
+
+	IFJ22_ASSERT(!tkstack_empty(&s_TokenStack), "Should not happen?");
+	pd->token = tkstack_top(&s_TokenStack);
+	tkstack_pop(&s_TokenStack);
+
+	if (!TOKEN_IS(ID)) //<-- only ID should have string parameter
+		return;
+	
+	s_TkStrBackup = strstack_top(&s_StringStack);
+	pd->token.string = &s_TkStrBackup;
+	strstack_pop(&s_StringStack);
 }
 
 static int type		(ParserData* pd);
@@ -249,33 +268,23 @@ static int begin	(ParserData* pd);
 
 static int term(ParserData* pd)
 {
-	#define CHECK_FUNC_PARAM_TYPE(_typelett)\
-		if (pd->rhs_func->params->ptr[pd->param_index] != _typelett)\
-			return ERROR_SEM_TYPE_COMPAT;
-			//PRINT_ERROR_RET(ERROR_SEM_TYPE_COMPAT, "function parameter type incompatible.");
+	#define LETTFLIP(_s) ('z' - (_s) + 'a')
 
 	RULE_OPEN;
 	{
 		if (!strcmp(pd->rhs_func->id, "write")) // if function is "write"
 		{
 			if (IS_VAR_ID && !FIND_CURRENT_ID)
-				return ERROR_SEM_UNDEF_VAR;
-				//PRINT_ERROR_RET(ERROR_SEM_UNDEF_VAR, "undefined variable passed as parameter.");
+				PRINT_ERROR_RET(ERROR_SEM_UNDEF_VAR, "undefined variable passed as parameter.");
 
 			// we need to store args to stack to pass them in inverse order
-			tkstack_push(&s_TokenStack, pd->token);
-
-			str_t tkstr;
-			str_const(&tkstr);
-			str_concat(&tkstr, TK_STR(pd->token));
-			strstack_push(&s_StringStack, tkstr);
+			push_current_token(pd);
 
 			goto end;
 		}
 
 		if (pd->rhs_func->params->len == pd->param_index)
-				return ERROR_SEM_TYPE_COMPAT;
-				//PRINT_ERROR_RET(ERROR_SEM_TYPE_COMPAT, "invalid number of parameters passed.");
+			PRINT_ERROR_RET(ERROR_SEM_TYPE_COMPAT, "invalid number of parameters passed.");
 
 		{ CODEGEN(emit_function_pass_param, pd->token, pd->param_index, pd->in_local_scope); }
 
@@ -284,55 +293,63 @@ static int term(ParserData* pd)
 			!strcmp(pd->rhs_func->id, "strval"  ))
 			goto end;
 
-		//<term> -> INT_VALUE
-		if (TOKEN_IS(integer))
+		int func_param = pd->rhs_func->params->ptr[pd->param_index];
+		int sign = '\0';
+		switch (pd->token.type)
 		{
-			_DPRNR(0);
-
-			CHECK_FUNC_PARAM_TYPE('i');
-		}
-		//<term> -> FLOAT_VALUE
-		else if (TOKEN_IS(float))
-		{
-			_DPRNR(1);
-
-			CHECK_FUNC_PARAM_TYPE('f');
-		}
-		//<term> -> STRING_VALUE
-		else if (TOKEN_IS(string))
-		{
-			_DPRNR(2);
-
-			CHECK_FUNC_PARAM_TYPE('s');
-		}
-		//<term> -> $ID
-		else if (IS_VAR_ID)
-		{
-			_DPRNR(3);
-
-			TData* var = FIND_CURRENT_ID;
-			if (!var) 
-				//PRINT_ERROR_RET(ERROR_SEM_UNDEF_VAR, "undefined variable passed as parameter.");
-				return ERROR_SEM_UNDEF_VAR;
-			switch (var->type)
-			{
-			case TYPE_INT:
-				CHECK_FUNC_PARAM_TYPE('i');
+			//<term> -> INT_VALUE
+			case token_integer:
+				_DPRNR(0);
+				sign = 'i';	
 				break;
-			case TYPE_FLOAT:
-				CHECK_FUNC_PARAM_TYPE('f');
+			//<term> -> FLOAT_VALUE
+			case token_float:
+				_DPRNR(1);
+				sign = 'f';	
 				break;
-			case TYPE_STRING:
-				CHECK_FUNC_PARAM_TYPE('s');
+			//<term> -> STRING_VALUE
+			case token_string:
+				_DPRNR(2);
+				sign = 's';	
 				break;
-			case TYPE_NULL:
-				return ERROR_SEM_TYPE_COMPAT;
-			default: // Unsupported or unspecified type, shouldn't get here
-				INTERNAL_ERROR_RET;
-			}
+			//<term> -> NULL
+			case token_null:
+				_DPRNR(3);
+				goto null;
+				break;
+			default:
+				_DPRNR(4);
+
+				if (!IS_VAR_ID)
+					PRINT_ERROR_RET(ERROR_SEM_UNDEF_VAR, "unsupported variable type.");
+
+				TData* var = FIND_CURRENT_ID;
+				if (!var) 
+					PRINT_ERROR_RET(ERROR_SEM_UNDEF_VAR, "undefined variable passed as parameter.");
+				switch (var->type)
+				{
+					case TYPE_INT:
+						sign = 'i';
+						break;
+					case TYPE_FLOAT:
+						sign = 'f';
+						break;
+					case TYPE_STRING:
+						sign = 's';
+						break;
+					case TYPE_NULL:
+						goto null;
+					default: // Unsupported or unspecified type, shouldn't get here
+						INTERNAL_ERROR_RET;
+				}
 		}
-		else
-			return ERROR_SEM_TYPE_COMPAT;
+		
+		if (func_param != sign && func_param != LETTFLIP(sign))
+	 		PRINT_ERROR_RET(ERROR_SEM_TYPE_COMPAT, "function parameter type incompatible.");
+		goto end;
+null:
+		if (func_param != LETTFLIP('i') && func_param != LETTFLIP('f') && func_param != LETTFLIP('s'))
+			PRINT_ERROR_RET(ERROR_SEM_TYPE_COMPAT, "function parameter type incompatible.");
 end:		
 		pd->param_index++;
 	}
@@ -346,9 +363,7 @@ static int args(ParserData* pd)
 		pd->param_index = 0;
 
 		//<args> -> <term> <arg_n>
-		//backup_current_token(pd);
-		//GET_NEXT_TOKEN();
-		if (!TOKEN_IS(right_bracket))
+		if (TOKEN_IS_VALUE_TYPE)
 		{
 			_DPRNR(0);
 
@@ -359,16 +374,9 @@ static int args(ParserData* pd)
 			{
 				while (!tkstack_empty(&s_TokenStack) && !strstack_empty(&s_StringStack))
 				{
-					Token tk = tkstack_top(&s_TokenStack);
-					str_t tk_str = strstack_top(&s_StringStack);
+					pop_current_token(pd);
 
-					tk.value.String = &tk_str;
-
-					{ CODEGEN(emit_function_pass_param_push, tk, pd->in_local_scope); }
-					
-					tkstack_pop(&s_TokenStack);
-					str_dest(&tk_str);
-					strstack_pop(&s_StringStack);
+					{ CODEGEN(emit_function_pass_param_push, pd->token, pd->in_local_scope); } //tk
 				}
 				// We need to define argument count for variable number of arguments
 				{ CODEGEN(emit_function_pass_param_count, pd->param_index); }
@@ -378,9 +386,8 @@ static int args(ParserData* pd)
 		else
 		{
 			_DPRNR(1);
-			EPSRULE;
+			BLOCK_NEXT_TOKEN;
 		}
-		//restore_previous_token(pd);
 	}
 	RULE_CLOSE;
 }
@@ -402,7 +409,7 @@ static int arg_n(ParserData* pd)
 		else
 		{
 			_DPRNR(1);
-			EPSRULE;
+			BLOCK_NEXT_TOKEN;
 		}
 	}
 	RULE_CLOSE;
@@ -420,43 +427,45 @@ static int type(ParserData* pd)
 		//<type> -> ? int
 		//<type> -> ? string
 
-		CHECK_TOKEN(keyword);
-
-		static const char* type_kw	 [NUM_F_TYPES] = { "float", "int", "string" 		 };
-		static const int   type_macro[NUM_F_TYPES] = { TYPE_FLOAT, TYPE_INT, TYPE_STRING };
+		static const int type_macro[NUM_F_TYPES] = { TYPE_FLOAT, TYPE_INT, TYPE_STRING };
 		
 		int _rulenr = 0; // for debugging
 
-		const char* str = TK_STR(pd->token);
-		if (str[0] == '?')
+		if (pd->token.questionmark)
 		{
 			//Type can be null!
 			pd->func_questionmark = true;
-			++str;
 			_rulenr += 3;
 		}
 		else
 			pd->func_questionmark = false;
-		bool matched = false;
-		for (int i = 0; i < NUM_F_TYPES; i++)
+
+		int  tnum = 0;
+		if (KEYWORD_IS(float))
 		{
-			if (!strcmp(str, type_kw[i]))
-			{
-				_DPRNR(_rulenr+i);
-				
-				matched = true;
-				if (pd->in_param_list) // If it's the type for func. parameter
-				{
-					if (!symtable_add_param(pd->rhs_func, type_macro[i]))
-						INTERNAL_ERROR_RET;
-				}
-				else // If it's the return type of the current func.
-					pd->rhs_func->type = type_macro[i];
-				break;
-			}
+			_DPRNR(_rulenr);
+			tnum = 0;
 		}
-		if (!matched)
+		else if (KEYWORD_IS(int))
+		{
+			_DPRNR(_rulenr+1);
+			tnum = 1;
+		}
+		else if (KEYWORD_IS(string))
+		{
+			_DPRNR(_rulenr+2);
+			tnum = 2;
+		}
+		else
 			PRINT_ERROR_RET(ERROR_SYNTAX, "type mismatch.");
+
+		if (pd->in_param_list) // If it's the type for func. parameter
+		{
+			if (!symtable_add_param(pd->rhs_func, type_macro[tnum], pd->token.questionmark))
+				INTERNAL_ERROR_RET;
+		}
+		else // If it's the return type of the current func.
+			pd->rhs_func->type = type_macro[tnum];
 	}
 	RULE_CLOSE;
 }
@@ -470,21 +479,19 @@ static int rvalue(ParserData* pd)
 		{
 			_DPRNR(0);
 
-			{ //Check if function was defined
+			{ 
+				//Check if function was defined
 				if (!(pd->rhs_func = symtable_find(&pd->globalTable, TK_STR(pd->token))))
 				{
+					//If next token is not '(' then it's not a function call so we return syntax error
+					NEXT_TK_CHECK_TOKEN(left_bracket);
 					//TODO: if not YET defined, add temporary entry to symtable
 					return ERROR_SEM_ID_DEF;
 				}
 
 				//If function is called as part of variable definition
-				if (pd->rvalue_assign)
-				{
-					if (pd->lhs_var)
+				if (pd->lhs_var)
 						pd->lhs_var->type = pd->rhs_func->type;
-					else
-						pd->var_type = pd->rhs_func->type;
-				}
 
 				{ CODEGEN(emit_function_before_pass_params); }
 
@@ -501,10 +508,8 @@ static int rvalue(ParserData* pd)
 				{ CODEGEN(emit_function_call, pd->rhs_func->id); }
 				
 				//If function is called as part of variable definition
-				if (pd->rvalue_assign)
-					{ CODEGEN(emit_function_res_assign, 
-						pd->lhs_var ? pd->lhs_var->id : pd->var_name.ptr, 
-						pd->in_local_scope); }
+				if (pd->lhs_var)
+					{ CODEGEN(emit_function_res_assign, pd->lhs_var->id, pd->in_local_scope); }
 			}
 		}
 		//<rvalue> -> <expression>
@@ -515,10 +520,11 @@ static int rvalue(ParserData* pd)
 			if (TOKEN_IS(right_curly_bracket))
 				return ERROR_SYNTAX;
 
-			backup_current_token(pd);
+			push_current_token(pd);
 			if ((RES = expression_parsing(pd)))
 			{
-				restore_previous_token(pd);
+				pop_current_token(pd);
+
 				return RES;
 			}
 		}
@@ -535,11 +541,7 @@ static int assign(ParserData* pd)
 		{
 			_DPRNR(0);
 
-			pd->rvalue_assign = true;
-
 			NEXT_TK_CHECK_RULE(rvalue);
-
-			pd->rvalue_assign = false;
 		}
 		//<assign> -> eps
 		else
@@ -548,7 +550,7 @@ static int assign(ParserData* pd)
 			//In this case variable is used as expression which means it has to be already defined
 			if (!pd->lhs_var)
 				return ERROR_SEM_UNDEF_VAR;
-			EPSRULE;
+			BLOCK_NEXT_TOKEN;
 		}
 	}
 	RULE_CLOSE;
@@ -565,7 +567,7 @@ static int func_type(ParserData* pd)
 		{
 			_DPRNR(0);
 
-			//pd->rhs_func->type = TYPE_NIL;
+			pd->rhs_func->type = TYPE_NULL;
 		}
 		//<func_type> -> <type>
 		else
@@ -604,7 +606,7 @@ static int param_n(ParserData* pd)
 		else
 		{
 			_DPRNR(0);
-			EPSRULE;
+			BLOCK_NEXT_TOKEN;
 		}
 	}
 	RULE_CLOSE;
@@ -617,10 +619,11 @@ static int params(ParserData* pd)
 		pd->in_param_list = true;
 
 		//<params> -> <type> $ ID <param_n>
-		if (RULE_GOOD(type))
+		if (TOKEN_IS_TYPE_KEYWORD)
 		{
 			_DPRNR(0);
 
+			CHECK_RULE(type);
 			NEXT_TK_CHECK_VAR_ID;
 			{ //Add var to local table
 				if (FIND_CURRENT_ID)
@@ -636,7 +639,7 @@ static int params(ParserData* pd)
 		else
 		{
 			_DPRNR(1);
-			EPSRULE;
+			BLOCK_NEXT_TOKEN;
 		}
 	}
 	RULE_CLOSE;
@@ -656,27 +659,16 @@ static int statement(ParserData* pd)
 			_DPRNR(0);
 
 			{
-				//If variable is not yet defined we need to store it's name
-				//to later add it to symtable after assign is over. We do this so that 
-				//variable itself cannot be used in it's own definition as rhs value.
-				bool defined = true;
 				if (!(pd->lhs_var = FIND_CURRENT_ID))
-				{
-					defined = false;
-					str_clear(&pd->var_name);
-					str_concat(&pd->var_name, TK_STR(pd->token));
-				}
-				{ CODEGEN(emit_define_var, 
-					defined ? pd->lhs_var->id : pd->var_name.ptr, 
-					pd->in_local_scope); }
+					ADD_CURRENT_ID(pd->lhs_var);
+
+				{ CODEGEN(emit_define_var, pd->lhs_var->id, pd->in_local_scope); }
+
+				pd->var_not_yet_def = true;
 
 				NEXT_TK_CHECK_RULE(assign);
 
-				if (!defined)
-				{
-					ADD_ID(pd->lhs_var, pd->var_name.ptr);
-					pd->lhs_var->type = pd->var_type;
-				}
+				pd->var_not_yet_def = false;
 			}
 
 			NEXT_TK_CHECK_TOKEN(semicolon);
@@ -769,10 +761,11 @@ static int statement(ParserData* pd)
 			NEXT_TK_CHECK_RULE(program);
 		}
 		//<statement> -> <rvalue> ; <program>
-		else if (RULE_GOOD(rvalue))
+		else if (TOKEN_IS_VALUE_TYPE) //RULE_GOOD(rvalue)
 		{
 			_DPRNR(4);
 
+			CHECK_RULE(rvalue);
 			NEXT_TK_CHECK_TOKEN(semicolon);
 
 			NEXT_TK_CHECK_RULE(program);
@@ -781,7 +774,7 @@ static int statement(ParserData* pd)
 		else
 		{
 			_DPRNR(5);
-			EPSRULE;
+			BLOCK_NEXT_TOKEN;
 		}
 	}
 	RULE_CLOSE;
@@ -871,17 +864,17 @@ static int begin(ParserData* pd)
 			NEXT_TK_CHECK_TOKEN(prologue);
 			_DPRNR(0);
 			NEXT_TK_CHECK_TOKEN(ID);
-			if (!str_cmp(pd->token.value.String, "declare"))
+			if (!str_cmp(pd->token.string, "declare"))
 				PRINT_ERROR_RET(ERROR_SYNTAX, "invalid prologue.");
 			
 			NEXT_TK_CHECK_TOKEN(left_bracket);
 			NEXT_TK_CHECK_TOKEN(ID);
-			if (!str_cmp(pd->token.value.String, "strict_types"))
+			if (!str_cmp(pd->token.string, "strict_types"))
 				PRINT_ERROR_RET(ERROR_SYNTAX, "invalid prologue.");
 				
 			NEXT_TK_CHECK_TOKEN(equal_sign);
 			NEXT_TK_CHECK_TOKEN(integer);
-			if (pd->token.value.integer != 1)
+			if (pd->token.integer != 1)
 				PRINT_ERROR_RET(ERROR_SYNTAX, "invalid prologue.");
 
 			NEXT_TK_CHECK_TOKEN(right_bracket);

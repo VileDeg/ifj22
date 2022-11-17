@@ -26,7 +26,7 @@ bool str_const(str_t* str)
     str->cap = INITIAL_CAPACITY;
     if (!(str->ptr = calloc(1, str->cap)))
         return false;
-    str_clear(str);
+    str->len = 0;
     return true;
 }
 
