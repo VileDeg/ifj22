@@ -96,10 +96,10 @@ Oper_type term_info(Token* token) {
 
 Rule_type rule_info(Symbol* oper1, Symbol* oper2, Symbol* oper3) 
 {
-    if(oper1->operType == OPER_LBR && oper2->operType == OPER_E && oper3->operType == OPER_RBR) 
+    if (oper1->operType == OPER_LBR && oper2->operType == OPER_E && oper3->operType == OPER_RBR) 
         return RULE_BR;
 
-    if(oper1->operType == OPER_E && oper3->operType == OPER_E) 
+    if (oper1->operType == OPER_E && oper3->operType == OPER_E) 
     {
         switch(oper2->operType) {
             case OPER_ADD:
@@ -136,13 +136,13 @@ uint32_t implicit_conversion(Rule_type rule, DataType* dataType, bool* type_equa
     switch(rule) 
     {
         case RULE_ID:
-            if(oper1->dataType == TYPE_UNDEF)
+            if (oper1->dataType == TYPE_UNDEF)
                 return ERROR_SEM_UNDEF_VAR;
 
             *dataType = oper1->dataType;
             break;
         case RULE_BR:
-            if(oper2->dataType == TYPE_UNDEF)
+            if (oper2->dataType == TYPE_UNDEF)
                 return ERROR_SEM_UNDEF_VAR;
 
             *dataType = oper2->dataType;
@@ -150,34 +150,42 @@ uint32_t implicit_conversion(Rule_type rule, DataType* dataType, bool* type_equa
         case RULE_ADD:                                                          
         case RULE_SUB:
         case RULE_MUL:
-            if(oper1->dataType == TYPE_INT && oper3->dataType == TYPE_INT)
+            if (oper1->dataType == TYPE_INT && oper3->dataType == TYPE_INT)
                 *dataType = TYPE_INT;
-            else if(oper1->dataType == TYPE_FLOAT && oper3->dataType == TYPE_FLOAT)
+            else if (oper1->dataType == TYPE_FLOAT && oper3->dataType == TYPE_FLOAT)
                 *dataType = TYPE_FLOAT;
-            else if(oper1->dataType == TYPE_INT && oper3->dataType == TYPE_FLOAT)
+            else if (oper1->dataType == TYPE_INT && oper3->dataType == TYPE_FLOAT)
             {
-                *dataType = TYPE_FLOAT;
                 CODEGEN(emit_stack_top_int2float);
-            }
-            else if(oper1->dataType == TYPE_FLOAT && oper3->dataType == TYPE_INT)
-            {
                 *dataType = TYPE_FLOAT;
+            }
+            else if (oper1->dataType == TYPE_FLOAT && oper3->dataType == TYPE_INT)
+            {
                 CODEGEN(emit_stack_sec_int2float);
+                *dataType = TYPE_FLOAT;
             }
             else
                 return ERROR_SEM_EXPRESSION;
             break;
         case RULE_DIV:
-            if(oper1->dataType == TYPE_INT && oper3->dataType == TYPE_FLOAT) 
+            if (oper1->dataType == TYPE_INT && oper3->dataType == TYPE_FLOAT) 
+            {
                 CODEGEN(emit_stack_top_int2float);
-            else if(oper1->dataType == TYPE_FLOAT && oper3->dataType == TYPE_INT) 
+                *dataType = TYPE_FLOAT;
+            }
+            else if (oper1->dataType == TYPE_FLOAT && oper3->dataType == TYPE_INT) 
+            {
                 CODEGEN(emit_stack_sec_int2float);
-            else 
+                *dataType = TYPE_FLOAT;
+            }
+            else if (oper1->dataType == TYPE_FLOAT && oper3->dataType == TYPE_FLOAT ||
+                oper1->dataType      == TYPE_INT   && oper3->dataType == TYPE_INT) 
+                *dataType = TYPE_FLOAT;
+            else
                 return ERROR_SEM_EXPRESSION;
-            *dataType = TYPE_FLOAT;
             break;
         case RULE_DOT:
-            if(oper1->dataType != TYPE_STRING || oper3->dataType != TYPE_STRING)
+            if (oper1->dataType != TYPE_STRING || oper3->dataType != TYPE_STRING)
                 return ERROR_SEM_EXPRESSION;
             *dataType = TYPE_STRING;
             break;
@@ -191,10 +199,6 @@ uint32_t implicit_conversion(Rule_type rule, DataType* dataType, bool* type_equa
         case RULE_LEQ:
         case RULE_GEQ:
             *dataType = TYPE_BOOL;
-            // if((oper1->dataType != TYPE_BOOL || oper3->dataType != TYPE_BOOL) || 
-            // oper3->dataType != TYPE_STRING && oper1->dataType != TYPE_STRING) {
-            //     return ERROR_SEM_EXPRESSION;
-            //}
             break;
         default:
             break;
@@ -209,7 +213,7 @@ uint32_t num_of_symbols_to_reduce(bool* reduceFound, SymbolStack* stack)
     *reduceFound = false;
     for(; curr != NULL; cnt++) 
     {
-        if(curr->operType == OPER_REDUCE) 
+        if (curr->operType == OPER_REDUCE) 
         {
             *reduceFound = true;
             break;
@@ -303,7 +307,7 @@ uint64_t reduce(ParserData* pd, SymbolStack* stack)
         if (pd->token.string->ptr[0] != '$')\
             ERROR_RET(ERROR_SYNTAX);\
         _data = symtable_find(pd->in_local_scope ? &pd->localTable : &pd->globalTable, pd->token.string->ptr);\
-        if(!_data || pd->var_not_yet_def)\
+        if (!_data || pd->var_not_yet_def)\
             ERROR_RET(ERROR_SEM_UNDEF_VAR);\
         _ret = _data->type;\
     }\
@@ -329,8 +333,10 @@ DataType type_info(ParserData* pd, int* errcode)
             *errcode = ERROR_SYNTAX;
             return TYPE_UNDEF;
         }
-        data = symtable_find(pd->in_local_scope ? &pd->localTable : &pd->globalTable, pd->token.string->ptr);
-        if(!data || pd->var_not_yet_def)
+        data = symtable_find(
+            pd->in_local_scope ? &pd->localTable : &pd->globalTable, 
+            pd->token.string->ptr);
+        if (!data || (pd->var_not_yet_def && pd->lhs_var == data))
         {
             *errcode = ERROR_SEM_UNDEF_VAR;
             return TYPE_UNDEF;
@@ -365,6 +371,8 @@ int64_t expression_parsing(ParserData* pd)
     Symbol* stackTerm;
 
     bool success = false;
+    bool type_info_err = false;
+    int type_info_errcode = SUCCESS;
 
     do
     {
@@ -372,10 +380,13 @@ int64_t expression_parsing(ParserData* pd)
         INTERNAL(stackTerm = stack_get_top_term(&stack));
         stackSymbol = stackTerm->operType;
 
-        int errcode = SUCCESS;
-        DataType symbolDataType = type_info(pd, &errcode);
-        if (errcode != SUCCESS)
-            ERROR_RET(errcode);
+        //We return errcode only on the next iteration in case syntax error will occur in current iteration.
+        
+        if (type_info_err)
+            ERROR_RET(type_info_errcode);
+        type_info_errcode = SUCCESS;
+        DataType symbolDataType = type_info(pd, &type_info_errcode);
+        type_info_err = type_info_errcode != SUCCESS ? true : false; 
 
         Index_num xIndex = index_info(stackTerm->operType);
         Index_num yIndex = index_info(currSymbol);
@@ -391,17 +402,17 @@ int64_t expression_parsing(ParserData* pd)
                     currSymbol == DATA_STRING || currSymbol == DATA_NULL)
                     CODEGEN(emit_push, pd->token, pd->in_local_scope);
 
-                RESULT(scanner_get_next_token(&pd->token));
+                RESULT(_get_next_token(pd));
                 break;
             case EQUAL:
                 INTERNAL(stack_push(&stack, currSymbol, symbolDataType));
-                RESULT(scanner_get_next_token(&pd->token))
+                RESULT(_get_next_token(pd))
                 break;
             case REDUCE:
                 RESULT(reduce(pd, &stack));
                 break;
             case NONE:
-                if(currSymbol == stackTerm->operType && currSymbol == OPER_DOLLAR) 
+                if (currSymbol == stackTerm->operType && currSymbol == OPER_DOLLAR) 
                     success = true;
                 else 
                     ERROR_RET(ERROR_SYNTAX);
@@ -416,7 +427,7 @@ int64_t expression_parsing(ParserData* pd)
     if (lastNonterm->operType != OPER_E)
         ERROR_RET(ERROR_SYNTAX);
 
-    if(pd->lhs_var)
+    if (pd->lhs_var)
     {
         pd->lhs_var->type = lastNonterm->dataType;
         { CODEGEN(emit_stack_pop_res, pd->lhs_var->id, pd->in_local_scope ? "LF" : "GF"); }

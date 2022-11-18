@@ -10,6 +10,7 @@
 void str_dest(str_t *str)
 {
     free(str->ptr);
+    str->ptr = NULL;
 }
 
 //Delete data from string.

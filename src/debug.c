@@ -269,7 +269,7 @@ free:
 
 static const char* s_RulesFilepath = "../LL-grammar.txt";
 #define RULE_EXP_MXLEN 256
-#define NUM_RULES 37
+#define NUM_RULES 35
 static struct {
     char rule_name [NUM_RULES][RULE_EXP_MXLEN];
     char exp_string[NUM_RULES][RULE_EXP_MXLEN];

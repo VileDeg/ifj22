@@ -102,16 +102,16 @@ int getchar_modified()
     return term_sign;
 }
 
-// void token_clear(Token *tk)
-// {
-//     memset(tk, 0, sizeof(Token));
-// }
+void token_clear(Token *tk)
+{
+    memset(tk, 0, sizeof(Token));
+}
 
 //Function for reading string from stdin and converting into token.
 int scanner_get_next_token(Token* token)
 {
     str_clear(s_String);
-    //token_clear(token);
+    token_clear(token);
     token->string = s_String;
     
     int current_state = STATE_START; 
@@ -549,14 +549,12 @@ int scanner_get_next_token(Token* token)
                 {
                     if (isdigit(sign))
                         str_add_sign(s_String, sign);
-                    else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t' || sign == ';') // нужно больше исключений? 
+                    else if (isspace(sign) || sign == EOF || sign == ';' || sign == ')' || sign == ',') // нужно больше исключений? 
                         break; 
                     else
                     {
                         str_add_sign(s_String, sign);
                         PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, token->string->ptr);
-                        
-                         
                     }
                          
                     sign = getchar_modified();                      

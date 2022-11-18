@@ -184,7 +184,7 @@ bool symtable_delete_symbol(TSymtable *st, const char *key) {
 }
 
 
-void symtable_clear(TSymtable *st) {
+void symtable_dest(TSymtable *st) {
     if (st == NULL) {
         return;
     }

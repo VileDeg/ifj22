@@ -5,10 +5,10 @@
 <?php
 declare(strict_types=1);
 
-function fun (?string $p1, ?int $p2, ?float $p3) : void
-{}
-
-fun(null, null, null);
+function fun () : void
+{
+    return;
+}
 
 return 0;
 
@@ -19,44 +19,16 @@ Current token:                                     prolog
 begin -> <?php declare ( strict_types = 1 ) ; <program> <end>
 Current token:                        function     keyword         
 program -> function ID ( <params> ) : <func_type> { <statement> } <program>
-Current token:                        string       keyword         
-params -> <type> $ID <param_n>
-Current token:                        string       keyword         
-type -> ? string
-Current token:                                     comma           
-param_n -> , <params>
-Current token:                        int          keyword         
-type -> ? int
-Current token:                                     comma           
-param_n -> , <params>
-Current token:                        float        keyword         
-type -> ? float
 Current token:                                     right_bracket   
-param_n -> , <params>
+params -> ε
 Current token:                        void         keyword         
 func_type -> void
+Current token:                        return       keyword         
+statement -> return <expression> ; <program>
+Current token:                                     right_curly_brac
+program -> <statement>
 Current token:                                     right_curly_brac
 statement -> ε
-Current token:           fun                       ID              
-program -> <statement>
-Current token:           fun                       ID              
-statement -> <rvalue> ; <program>
-Current token:           fun                       ID              
-rvalue -> $ID
-Current token:                        null         null            
-args -> <term> <arg_n>
-Current token:                        null         null            
-term -> NULL
-Current token:                                     comma           
-arg_n -> , <args>
-Current token:                        null         null            
-term -> NULL
-Current token:                                     comma           
-arg_n -> , <args>
-Current token:                        null         null            
-term -> NULL
-Current token:                                     right_bracket   
-arg_n -> ε
 Current token:                        return       keyword         
 program -> <statement>
 Current token:                        return       keyword         

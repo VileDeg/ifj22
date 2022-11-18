@@ -3,7 +3,7 @@
 
 #include "symtable.h"
 #include "scanner.h"
-#include "stack_t.h"
+//#include "stack_t.h"
 #include "debug.h"
 
 typedef struct
@@ -24,7 +24,7 @@ typedef struct
     bool in_local_scope;
     bool func_questionmark;
     bool var_not_yet_def;
-    //bool rvalue_assign;
+    bool get_next_tk_from_stack;
     
     int  param_index;
     int  label_index;
@@ -32,5 +32,7 @@ typedef struct
 } ParserData;
 
 int parse_file(FILE* fptr);
+
+int _get_next_token(ParserData* pd);
 
 #endif // __PARSER_H__

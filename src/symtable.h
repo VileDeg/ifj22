@@ -111,6 +111,6 @@ bool symtable_delete_symbol(TSymtable *st, const char *key);
  * Delete all items in symbol table.
  * @param st
  */
-void symtable_clear(TSymtable *st);
+void symtable_dest(TSymtable *st);
 
 #endif //__SYMTABLE__

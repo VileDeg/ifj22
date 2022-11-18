@@ -3,14 +3,12 @@
 <end> -> EOF
 <program> -> function ID ( <params> ) : <func_type> { <statement> } <program>
 <program> -> <statement>
-<statement> -> $ID <assign> ; <program>
+<statement> -> $ID = <rvalue> ; <program>
 <statement> -> if ( <expression> ) { <statement> } else { <statement> } <program>
 <statement> -> while ( <expression> ) { <statement> } <program>
 <statement> -> return <expression> ; <program>
 <statement> -> <rvalue> ; <program>
 <statement> -> ε
-<assign> -> = <rvalue>
-<assign> -> ε
 <rvalue> -> $ID
 <rvalue> -> ID ( <args> )
 <rvalue> -> <expression>

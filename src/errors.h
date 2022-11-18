@@ -21,9 +21,6 @@
 
 #define NUMFERRORS 9
 
-
-
-
 extern const char* g_ErrStr[NUMFERRORS];
 
 // fprintf(stderr, "\033[1;31m");

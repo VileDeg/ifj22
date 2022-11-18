@@ -5,10 +5,10 @@
 <?php
 declare(strict_types=1);
 
-function fun (?string $p1, ?int $p2, ?float $p3) : void
-{}
-
-fun(null, null, null);
+function fun () : void
+{
+    return;
+}
 
 return 0;
 
@@ -27,30 +27,16 @@ int  deci string       keyword      type
                        function     keyword         
           fun                       ID              
                                     left_bracket    
-                       string       keyword         
-          $p1                       ID              
-                                    comma           
-                       int          keyword         
-          $p2                       ID              
-                                    comma           
-                       float        keyword         
-          $p3                       ID              
                                     right_bracket   
                                     colon           
                        void         keyword         
                                     left_curly_brack
-                                    right_curly_brac
-          fun                       ID              
-                                    left_bracket    
-                       null         null            
-                                    comma           
-                       null         null            
-                                    comma           
-                       null         null            
-                                    right_bracket   
+                       return       keyword         
                                     semicolon       
+                                    right_curly_brac
                        return       keyword         
 0                                   integer         
+                                    semicolon       
                                     EOF             
 
 
