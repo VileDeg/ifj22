@@ -24,7 +24,7 @@ typedef struct
     bool in_local_scope;
     bool func_questionmark;
     bool var_not_yet_def;
-    bool get_next_tk_from_stack;
+    bool get_next_from_stack;
     
     int  param_index;
     int  label_index;

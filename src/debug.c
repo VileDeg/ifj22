@@ -75,17 +75,6 @@ const char* debug_tk_type(Token_type tt)
 {
    return tt < max_kw_type ? tk_types_str[tt] : "**NIL**";
 }
- 
-//Token now contains union. Don't use this function
-void reset_token(Token* tk)
-{
-    tk->integer = 0;
-    tk->decimal = 0.f;
-    tk->keyword = 1000;
-    tk->type = 1000;
-    
-    str_clear(tk->string);
-}
 
 static const char* s_TokenDebugFormat = "%-4.4s %-4.4s %-12.12s %-12.12s %-16.16s\n";
 
@@ -114,10 +103,10 @@ void debug_print_token(Token tk)
                 "", debug_kw(tk.keyword), debug_tk_type(tk.type));
             break;
         default:
-            IFJ22_ASSERT(tk.string != NULL, "");
-            IFJ22_ASSERT(tk.string->ptr != NULL, "");
+            //IFJ22_ASSERT(tk.string != NULL, "");
+            IFJ22_ASSERT(tk.string.ptr != NULL, "");
             DEBUGPR(s_TokenDebugFormat, "", "",
-                tk.string->ptr, "", debug_tk_type(tk.type));
+                tk.string.ptr, "", debug_tk_type(tk.type));
     }
 }
 
@@ -225,47 +214,6 @@ void debug_terminate(FILE* scan_out, FILE* pars_out)
     }
 }
 
-int test_scanner(FILE* source, bool show_source_contents, 
-    FILE* scan_out)
-{
-    IFJ22_ASSERT(scan_out, "");
-    
-    int retcode;
-    str_t string;
-    if (!str_const(&string))
-        goto error;
-    
-    scanner_set_file(source);
-    scanner_set_string(&string);
-
-    set_debug_out(scan_out);
-
-    if (show_source_contents && source != stdin)
-        print_file_contents(source);    
-
-    //Lexical test
-    if (scan_out)
-    {
-        HEADER("List of tokens: ");
-        DEBUGPR(s_TokenDebugFormat, "int", "deci", "string", "keyword", "type");
-        Token tk;
-        while (tk.type != token_EOF)
-        {
-            retcode = scanner_get_next_token(&tk);
-            if (retcode != SUCCESS)
-                break;
-
-            debug_print_token(tk);
-        }
-        DEBUGPR(VSPACE);
-    }
-
-error:
-    retcode = ERROR_INTERNAL;
-free:
-    str_dest(&string);
-    return retcode;
-}
 
 static const char* s_RulesFilepath = "../LL-grammar.txt";
 #define RULE_EXP_MXLEN 256

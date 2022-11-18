@@ -31,8 +31,8 @@ int main(int argc, char** argv)
 
     int ret = 0;
     //FILE* source  = open_file("../mytests/01.php", "r");
-    //FILE* source  = open_file("../tests/IFJ22_examples/example1.php", "r");
-    FILE* source  = open_file("../ifj-testsuite/tests/syn/statement/return_noexpr.php", "r");
+    //FILE* source  = open_file("../IFJ22_Tester/tests/Code generation/Builtin functions/Chr/Constant/prog", "r");
+    FILE* source  = open_file("../ifj-testsuite/tests/lex/ids/var_all.php", "r");
     
     FILE* codegenout = open_file("../code.ifjc22", "w");
     {

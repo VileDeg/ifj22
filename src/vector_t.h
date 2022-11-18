@@ -14,11 +14,13 @@ typedef struct\
 {\
     SUFF##elem_t* front;\
     SUFF##elem_t* back;\
+    int64_t len;\
 } SUFF##vec_t;\
 \
 void SUFF##vec_init(SUFF##vec_t* vec)\
 {\
     vec->front = vec->back = NULL;\
+    vec->len = 0;\
 }\
 TDATA SUFF##vec_front(SUFF##vec_t* vec)\
 {\
@@ -47,6 +49,7 @@ bool SUFF##vec_push_front(SUFF##vec_t* vec, TDATA data)\
     vec->front = _new;\
     if (!vec->back)\
         vec->back = vec->front;\
+    vec->len++;\
     return true;\
 }\
 \
@@ -62,6 +65,7 @@ bool SUFF##vec_push_back(SUFF##vec_t* vec, TDATA data)\
     vec->back = _new;\
     if (!vec->front)\
         vec->front = vec->back;\
+    vec->len++;\
     return true;\
 }\
 \
@@ -75,6 +79,7 @@ TDATA SUFF##vec_pop_front(SUFF##vec_t* vec)\
         vec->back = NULL;\
     vec->front = vec->front->prev;\
     free(_tofree);\
+    vec->len--;\
     return data;\
 }\
 \
@@ -88,14 +93,78 @@ TDATA SUFF##vec_pop_back(SUFF##vec_t* vec)\
         vec->front = NULL;\
     vec->back = vec->back->next;\
     free(_tofree);\
+    vec->len--;\
     return data;\
 }\
 \
-void SUFF##vec_dispose(SUFF##vec_t* vec)\
+bool SUFF##vec_valid_at(SUFF##vec_t* vec, int64_t ind)\
 {\
-    while (vec->front)\
-        SUFF##vec_pop_front(vec);\
+    return vec->len > ind;\
+}\
+\
+bool SUFF##vec_set_at(SUFF##vec_t* vec, int64_t ind, TDATA data)\
+{\
+    SUFF##elem_t* _curr = vec->front;\
+    for (int64_t i = 0; _curr; _curr = _curr->next, ++i)\
+    {\
+        if (i == ind)\
+        {\
+            _curr->data = data;\
+            return true;\
+        }\
+    }\
+    return false;\
+}\
+\
+TDATA SUFF##vec_get_at(SUFF##vec_t* vec, int64_t ind)\
+{\
+    SUFF##elem_t* _curr = vec->front;\
+    for (int64_t i = 0; _curr; _curr = _curr->next, ++i)\
+    {\
+        if (i == ind)\
+            break;\
+    }\
+    return _curr->data;\
+}\
+\
+TDATA SUFF##vec_pop_at(SUFF##vec_t* vec, int64_t ind)\
+{\
+    SUFF##elem_t* _curr = vec->front;\
+    SUFF##elem_t* _prev = NULL;\
+    TDATA data;\
+    for (int64_t i = 0; _curr;\
+        _prev = _curr, _curr = _curr->next, ++i)\
+    {\
+        if (i == ind)\
+        {\
+            if (_prev)\
+                _prev->next = _curr->next;\
+            else\
+                vec->front = _curr->next;\
+            if (_curr->next)\
+                _curr->next->prev = _prev;\
+            else\
+                vec->back = _prev;\
+            data = _curr->data;\
+            free(_curr);\
+            break;\
+        }\
+    }\
+    vec->len--;\
+    return data;\
+}\
+\
+void SUFF##vec_dispose(SUFF##vec_t* vec, void(*dest)(TDATA*))\
+{\
+    if (dest)\
+        while (vec->front)\
+        {\
+            TDATA _tmp = SUFF##vec_pop_front(vec);\
+            dest(&_tmp);\
+        }\
+    else\
+        while (vec->front)\
+            SUFF##vec_pop_front(vec);\
 }
-
 
 #endif // __VECTOR_T__

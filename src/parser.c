@@ -9,63 +9,111 @@
 #include "vector_t.h"
 
 GENERATE_VECTOR_DEFINITION(Token, tk);
-GENERATE_VECTOR_DEFINITION(str_t, str);
+//GENERATE_VECTOR_DEFINITION(str_t, str);
 
-static tkvec_t  s_TokenVect;
-static strvec_t s_StringVect;
+static tkvec_t  s_TkVec;
+static tkvec_t s_TkDisposeList;
 
-static str_t s_TkStrBackup;
+static Token s_TokenBackup;
+
+#define INTERNAL(_expr) if (!(_expr)) { INTERNAL_ERROR_RET; } else {}
+
+#define PUSH_TOKEN_FRONT do {\
+		Token _copy;\
+		token_cpy(&_copy, &pd->token);\
+		INTERNAL(tkvec_push_front(&s_TkVec, _copy));\
+	} while(0)
+
+#define POP_TOKEN_FRONT do {\
+		INTERNAL(!tkvec_empty(&s_TkVec));\
+		pd->token = tkvec_pop_front(&s_TkVec);\
+		tkvec_push_front(&s_TkDisposeList, pd->token);\
+	} while(0)
+
+#define PUSH_TOKEN_BACK do {\
+		Token _copy;\
+		token_cpy(&_copy, &pd->token);\
+		INTERNAL(tkvec_push_back(&s_TkVec, _copy));\
+	} while(0)
+
+#define POP_TOKEN_BACK do {\
+		INTERNAL(!tkvec_empty(&s_TkVec));\
+		pd->token = tkvec_pop_back(&s_TkVec);\
+		tkvec_push_front(&s_TkDisposeList, pd->token);\
+	} while(0)
+
+
+#define TOKEN_SET_AT(_ind) do {\
+		INTERNAL(!tkvec_valid_at(&s_TkVec, _ind));\
+		tkvec_set_at(&s_TkVec, _ind, pd->token);\
+	} while(0)
+
+#define TOKEN_GET_AT(_ind) do {\
+		INTERNAL(!tkvec_valid_at(&s_TkVec, _ind));\
+		pd->token = tkvec_get_at(&s_TkVec, _ind);\
+	} while(0)
+
+#define TOKEN_POP_AT(_ind) do {\
+		INTERNAL(!tkvec_valid_at(&s_TkVec, _ind));\
+		pd->token = tkvec_pop_at(&s_TkVec, _ind);\
+	} while(0)
+//static strvec_t s_StringVect;
+
+//static str_t s_TkStrBackup;
 
 #define TOKEN_IS(_postfix) (pd->token.type == token_##_postfix)
-#define TK_STR(_tk) _tk.string->ptr
+#define TK_STR(_tk) _tk.string.ptr
 
-bool push_current_token(ParserData* pd)
-{
-	if (!tkvec_push_front(&s_TokenVect, pd->token))
-		return false;
+#if 0
+// bool push_current_token(ParserData* pd)
+// {
+// 	if (!tkvec_push_front(&s_TkVec, pd->token))
+// 		return false;
 
-	if (!TOKEN_IS(ID)) //<-- only ID should have string parameter
-		return true;
+// 	// if (!TOKEN_IS(ID) && !TOKEN_IS(string)) //<-- only ID should have string parameter
+// 	// 	return true;
 
-	str_t tkstr;
-	str_const(&tkstr);
-	str_concat(&tkstr, TK_STR(pd->token));
-	if (!strvec_push_front(&s_StringVect, tkstr))
-		return false;
-	return true;
-}
+// 	// str_t tkstr;
+// 	// str_const(&tkstr);
+// 	// str_concat(&tkstr, TK_STR(pd->token));
+// 	// if (!strvec_push_front(&s_StringVect, tkstr))
+// 	// 	return false;
+// 	return true;
+// }
 
-void pop_current_token(ParserData* pd)
-{
-	str_dest(&s_TkStrBackup);
+// void pop_current_token(ParserData* pd)
+// {
+// 	//str_dest(&s_TkStrBackup);
 
-	IFJ22_ASSERT(!tkvec_empty(&s_TokenVect), "Should not happen?");
-	if (!tkvec_empty(&s_TokenVect))
-		pd->token = tkvec_pop_front(&s_TokenVect);
+// 	IFJ22_ASSERT(!tkvec_empty(&s_TkVec), "Should not happen?");
+// 	if (!tkvec_empty(&s_TkVec))
+// 		pd->token = tkvec_pop_front(&s_TkVec);
 
-	if (!TOKEN_IS(ID)) //<-- only ID should have string parameter
-		return;
+// 	// if (!TOKEN_IS(ID) && !TOKEN_IS(string)) //<-- only ID should have string parameter
+// 	// 	return;
 	
-	if (!strvec_empty(&s_StringVect))
-		s_TkStrBackup = strvec_pop_front(&s_StringVect);
-	pd->token.string = &s_TkStrBackup;
-}
+// 	// if (!strvec_empty(&s_StringVect))
+// 	// 	s_TkStrBackup = strvec_pop_front(&s_StringVect);
+// 	// pd->token.string = &s_TkStrBackup;
+// }
 
-void pop_current_token_back(ParserData* pd)
-{
-	str_dest(&s_TkStrBackup);
+// void pop_current_token_back(ParserData* pd)
+// {
+// 	//str_dest(&s_TkStrBackup);
 
-	IFJ22_ASSERT(!tkvec_empty(&s_TokenVect), "Should not happen?");
-	if (!tkvec_empty(&s_TokenVect))
-		pd->token = tkvec_pop_back(&s_TokenVect);
+// 	IFJ22_ASSERT(!tkvec_empty(&s_TkVec), "Should not happen?");
+// 	if (!tkvec_empty(&s_TkVec))
+// 		pd->token = tkvec_pop_back(&s_TkVec);
 
-	if (!TOKEN_IS(ID)) //<-- only ID should have string parameter
-		return;
+// 	// if (!TOKEN_IS(ID) && !TOKEN_IS(string)) //<-- only ID should have string parameter
+// 	// 	return;
 	
-	if (!strvec_empty(&s_StringVect))
-		s_TkStrBackup = strvec_pop_back(&s_StringVect);
-	pd->token.string = &s_TkStrBackup;
-}
+// 	// if (!strvec_empty(&s_StringVect))
+// 	// 	s_TkStrBackup = strvec_pop_back(&s_StringVect);
+// 	// pd->token.string = &s_TkStrBackup;
+// }
+#endif
+
 
 #define RES result
 #define DEF_RES int64_t RES = SUCCESS;
@@ -78,10 +126,13 @@ void pop_current_token_back(ParserData* pd)
 		int RES = SUCCESS;
 		if (!pd->block_next_token) 
 		{
-			if (pd->get_next_tk_from_stack && (!tkvec_empty(&s_TokenVect) || !strvec_empty(&s_StringVect)))
+			if (pd->get_next_from_stack) // && !tkvec_empty(&s_TkVec)
 			{
-				pop_current_token_back(pd);
-				pd->get_next_tk_from_stack = false;
+				//POP_TOKEN_BACK;
+				token_dest(&pd->token);
+				pd->token = s_TokenBackup;
+
+				pd->get_next_from_stack = false;
 			}
 			else 
 			{
@@ -98,6 +149,7 @@ void pop_current_token_back(ParserData* pd)
 			pd->block_next_token = false;
 		return SUCCESS;
 	}
+
 	#define _DPRNR(_n)\
 		do{\
 			if (g_DebugOn)\
@@ -120,8 +172,12 @@ void pop_current_token_back(ParserData* pd)
 		int RES = SUCCESS;
 		if (!pd->block_next_token) 
 		{
-			if (pd->get_next_tk_from_stack && (!tkvec_empty(&s_TokenVect) || !strvec_empty(&s_StringVect))
-				pop_current_token_back(pd);
+			if (pd->get_next_from_stack && !tkvec_empty(&s_TkVec))
+			{
+				POP_TOKEN_BACK;
+
+				pd->get_next_from_stack = false;
+			}
 			else 
 			{
 				if ((RES = scanner_get_next_token(&pd->token)) != SUCCESS)
@@ -168,10 +224,11 @@ void pop_current_token_back(ParserData* pd)
 // 	return minerr;
 // }
 
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if 1
-
 
 #define KEYWORD_IS(_kw) (TOKEN_IS(keyword) && pd->token.keyword == keyword_##_kw)
 
@@ -256,23 +313,6 @@ void pop_current_token_back(ParserData* pd)
 
 #endif
 
-
-//GENERATE_VECTOR_DEFINITION(TSymtable, symt);
-
-// static symtvec_t s_SymtVect;
-// static strvec_t  s_FuncVect;
-
-
-// bool push_local_symtable(ParserData* pd)
-// {
-// 	symtable_init(&pd->localTable);
-
-// 	if (!symtvec_push_front(&s_SymtVect, pd->localTable))
-// 		return false;
-	
-// 	return true;
-// }
-
 static bool init_data(ParserData* pd)
 {
     symtable_init(&pd->globalTable);
@@ -280,7 +320,7 @@ static bool init_data(ParserData* pd)
 
 	pd->in_param_list   = pd->block_next_token   	 = 
 	pd->in_local_scope  = pd->func_questionmark  	 = 
-	pd->var_not_yet_def = pd->get_next_tk_from_stack = false;
+	pd->var_not_yet_def = pd->get_next_from_stack = false;
 
 	pd->rhs_func = pd->lhs_var = NULL;
 
@@ -289,9 +329,11 @@ static bool init_data(ParserData* pd)
 	pd->label_index = 0;
 
 	//str_const(&pd->var_name);
+	token_const(&pd->token);
 
-	tkvec_init(&s_TokenVect);
-	strvec_init(&s_StringVect);
+	tkvec_init(&s_TkVec);
+	tkvec_init(&s_TkDisposeList);
+	//strvec_init(&s_StringVect);
 
 	TData* data = NULL;
 	bool err = false;
@@ -340,11 +382,12 @@ static bool init_data(ParserData* pd)
 	if (!(data = symtable_add_symbol(&pd->globalTable, "ord", &err)))
 		return false;
 	if (!symtable_add_param(data, TYPE_STRING, false)) return false;
+	data->type = TYPE_INT;
 
 	if (!(data = symtable_add_symbol(&pd->globalTable, "chr", &err)))
 		return false;
 	if (!symtable_add_param(data, TYPE_INT, false)) return false;
-
+	data->type = TYPE_STRING;
 
 	if (!(data = symtable_add_symbol(&pd->globalTable, "$EXPR_REG", &err)))
 		return false;
@@ -356,13 +399,25 @@ static bool init_data(ParserData* pd)
 static void free_data(ParserData* pd)
 {
 	symtable_dest(&pd->globalTable);
+
+	//token_dest(&s_TokenBackup);
+
+	token_dest(&pd->token);
 	// while (!symtvec_empty(&s_SymtVect))
 	// 	symtable_dest(symtvec_pop_front(&s_SymtVect));		
 	//symtable_dest(&pd->localTable);
 	//str_dest(&pd->var_name);
-	IFJ22_ASSERT(tkvec_empty(&s_TokenVect), "");
-	IFJ22_ASSERT(strvec_empty(&s_StringVect), "");
-	str_dest(&s_TkStrBackup);
+	IFJ22_ASSERT(tkvec_empty(&s_TkVec), "");
+	
+	// while (s_TkDisposeList.front)
+	// {	
+	// 	Token _tmp = s_TkDisposeList.front->data;
+	// 	token_dest(&_tmp);
+	// 	s_TkDisposeList.front = s_TkDisposeList.front->prev;
+	// }
+	//tkvec_dispose(&s_TkDisposeList, token_dest);
+	//IFJ22_ASSERT(strvec_empty(&s_StringVect), "");
+	//str_dest(&s_TkStrBackup);
 }
 
 static int type		(ParserData* pd);
@@ -391,8 +446,9 @@ static int term(ParserData* pd)
 				PRINT_ERROR_RET(ERROR_SEM_UNDEF_VAR, "undefined variable passed as parameter.");
 
 			// we need to store args to stack to pass them in inverse order
-			if (!push_current_token(pd))
-				INTERNAL_ERROR_RET;
+			PUSH_TOKEN_FRONT;
+			// if (!push_current_token(pd))
+			// 	return false;
 
 			goto end;
 		}
@@ -487,9 +543,11 @@ static int args(ParserData* pd)
 			if (!strcmp(pd->rhs_func->id, "write")) // if function is "write"
 			{
 				Token last_token = pd->token; //<-- save last token to then continue from where we stopped
-				while (!tkvec_empty(&s_TokenVect) || !strvec_empty(&s_StringVect))
+				while (!tkvec_empty(&s_TkVec))
 				{
-					pop_current_token(pd);
+					//pop_current_token(pd);
+					//pd->token = tkvec_pop_front(pd);
+					POP_TOKEN_FRONT;
 
 					{ CODEGEN(emit_function_pass_param_push, pd->token, pd->in_local_scope); } //tk
 				}
@@ -664,6 +722,7 @@ static int rvalue(ParserData* pd)
 // 	RULE_CLOSE;
 // }
 
+
 static int func_type(ParserData* pd)
 {
 	RULE_OPEN;
@@ -769,20 +828,44 @@ static int statement(ParserData* pd)
 		{
 			_DPRNR(0);
 
-			push_current_token(pd); //$ID -> stack
+			//push_current_token(pd); //$ID -> stack
+			//PUSH_TOKEN_FRONT;
+			Token id_cpy;
+			//Token next_cpy;
+			token_cpy(&id_cpy, &pd->token);
+			
+
 			GET_NEXT_TOKEN;
 			if (!TOKEN_IS(equal_sign))
 			{
+				//TOKEN_SET_AT(1); //[=^] -> [1]
 				
-				push_current_token(pd); //[=^] -> stack
-				pop_current_token_back(pd); //$ID -> token
-				pd->get_next_tk_from_stack = true;
+				//push_current_token(pd); //[=^] -> stack
+				//PUSH_TOKEN_FRONT;
+				token_cpy(&s_TokenBackup, &pd->token);
+
+				token_dest(&pd->token);
+				pd->token = id_cpy;
+				//pop_current_token_back(pd); //$ID -> token
+				//TOKEN_POP_AT(0); //[0]x -> pd
+				//POP_TOKEN_BACK;
+				pd->get_next_from_stack = true;
 				goto statement_rvalue;
 			}
 
-			push_current_token(pd); //[=^] -> stack
-			pop_current_token_back(pd); //$ID -> token
-			pd->get_next_tk_from_stack = true;
+			//PUSH_TOKEN_FRONT;
+			//push_current_token(pd); //[=^] -> stack
+
+			//pop_current_token_back(pd); //$ID -> token
+			//TOKEN_SET_AT(1);
+			//TOKEN_POP_AT(0);
+			// PUSH_TOKEN_FRONT;
+			// POP_TOKEN_BACK;
+			token_cpy(&s_TokenBackup, &pd->token);
+				
+			token_dest(&pd->token);
+			pd->token = id_cpy;
+			pd->get_next_from_stack = true;
 
 			
 
@@ -1042,12 +1125,12 @@ static int begin(ParserData* pd)
 			NEXT_TK_CHECK_TOKEN(prologue);
 			_DPRNR(0);
 			NEXT_TK_CHECK_TOKEN(ID);
-			if (!str_cmp(pd->token.string, "declare"))
+			if (!str_cmp(&pd->token.string, "declare"))
 				PRINT_ERROR_RET(ERROR_SYNTAX, "invalid prologue.");
 			
 			NEXT_TK_CHECK_TOKEN(left_bracket);
 			NEXT_TK_CHECK_TOKEN(ID);
-			if (!str_cmp(pd->token.string, "strict_types"))
+			if (!str_cmp(&pd->token.string, "strict_types"))
 				PRINT_ERROR_RET(ERROR_SYNTAX, "invalid prologue.");
 				
 			NEXT_TK_CHECK_TOKEN(equal_sign);
@@ -1071,13 +1154,13 @@ static int begin(ParserData* pd)
 
 int parse_file(FILE* fptr)
 {
-	str_t string;
+	//str_t string;
     ParserData pd;
-    if (!str_const(&string) || !init_data(&pd) || !code_generator_init())
+    if (!init_data(&pd) || !code_generator_init()) //!str_const(&string) || 
 		goto error;
 
 	scanner_set_file(fptr);
-	scanner_set_string(&string);
+	//scanner_set_string(&string);
 
     int result = begin(&pd);
 	code_generator_flush(g_CodegenOut);
@@ -1088,7 +1171,7 @@ int parse_file(FILE* fptr)
 error:
 	result = ERROR_INTERNAL;
 free:
-	str_dest(&string);
+	//str_dest(&string);
 	free_data(&pd);
 end:
     return result;

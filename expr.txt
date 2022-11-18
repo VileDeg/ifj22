@@ -30,3 +30,35 @@
 
 -9 :: stack_clear
 
+-10 :: stack_init
+
+-11 :: stack_push
+	0: $        UNDEF
+
+-12 :: stack_push_after_top_term
+	0: REDUCE   UNDEF
+	1: $        UNDEF
+
+-13 :: stack_push
+	0: int      INT
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-14 :: stack_pop
+	0: REDUCE   UNDEF
+	1: $        UNDEF
+
+-15 :: stack_pop
+	0: $        UNDEF
+
+-16 :: stack_push
+	0: E        INT
+	1: $        UNDEF
+
+-17 :: stack_pop
+	0: $        UNDEF
+
+-18 :: stack_pop
+
+-19 :: stack_clear
+

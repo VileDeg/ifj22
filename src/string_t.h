@@ -29,7 +29,7 @@ bool str_add_sign(str_t* str, char new_char);
 
 bool str_cmp(str_t* first, const char* second);
 
-//void str_cpy(str_t* dst, str_t* src);
+void str_cpy(str_t* dst, str_t* src);
 
 char str_last_sign(str_t* str);
 

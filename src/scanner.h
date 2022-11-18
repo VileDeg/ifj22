@@ -95,28 +95,28 @@ typedef enum {
     token_end                  // "?<"
 } Token_type;
 
-// typedef union
-// {
-//     unsigned integer;      //Value for processing integer value.
-//     double   decimal;      //Value for processing double value.
-//     str_t*   String ;      //Array for processing strings.
-//     Keywords keyword;      //Keyword.
-// } Token_value;
+
+
 
 //Structure of token characteristics.
 typedef struct 
 {
-    union {
-        unsigned integer;      //Value for processing integer value.
-        double   decimal;      //Value for processing double value.
-        str_t*   string ;      //Array for processing strings.
-        Keyword  keyword;      //Keyword.
-    };
+    unsigned integer;      //Value for processing integer value.
+    double   decimal;      //Value for processing double value.
+    str_t    string ;      //Array for processing strings.
+    Keyword  keyword;      //Keyword.
+    
     Token_type type; //Type of token.
     bool questionmark;
 } Token;
 
-//void scanner_reset();
+void token_clear(Token *tk);
+
+void token_dest(Token* tk);
+
+bool token_const(Token* tk);
+
+bool token_cpy(Token* dst, Token* src);
 
 void scanner_set_file(FILE* fptr);
 

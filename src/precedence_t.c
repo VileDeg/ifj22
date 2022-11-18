@@ -304,9 +304,9 @@ uint64_t reduce(ParserData* pd, SymbolStack* stack)
     TData* _data = NULL;\
     if (pd->token.type == token_ID)\
     {\
-        if (pd->token.string->ptr[0] != '$')\
+        if (pd->token.string.ptr[0] != '$')\
             ERROR_RET(ERROR_SYNTAX);\
-        _data = symtable_find(pd->in_local_scope ? &pd->localTable : &pd->globalTable, pd->token.string->ptr);\
+        _data = symtable_find(pd->in_local_scope ? &pd->localTable : &pd->globalTable, pd->token.string.ptr);\
         if (!_data || pd->var_not_yet_def)\
             ERROR_RET(ERROR_SEM_UNDEF_VAR);\
         _ret = _data->type;\
@@ -328,14 +328,14 @@ DataType type_info(ParserData* pd, int* errcode)
     TData* data = NULL;
     if (pd->token.type == token_ID)
     {
-        if (pd->token.string->ptr[0] != '$')
+        if (pd->token.string.ptr[0] != '$')
         {
             *errcode = ERROR_SYNTAX;
             return TYPE_UNDEF;
         }
         data = symtable_find(
             pd->in_local_scope ? &pd->localTable : &pd->globalTable, 
-            pd->token.string->ptr);
+            pd->token.string.ptr);
         if (!data || (pd->var_not_yet_def && pd->lhs_var == data))
         {
             *errcode = ERROR_SEM_UNDEF_VAR;

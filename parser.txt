@@ -5,10 +5,7 @@
 <?php
 declare(strict_types=1);
 
-function fun () : void
-{
-    return;
-}
+$v1A_r = 0;
 
 return 0;
 
@@ -17,18 +14,12 @@ return 0;
 
 Current token:                                     prolog          
 begin -> <?php declare ( strict_types = 1 ) ; <program> <end>
-Current token:                        function     keyword         
-program -> function ID ( <params> ) : <func_type> { <statement> } <program>
-Current token:                                     right_bracket   
-params -> ε
-Current token:                        void         keyword         
-func_type -> void
-Current token:                        return       keyword         
-statement -> return <expression> ; <program>
-Current token:                                     right_curly_brac
+Current token:           $v1A_r                    ID              
 program -> <statement>
-Current token:                                     right_curly_brac
-statement -> ε
+Current token:           $v1A_r                    ID              
+statement -> $ID = <rvalue> ; <program>
+Current token: 0                                   integer         
+rvalue -> ID ( <args> )
 Current token:                        return       keyword         
 program -> <statement>
 Current token:                        return       keyword         

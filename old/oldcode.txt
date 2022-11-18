@@ -1,0 +1,11 @@
+\
+bool SUFF##vec_valid_at(SUFF##vec_t* vec, int64_t ind)\
+{\
+    SUFF##elem_t* _curr = vec->front;\
+    for (int64_t i = 0; _curr; _curr = _curr->next, ++i) \
+    {\
+        if (i == ind)\
+            return true;\
+    }\
+    return false;\
+}\

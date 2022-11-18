@@ -25,7 +25,7 @@ bool emit_header() {
            "DEFVAR GF@$TMP_REG2\n"
            "DEFVAR GF@$TMP_REG3\n"
            "DEFVAR GF@$EXPR_REG\n"
-           "JUMP @program_body\n");
+           "JUMP !program_body\n");
     return true;
 }
 
@@ -72,7 +72,7 @@ bool emit_clear_stack()
 
 bool emit_program_body_open()
 {
-    EMIT_NL("LABEL @program_body");
+    EMIT_NL("LABEL !program_body");
     return true;
 }
 
@@ -92,7 +92,7 @@ bool emit_push_bool_literal(bool value)
 
 bool emit_function_open(const char* name) 
 {
-    EMIT("JUMP @");
+    EMIT("JUMP !");
     EMIT(name);
     EMIT_NL("_skip");
 
@@ -100,7 +100,7 @@ bool emit_function_open(const char* name)
     EMIT(name);
     EMIT("\n");
 
-    EMIT("LABEL @");
+    EMIT("LABEL !");
     EMIT(name);
     EMIT("\n");
 
@@ -117,7 +117,7 @@ bool emit_function_close(const char* name)
 
     EMIT_NL("RETURN\n");
 
-    EMIT("LABEL @");
+    EMIT("LABEL !");
     EMIT(name);
     EMIT_NL("_skip");
 
@@ -189,7 +189,7 @@ bool emit_define_var(const char* var, bool in_local_scope) {
 
 
 bool emit_function_call(const char* name) {
-    EMIT("CALL @");
+    EMIT("CALL !");
     EMIT(name);
     EMIT("\n");
 
@@ -249,7 +249,7 @@ bool emit_value_from_token(Token token, bool local_frame)
             break;
 
         case token_string:
-            for (int64_t i = 0; (c = (unsigned char) (token.string->ptr)[i]) != '\0'; i++) {
+            for (int64_t i = 0; (c = (unsigned char) (token.string.ptr)[i]) != '\0'; i++) {
                 if (c == '#' || c == '\\' || c <= 32 || !isprint(c)) {
                     str_add_sign(&tmp, '\\');
                     sprintf(term, "%03d", c);
@@ -266,7 +266,7 @@ bool emit_value_from_token(Token token, bool local_frame)
             break;
         case token_ID:
             EMIT(local_frame ? "LF@" : "GF@");
-            EMIT(token.string->ptr);
+            EMIT(token.string.ptr);
             break;
 
         default:
@@ -342,7 +342,7 @@ bool emit_function_pass_param_count(int64_t count)
 bool emit_function_return(const char* name) {
     EMIT_NL("MOVE LF@res GF@$EXPR_REG");
 
-    EMIT("JUMP @");
+    EMIT("JUMP !");
     EMIT(name);
     EMIT_NL("_end");
 
@@ -416,7 +416,7 @@ bool emit_stack_operation(Rule_type rule) {
             //         "TYPE GF@$TMP_REG2 GF@$TMP_REG2\n"
             //         "POPS GF@$TMP_REG2\n"
             //         "JUMPIFNEQ  GF@$TMP_REG1 GF@$TMP_REG2");
-            // EMIT("LABEL @eq");
+            // EMIT("LABEL !eq");
             // EMIT(str); EMIT("\n");
             
 
@@ -525,7 +525,7 @@ bool emit_stack_sec_float2int() {
 
 
 bool emit_label(const char* name, int64_t deep, int64_t index) {
-    EMIT("LABEL @");
+    EMIT("LABEL !");
     EMIT(name);
     EMIT("_");
     EMIT_INT(deep);
@@ -545,7 +545,7 @@ bool emit_if_head()
 }
 
 bool emit_if_open(const char* name, int64_t deep, int64_t index) {
-    EMIT("JUMPIFEQ @");
+    EMIT("JUMPIFEQ !");
     EMIT(name);
     EMIT("_");
     EMIT_INT(deep);
@@ -558,7 +558,7 @@ bool emit_if_open(const char* name, int64_t deep, int64_t index) {
 
 
 bool emit_else(const char* name, int64_t deep, int64_t index) {
-    EMIT("JUMP @");
+    EMIT("JUMP !");
     EMIT(name);
     EMIT("_");
     EMIT_INT(deep);
@@ -593,7 +593,7 @@ bool emit_while_head(const char* name, int64_t deep, int64_t index) {
 
 
 bool emit_while_open(const char* name, int64_t deep, int64_t index) {
-    EMIT("JUMPIFEQ @");
+    EMIT("JUMPIFEQ !");
     EMIT(name);
     EMIT("_");
     EMIT_INT(deep);
@@ -606,7 +606,7 @@ bool emit_while_open(const char* name, int64_t deep, int64_t index) {
 
 
 bool emit_while_close(const char* name, int64_t deep, int64_t index) {
-    EMIT("JUMP @");
+    EMIT("JUMP !");
     EMIT(name);
     EMIT("_");
     EMIT_INT(deep);

@@ -5,10 +5,7 @@
 <?php
 declare(strict_types=1);
 
-function fun () : void
-{
-    return;
-}
+$v1A_r = 0;
 
 return 0;
 
@@ -24,16 +21,10 @@ int  deci string       keyword      type
 1                                   integer         
                                     right_bracket   
                                     semicolon       
-                       function     keyword         
-          fun                       ID              
-                                    left_bracket    
-                                    right_bracket   
-                                    colon           
-                       void         keyword         
-                                    left_curly_brack
-                       return       keyword         
+          $v1A_r                    ID              
+                                    equal_sign      
+0                                   integer         
                                     semicolon       
-                                    right_curly_brac
                        return       keyword         
 0                                   integer         
                                     semicolon       

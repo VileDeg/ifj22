@@ -9,6 +9,8 @@
 //Free memory that was allocated for string. 
 void str_dest(str_t *str)
 {
+    if (!str)
+        return;
     free(str->ptr);
     str->ptr = NULL;
 }
@@ -49,6 +51,13 @@ bool str_concat(str_t* dst, const char* src)
     return true;
 }
 
+void str_cpy(str_t* dst, str_t* src)
+{
+    dst->len = src->len;
+    dst->cap = src->cap;
+    strcpy(dst->ptr, src->ptr);
+}
+
 //Add char to end of string.
 bool str_add_sign(str_t *str, char new_char)
 {
@@ -76,10 +85,7 @@ bool str_cmp(str_t *first, const char *second)
     return !strcmp(first->ptr, second);
 }
 
-// void str_cpy(str_t* dst, str_t* src)
-// {
-//     dst = 
-// }
+
 
 char str_last_sign(str_t* str)
 {
