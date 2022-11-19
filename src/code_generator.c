@@ -1,23 +1,12 @@
 #include "code_generator.h"
+#include "macros.h"
 #include "builtins.h"
+
 
 str_t g_Code;
 FILE* g_CodegenOut = NULL;
 
-#define EMIT(_text)\
-    if (!str_concat(&g_Code, (_text))) return false; else {}\
 
-#define EMIT_NL(_text)\
-        EMIT(_text"\n");
-
-#define MAX_DIGITS 64
-
-#define EMIT_INT(_number)                \
-    do {                                \
-        char _str[MAX_DIGITS];           \
-        sprintf(_str, "%ld", (_number));  \
-        EMIT(_str);                      \
-    } while (0)
 
 bool emit_header() {
     EMIT_NL(".IFJcode22\n"

@@ -1,13 +1,12 @@
 --------------------File contents: --------------------
 
-//compiler 0
-//
 <?php
 declare(strict_types=1);
-
-$v1A_r = 0;
-
-return 0;
+if("") {
+    write("BAD\n");
+} else {
+    write("GOOD\n");
+}
 
 
 --------------------List of tokens: --------------------
@@ -21,13 +20,27 @@ int  deci string       keyword      type
 1                                   integer         
                                     right_bracket   
                                     semicolon       
-          $v1A_r                    ID              
-                                    equal_sign      
-0                                   integer         
+                       if           keyword         
+                                    left_bracket    
+                                    string          
+                                    right_bracket   
+                                    left_curly_brack
+          write                     ID              
+                                    left_bracket    
+          BAD
+                      string          
+                                    right_bracket   
                                     semicolon       
-                       return       keyword         
-0                                   integer         
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          write                     ID              
+                                    left_bracket    
+          GOOD
+                     string          
+                                    right_bracket   
                                     semicolon       
+                                    right_curly_brac
                                     EOF             
 
 

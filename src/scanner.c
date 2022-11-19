@@ -4,6 +4,7 @@
 
 #include "scanner.h"
 #include "errors.h"
+#include "parser.h"
 
 
 // File to read from
@@ -133,7 +134,10 @@ int scanner_get_next_token(Token* tk)
 {
     // str_clear(&tk->string);
     //token_clear(tk);
-    token_dest(tk);
+    if (!g_LastTokenWasFromStack)
+        token_dest(tk);
+    else
+        g_LastTokenWasFromStack = false;
     token_const(tk);
     //tk->string = &tk->string;
     // token_dest(tk);

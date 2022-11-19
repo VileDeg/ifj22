@@ -9,3 +9,26 @@ bool SUFF##vec_valid_at(SUFF##vec_t* vec, int64_t ind)\
     }\
     return false;\
 }\
+
+
+
+
+
+
+
+
+
+#define TOKEN_SET_AT(_ind) do {\
+		INTERNAL(!tkvec_valid_at(&s_TkVec, _ind));\
+		tkvec_set_at(&s_TkVec, _ind, pd->token);\
+	} while(0)
+
+#define TOKEN_GET_AT(_ind) do {\
+		INTERNAL(!tkvec_valid_at(&s_TkVec, _ind));\
+		pd->token = tkvec_get_at(&s_TkVec, _ind);\
+	} while(0)
+
+#define TOKEN_POP_AT(_ind) do {\
+		INTERNAL(!tkvec_valid_at(&s_TkVec, _ind));\
+		pd->token = tkvec_pop_at(&s_TkVec, _ind);\
+	} while(0)

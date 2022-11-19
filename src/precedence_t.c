@@ -6,6 +6,8 @@
 #include "code_generator.h"
 #include "parser.h"
 
+#include "macros.h"
+
 // Precedence table.
 int64_t precedence_table[TAB_SIZE][TAB_SIZE] = {
     {REDUCE, SHIFT , REDUCE, REDUCE, SHIFT, REDUCE, SHIFT, REDUCE},
@@ -131,6 +133,7 @@ Rule_type rule_info(Symbol* oper1, Symbol* oper2, Symbol* oper3)
     else
         return RULE_N;
 }
+
 uint32_t implicit_conversion(Rule_type rule, DataType* dataType, bool* type_equal, Symbol* oper1, Symbol* oper2, Symbol* oper3) 
 {
     switch(rule) 
@@ -283,6 +286,7 @@ uint64_t reduce(ParserData* pd, SymbolStack* stack)
     return SUCCESS;
 }
 
+#if 1
 #define RES result
 
 #define ERROR_RET(_retcode) \
@@ -296,32 +300,10 @@ uint64_t reduce(ParserData* pd, SymbolStack* stack)
         ERROR_RET(RES); \
     else {} 
 
-#define INTERNAL(_expr) \
-    if (!(_expr)) \
-        ERROR_RET(ERROR_INTERNAL);
-
-#define TYPE_INFO(_ret)\
-    TData* _data = NULL;\
-    if (pd->token.type == token_ID)\
-    {\
-        if (pd->token.string.ptr[0] != '$')\
-            ERROR_RET(ERROR_SYNTAX);\
-        _data = symtable_find(pd->in_local_scope ? &pd->localTable : &pd->globalTable, pd->token.string.ptr);\
-        if (!_data || pd->var_not_yet_def)\
-            ERROR_RET(ERROR_SEM_UNDEF_VAR);\
-        _ret = _data->type;\
-    }\
-    else\
-    {\
-        switch(pd->token.type)\
-        {\
-            case token_integer: _ret = TYPE_INT;    break;\
-            case token_float:   _ret = TYPE_FLOAT;  break;\
-            case token_string:  _ret = TYPE_STRING; break;\
-            case token_null:    _ret = TYPE_NULL;   break;\
-            default:            _ret = TYPE_UNDEF;\
-        }\
-    }
+// #define INTERNAL(_expr) \
+//     if (!(_expr)) \
+//         ERROR_RET(ERROR_INTERNAL);
+#endif
 
 DataType type_info(ParserData* pd, int* errcode)
 {
@@ -359,6 +341,31 @@ DataType type_info(ParserData* pd, int* errcode)
 int64_t expression_parsing(ParserData* pd) 
 {
     int64_t RES;
+#if 0
+    if (pd->in_if_while)
+    {
+        PUSH_TOKEN_FRONT; // '('
+        GET_NEXT_TOKEN;
+        Token prev = pd->token;
+        PUSH_TOKEN_FRONT; // "" ?
+        GET_NEXT_TOKEN;
+        if (TOKEN_IS(right_bracket) && prev.type == token_string)
+        {
+            if (str_cmp(&prev.string, ""))
+            {
+                IFJ22_ASSERT(pd->lhs_var, "");
+                pd->lhs_var->type = TYPE_BOOL;
+                EMIT_NL("PUSHS bool@false");
+
+                POP_TOKEN_FRONT;
+                POP_TOKEN_FRONT;
+
+                GET_NEXT_TOKEN;
+                goto emit_res;
+            }
+        }
+    }
+#endif
 
     SymbolStack stack;
     stack_init(&stack);
@@ -402,11 +409,11 @@ int64_t expression_parsing(ParserData* pd)
                     currSymbol == DATA_STRING || currSymbol == DATA_NULL)
                     CODEGEN(emit_push, pd->token, pd->in_local_scope);
 
-                RESULT(_get_next_token(pd));
+                GET_NEXT_TOKEN;
                 break;
             case EQUAL:
                 INTERNAL(stack_push(&stack, currSymbol, symbolDataType));
-                RESULT(_get_next_token(pd))
+                GET_NEXT_TOKEN;
                 break;
             case REDUCE:
                 RESULT(reduce(pd, &stack));
@@ -429,7 +436,23 @@ int64_t expression_parsing(ParserData* pd)
 
     if (pd->lhs_var)
     {
-        pd->lhs_var->type = lastNonterm->dataType;
+        DataType type = lastNonterm->dataType;
+        // if (pd->in_if_while)
+        // {
+        //     if (type != TYPE_BOOL)
+        //     {
+        //         switch (type)
+        //         {
+        //         case TYPE_STRING:
+        //             if ()                    
+        //             break;
+        //         default:
+        //             break;
+        //         }
+        //     }
+        // }        
+        pd->lhs_var->type = type;
+emit_res:        
         { CODEGEN(emit_stack_pop_res, pd->lhs_var->id, pd->in_local_scope ? "LF" : "GF"); }
     }
 

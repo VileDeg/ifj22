@@ -1,7 +1,7 @@
 #ifndef __VECTOR_T__
 #define __VECTOR_T__
 
-#define GENERATE_VECTOR_DEFINITION(TDATA, SUFF)\
+#define GENERATE_VECTOR_DECLARATION(TDATA, SUFF)\
 \
 typedef struct SUFF##elem_t\
 {\
@@ -16,6 +16,22 @@ typedef struct\
     SUFF##elem_t* back;\
     int64_t len;\
 } SUFF##vec_t;\
+\
+void SUFF##vec_init(SUFF##vec_t* vec);\
+TDATA SUFF##vec_front(SUFF##vec_t* vec);\
+TDATA SUFF##vec_back(SUFF##vec_t* vec);\
+bool SUFF##vec_empty(SUFF##vec_t* vec);\
+bool SUFF##vec_push_front(SUFF##vec_t* vec, TDATA data);\
+bool SUFF##vec_push_back(SUFF##vec_t* vec, TDATA data);\
+TDATA SUFF##vec_pop_front(SUFF##vec_t* vec);\
+TDATA SUFF##vec_pop_back(SUFF##vec_t* vec);\
+bool SUFF##vec_valid_at(SUFF##vec_t* vec, int64_t ind);\
+bool SUFF##vec_set_at(SUFF##vec_t* vec, int64_t ind, TDATA data);\
+TDATA SUFF##vec_get_at(SUFF##vec_t* vec, int64_t ind);\
+TDATA SUFF##vec_pop_at(SUFF##vec_t* vec, int64_t ind);\
+void SUFF##vec_dispose(SUFF##vec_t* vec, void(*dest)(TDATA*));
+
+#define GENERATE_VECTOR_DEFINITION(TDATA, SUFF)\
 \
 void SUFF##vec_init(SUFF##vec_t* vec)\
 {\

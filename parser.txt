@@ -1,29 +1,48 @@
 --------------------File contents: --------------------
 
-//compiler 0
-//
 <?php
 declare(strict_types=1);
-
-$v1A_r = 0;
-
-return 0;
+if("") {
+    write("BAD\n");
+} else {
+    write("GOOD\n");
+}
 
 
 --------------------Rules triggered: --------------------
 
 Current token:                                     prolog          
 begin -> <?php declare ( strict_types = 1 ) ; <program> <end>
-Current token:           $v1A_r                    ID              
+Current token:                        if           keyword         
 program -> <statement>
-Current token:           $v1A_r                    ID              
-statement -> $ID = <rvalue> ; <program>
-Current token: 0                                   integer         
-rvalue -> ID ( <args> )
-Current token:                        return       keyword         
+Current token:                        if           keyword         
+statement -> if ( <expression> ) { <statement> } else { <statement> } <program>
+Current token:           write                     ID              
+statement -> <rvalue> ; <program>
+Current token:           write                     ID              
+rvalue -> $ID
+Current token:           BAD
+                      string          
+args -> <term> <arg_n>
+Current token:                                     right_bracket   
+arg_n -> ε
+Current token:                                     right_curly_brac
 program -> <statement>
-Current token:                        return       keyword         
-statement -> return <expression> ; <program>
+Current token:                                     right_curly_brac
+statement -> ε
+Current token:           write                     ID              
+statement -> <rvalue> ; <program>
+Current token:           write                     ID              
+rvalue -> $ID
+Current token:           GOOD
+                     string          
+args -> <term> <arg_n>
+Current token:                                     right_bracket   
+arg_n -> ε
+Current token:                                     right_curly_brac
+program -> <statement>
+Current token:                                     right_curly_brac
+statement -> ε
 Current token:                                     EOF             
 program -> <statement>
 Current token:                                     EOF             

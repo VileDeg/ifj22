@@ -95,9 +95,6 @@ typedef enum {
     token_end                  // "?<"
 } Token_type;
 
-
-
-
 //Structure of token characteristics.
 typedef struct 
 {
@@ -109,6 +106,8 @@ typedef struct
     Token_type type; //Type of token.
     bool questionmark;
 } Token;
+
+
 
 void token_clear(Token *tk);
 
@@ -124,15 +123,7 @@ FILE* scanner_get_file();
 
 void scanner_set_string(str_t* str);
 
-//Comparing string we've gotten and compares with KW. In case it isn't a KW -> it's an ID.
-//bool determine_type(str_t *String, Token *Token);
-
-//Gets a character from stdin and track location of lines and signs.
-//int getchar_modified();
-
 //Function for reading string from stdin and converting into token.
 int scanner_get_next_token(Token *token);
-
-//void scanner_free();
 
 #endif

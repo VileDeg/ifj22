@@ -6,223 +6,46 @@
 #include "symtable.h"
 #include "precedence_t.h"
 #include "code_generator.h"
-#include "vector_t.h"
 
 GENERATE_VECTOR_DEFINITION(Token, tk);
-//GENERATE_VECTOR_DEFINITION(str_t, str);
 
-static tkvec_t  s_TkVec;
-static tkvec_t s_TkDisposeList;
+// static tkvec_t s_TkVec;
+// static tkvec_t s_TkDisposeList;
 
-static Token s_TokenBackup;
+bool g_LastTokenWasFromStack = false;
 
-#define INTERNAL(_expr) if (!(_expr)) { INTERNAL_ERROR_RET; } else {}
+//static Token s_TokenBackup;
+#include "macros.h"
 
-#define PUSH_TOKEN_FRONT do {\
-		Token _copy;\
-		token_cpy(&_copy, &pd->token);\
-		INTERNAL(tkvec_push_front(&s_TkVec, _copy));\
-	} while(0)
-
-#define POP_TOKEN_FRONT do {\
-		INTERNAL(!tkvec_empty(&s_TkVec));\
-		pd->token = tkvec_pop_front(&s_TkVec);\
-		tkvec_push_front(&s_TkDisposeList, pd->token);\
-	} while(0)
-
-#define PUSH_TOKEN_BACK do {\
-		Token _copy;\
-		token_cpy(&_copy, &pd->token);\
-		INTERNAL(tkvec_push_back(&s_TkVec, _copy));\
-	} while(0)
-
-#define POP_TOKEN_BACK do {\
-		INTERNAL(!tkvec_empty(&s_TkVec));\
-		pd->token = tkvec_pop_back(&s_TkVec);\
-		tkvec_push_front(&s_TkDisposeList, pd->token);\
-	} while(0)
-
-
-#define TOKEN_SET_AT(_ind) do {\
-		INTERNAL(!tkvec_valid_at(&s_TkVec, _ind));\
-		tkvec_set_at(&s_TkVec, _ind, pd->token);\
-	} while(0)
-
-#define TOKEN_GET_AT(_ind) do {\
-		INTERNAL(!tkvec_valid_at(&s_TkVec, _ind));\
-		pd->token = tkvec_get_at(&s_TkVec, _ind);\
-	} while(0)
-
-#define TOKEN_POP_AT(_ind) do {\
-		INTERNAL(!tkvec_valid_at(&s_TkVec, _ind));\
-		pd->token = tkvec_pop_at(&s_TkVec, _ind);\
-	} while(0)
-//static strvec_t s_StringVect;
-
-//static str_t s_TkStrBackup;
-
-#define TOKEN_IS(_postfix) (pd->token.type == token_##_postfix)
-#define TK_STR(_tk) _tk.string.ptr
-
-#if 0
-// bool push_current_token(ParserData* pd)
-// {
-// 	if (!tkvec_push_front(&s_TkVec, pd->token))
-// 		return false;
-
-// 	// if (!TOKEN_IS(ID) && !TOKEN_IS(string)) //<-- only ID should have string parameter
-// 	// 	return true;
-
-// 	// str_t tkstr;
-// 	// str_const(&tkstr);
-// 	// str_concat(&tkstr, TK_STR(pd->token));
-// 	// if (!strvec_push_front(&s_StringVect, tkstr))
-// 	// 	return false;
-// 	return true;
-// }
-
-// void pop_current_token(ParserData* pd)
-// {
-// 	//str_dest(&s_TkStrBackup);
-
-// 	IFJ22_ASSERT(!tkvec_empty(&s_TkVec), "Should not happen?");
-// 	if (!tkvec_empty(&s_TkVec))
-// 		pd->token = tkvec_pop_front(&s_TkVec);
-
-// 	// if (!TOKEN_IS(ID) && !TOKEN_IS(string)) //<-- only ID should have string parameter
-// 	// 	return;
-	
-// 	// if (!strvec_empty(&s_StringVect))
-// 	// 	s_TkStrBackup = strvec_pop_front(&s_StringVect);
-// 	// pd->token.string = &s_TkStrBackup;
-// }
-
-// void pop_current_token_back(ParserData* pd)
-// {
-// 	//str_dest(&s_TkStrBackup);
-
-// 	IFJ22_ASSERT(!tkvec_empty(&s_TkVec), "Should not happen?");
-// 	if (!tkvec_empty(&s_TkVec))
-// 		pd->token = tkvec_pop_back(&s_TkVec);
-
-// 	// if (!TOKEN_IS(ID) && !TOKEN_IS(string)) //<-- only ID should have string parameter
-// 	// 	return;
-	
-// 	// if (!strvec_empty(&s_StringVect))
-// 	// 	s_TkStrBackup = strvec_pop_back(&s_StringVect);
-// 	// pd->token.string = &s_TkStrBackup;
-// }
-#endif
-
-
-#define RES result
-#define DEF_RES int64_t RES = SUCCESS;
-#define RULE_OPEN  DEF_RES 
-#define RULE_CLOSE return RES
-
-#ifdef IFJ22_DEBUG
-	int _get_next_token(ParserData* pd)
+int _get_next_token(ParserData* pd)
+{
+	int RES = SUCCESS;
+	if (!pd->block_next_token) 
 	{
-		int RES = SUCCESS;
-		if (!pd->block_next_token) 
+		if (pd->get_next_from_stack) // && !tkvec_empty(&s_TkVec)
 		{
-			if (pd->get_next_from_stack) // && !tkvec_empty(&s_TkVec)
-			{
-				//POP_TOKEN_BACK;
-				token_dest(&pd->token);
-				pd->token = s_TokenBackup;
+			POP_TOKEN_BACK;
+			//pd->token = s_TokenBackup;
 
-				pd->get_next_from_stack = false;
-			}
-			else 
-			{
-				if ((RES = scanner_get_next_token(&pd->token)) != SUCCESS)
-					return RES;
-				if (g_DebugOn) 
-				{ 
-					set_debug_out(get_scan_out());
-					debug_print_token(pd->token); 
-				}
-			}
-		} 
-		else
-			pd->block_next_token = false;
-		return SUCCESS;
-	}
-
-	#define _DPRNR(_n)\
-		do{\
-			if (g_DebugOn)\
-			{\
-				set_debug_out(get_pars_out());\
-				DEBUGPR("Current token: ");\
-				debug_print_token(pd->token);\
-				DEBUGPR("%s -> %s\n", __func__, get_rule_expansion_by_name(__func__, (_n)));\
-			}\
-		}while(0)
-	#define GET_NEXT_TOKEN\
-		do {\
-			if ((RES = _get_next_token(pd)) != SUCCESS)\
-				return RES;\
-		} while(0)
-#else
-	#define _DPRNR(_n)
-	int _get_next_token(ParserData* pd)
-	{
-		int RES = SUCCESS;
-		if (!pd->block_next_token) 
+			pd->get_next_from_stack = false;
+			
+		}
+		else 
 		{
-			if (pd->get_next_from_stack && !tkvec_empty(&s_TkVec))
-			{
-				POP_TOKEN_BACK;
-
-				pd->get_next_from_stack = false;
+			if ((RES = scanner_get_next_token(&pd->token)) != SUCCESS)
+				return RES;
+			if (g_DebugOn) 
+			{ 
+				set_debug_out(get_scan_out());
+				debug_print_token(pd->token); 
 			}
-			else 
-			{
-				if ((RES = scanner_get_next_token(&pd->token)) != SUCCESS)
-					return RES;
-			}
-		} 
-		else
-			pd->block_next_token = false;
-		return SUCCESS;
-	}
-#endif
-
-// GENERATE_VECTOR_DEFINITION(int, i);
-
-// static ivec_t s_ErrorVector;
-// static int s_Outcode = SUCCESS;
-
-// bool handle_error(int incode, int* outcode)
-// {
-// 	if (incode < ERROR_SEM_ID_DEF)
-// 	{
-// 		*outcode = incode;
-// 		return true;
-// 	}
-
-// 	ivec_push_back(&s_ErrorVector, incode);
-// 	return false;
-// }
-
-// int get_top_priority_error()
-// {
-// 	ielem_t* curr = s_ErrorVector.front;
-
-// 	int minerr = SUCCESS;
-// 	while (!ivec_empty(&s_ErrorVector))
-// 	{
-// 		int curr = ivec_pop_front(&s_ErrorVector);
-// 		if (minerr == SUCCESS)
-// 			minerr = curr;
-// 		else
-// 			minerr = curr < minerr ? curr : minerr;
-// 	}
-
-// 	return minerr;
-// }
+			g_LastTokenWasFromStack = false;
+		}
+	} 
+	else
+		pd->block_next_token = false;
+	return SUCCESS;
+}
 
 
 
@@ -230,99 +53,38 @@ static Token s_TokenBackup;
 
 #if 1
 
-#define KEYWORD_IS(_kw) (TOKEN_IS(keyword) && pd->token.keyword == keyword_##_kw)
 
-//Never use with more than 1 argument!
-#define CHECK_TOKEN(_postfix, ...)\
-	if (!TOKEN_IS(_postfix##__VA_ARGS__)) { return ERROR_SYNTAX; } else {}
-
-//Never use with more than 1 argument!
-#define CHECK_KEYWORD(_kw, ...)\
-	if (!KEYWORD_IS(_kw##__VA_ARGS__)) { return ERROR_SYNTAX; } else {}
-
-//Never use with more than 1 argument!
-#define NEXT_TK_CHECK_TOKEN(_type, ...)\
-	do {\
-		GET_NEXT_TOKEN;\
-		CHECK_TOKEN(_type##__VA_ARGS__);\
-	} while(0)
-
-//Never use with more than 1 argument!
-#define NEXT_TK_CHECK_KEYWORD(_kw, ...)\
-	do {\
-		GET_NEXT_TOKEN;\
-		CHECK_KEYWORD(_kw##__VA_ARGS__);\
-	} while(0)
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#define RULE_GOOD(_rule) (_rule(pd) == SUCCESS)
-
-// #define CHECK_RULE(_rule)\
-// 	if ((RES = _rule(pd))) { \
-// 		s_Outcode = SUCCESS; \
-// 		if (handle_error(RES, &s_Outcode))\
-// 			return s_Outcode;\
-// 	} else {}
-
-#define CHECK_RULE(_rule)\
-	if ((RES = _rule(pd))) { return RES; } else {}
-
-//#define CHECK_RULE(_rule) (RES = _rule(pd))	
-
-#define NEXT_TK_CHECK_RULE(_rule)\
-	do {\
-		GET_NEXT_TOKEN;\
-		CHECK_RULE(_rule);\
-	} while(0)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#define HAS_DOLLAR (TK_STR(pd->token)[0] == '$')
-
-#define IS_VAR_ID  (TOKEN_IS(ID) && HAS_DOLLAR )
-#define IS_FUNC_ID (TOKEN_IS(ID) && !HAS_DOLLAR)
-
-#define CHECK_DOLLAR 	if (!HAS_DOLLAR) { return ERROR_SYNTAX; } else {}
-#define CHECK_NO_DOLLAR if (HAS_DOLLAR ) { return ERROR_SYNTAX; } else {}
-
-#define NEXT_TK_CHECK_VAR_ID  NEXT_TK_CHECK_TOKEN(ID); CHECK_DOLLAR
-#define NEXT_TK_CHECK_FUNC_ID NEXT_TK_CHECK_TOKEN(ID); CHECK_NO_DOLLAR
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#define FIND_ID(_id) symtable_find(pd->in_local_scope ? &pd->localTable : &pd->globalTable, _id)
-#define FIND_CURRENT_ID FIND_ID(TK_STR(pd->token))
-
-#define ADD_ID(_dst, _id)\
-	do {\
-		bool _err = false;\
-		_dst = symtable_add_symbol(pd->in_local_scope ? &pd->localTable : &pd->globalTable, _id, &_err);\
-		if (_err) INTERNAL_ERROR_RET;\
-	} while(0)
-#define ADD_CURRENT_ID(_dst) ADD_ID(_dst, TK_STR(pd->token))
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#define BLOCK_NEXT_TOKEN pd->block_next_token = true
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#define TOKEN_IS_TYPE_KEYWORD (KEYWORD_IS(float) || KEYWORD_IS(int) || KEYWORD_IS(string))
-
-#define TOKEN_IS_VALUE_TYPE   (TOKEN_IS(float) 	 || TOKEN_IS(integer)   || TOKEN_IS(string) || TOKEN_IS(null)  || TOKEN_IS(ID)	 	 )
 
 #endif
+
+static int type		(ParserData* pd);
+static int term		(ParserData* pd);
+static int rvalue	(ParserData* pd);
+static int statement(ParserData* pd);
+static int func_type(ParserData* pd);
+static int args		(ParserData* pd);
+static int arg_n	(ParserData* pd);
+static int params	(ParserData* pd);
+static int param_n	(ParserData* pd);
+static int program	(ParserData* pd);
+static int end		(ParserData* pd);
+static int begin	(ParserData* pd);
 
 static bool init_data(ParserData* pd)
 {
     symtable_init(&pd->globalTable);
 	//symtable_init(&pd->localTable);
 
-	pd->in_param_list   = pd->block_next_token   	 = 
-	pd->in_local_scope  = pd->func_questionmark  	 = 
-	pd->var_not_yet_def = pd->get_next_from_stack = false;
+	pd->in_param_list   = pd->block_next_token     = 
+	pd->in_local_scope  = pd->func_questionmark    = 
+	pd->var_not_yet_def = pd->get_next_from_stack  = 
+	pd->in_if_while 	= false;
 
-	pd->rhs_func = pd->lhs_var = NULL;
+	pd->rhs_func = pd->current_func = pd->lhs_var = NULL;
 
 	pd->param_index = 0;
 	pd->label_deep = -1;
@@ -331,8 +93,8 @@ static bool init_data(ParserData* pd)
 	//str_const(&pd->var_name);
 	token_const(&pd->token);
 
-	tkvec_init(&s_TkVec);
-	tkvec_init(&s_TkDisposeList);
+	tkvec_init(&pd->tk_vec);
+	tkvec_init(&pd->tk_dispose_list);
 	//strvec_init(&s_StringVect);
 
 	TData* data = NULL;
@@ -399,40 +161,12 @@ static bool init_data(ParserData* pd)
 static void free_data(ParserData* pd)
 {
 	symtable_dest(&pd->globalTable);
-
-	//token_dest(&s_TokenBackup);
-
 	token_dest(&pd->token);
-	// while (!symtvec_empty(&s_SymtVect))
-	// 	symtable_dest(symtvec_pop_front(&s_SymtVect));		
-	//symtable_dest(&pd->localTable);
-	//str_dest(&pd->var_name);
-	IFJ22_ASSERT(tkvec_empty(&s_TkVec), "");
-	
-	// while (s_TkDisposeList.front)
-	// {	
-	// 	Token _tmp = s_TkDisposeList.front->data;
-	// 	token_dest(&_tmp);
-	// 	s_TkDisposeList.front = s_TkDisposeList.front->prev;
-	// }
-	//tkvec_dispose(&s_TkDisposeList, token_dest);
-	//IFJ22_ASSERT(strvec_empty(&s_StringVect), "");
-	//str_dest(&s_TkStrBackup);
-}
 
-static int type		(ParserData* pd);
-static int term		(ParserData* pd);
-//static int assign	(ParserData* pd);
-static int rvalue	(ParserData* pd);
-static int statement(ParserData* pd);
-static int func_type(ParserData* pd);
-static int args		(ParserData* pd);
-static int arg_n	(ParserData* pd);
-static int params	(ParserData* pd);
-static int param_n	(ParserData* pd);
-static int program	(ParserData* pd);
-static int end		(ParserData* pd);
-static int begin	(ParserData* pd);
+	tkvec_dispose(&pd->tk_dispose_list, token_dest);
+	IFJ22_ASSERT(tkvec_empty(&pd->tk_vec), "");
+	IFJ22_ASSERT(tkvec_empty(&pd->tk_dispose_list), "");
+}
 
 static int term(ParserData* pd)
 {
@@ -447,8 +181,6 @@ static int term(ParserData* pd)
 
 			// we need to store args to stack to pass them in inverse order
 			PUSH_TOKEN_FRONT;
-			// if (!push_current_token(pd))
-			// 	return false;
 
 			goto end;
 		}
@@ -540,21 +272,22 @@ static int args(ParserData* pd)
 			CHECK_RULE(term);
 			NEXT_TK_CHECK_RULE(arg_n);
 
-			if (!strcmp(pd->rhs_func->id, "write")) // if function is "write"
+			if (!strcmp(pd->rhs_func->id, "write"))
 			{
-				Token last_token = pd->token; //<-- save last token to then continue from where we stopped
-				while (!tkvec_empty(&s_TkVec))
+				//Token last_token = pd->token; //<-- save last token to then continue from where we stopped
+				PUSH_TOKEN_BACK; //<-- save last token to then continue from where we stopped
+				int i = 0;
+				while (!tkvec_empty(&pd->tk_vec) && i < pd->param_index)
 				{
-					//pop_current_token(pd);
-					//pd->token = tkvec_pop_front(pd);
 					POP_TOKEN_FRONT;
 
-					{ CODEGEN(emit_function_pass_param_push, pd->token, pd->in_local_scope); } //tk
+					{ CODEGEN(emit_function_pass_param_push, pd->token, pd->in_local_scope); }
+					++i;
 				}
 				// We need to define argument count for variable number of arguments
 				{ CODEGEN(emit_function_pass_param_count, pd->param_index); }
-
-				pd->token = last_token;
+				POP_TOKEN_BACK;
+				//pd->token = last_token;
 			}
 		}
 		//<args> -> ε
@@ -636,11 +369,11 @@ static int type(ParserData* pd)
 
 		if (pd->in_param_list) // If it's the type for func. parameter
 		{
-			if (!symtable_add_param(pd->rhs_func, type_macro[tnum], pd->token.questionmark))
+			if (!symtable_add_param(pd->current_func, type_macro[tnum], pd->token.questionmark))
 				INTERNAL_ERROR_RET;
 		}
 		else // If it's the return type of the current func.
-			pd->rhs_func->type = type_macro[tnum];
+			pd->current_func->type = type_macro[tnum];
 	}
 	RULE_CLOSE;
 }
@@ -686,6 +419,8 @@ static int rvalue(ParserData* pd)
 				if (pd->lhs_var)
 					{ CODEGEN(emit_function_res_assign, pd->lhs_var->id, pd->in_local_scope); }
 			}
+
+			pd->rhs_func = NULL;
 		}
 		//<rvalue> -> <expression>
 		else
@@ -698,31 +433,6 @@ static int rvalue(ParserData* pd)
 	RULE_CLOSE;
 }
 
-// static int assign(ParserData* pd)
-// {
-// 	RULE_OPEN;
-// 	{
-// 		//<assign> -> = <rvalue>
-// 		if (TOKEN_IS(equal_sign))
-// 		{
-// 			_DPRNR(0);
-
-// 			NEXT_TK_CHECK_RULE(rvalue);
-// 		}
-// 		//<assign> -> eps
-// 		else
-// 		{
-// 			_DPRNR(1);
-// 			//In this case variable is used as expression which means it has to be already defined
-// 			if (!pd->lhs_var)
-// 				return ERROR_SEM_UNDEF_VAR;
-// 			BLOCK_NEXT_TOKEN;
-// 		}
-// 	}
-// 	RULE_CLOSE;
-// }
-
-
 static int func_type(ParserData* pd)
 {
 	RULE_OPEN;
@@ -732,7 +442,7 @@ static int func_type(ParserData* pd)
 		{
 			_DPRNR(0);
 
-			pd->rhs_func->type = TYPE_NULL;
+			pd->current_func->type = TYPE_NULL;
 		}
 		//<func_type> -> <type>
 		else
@@ -816,61 +526,40 @@ static int statement(ParserData* pd)
 {
 	RULE_OPEN;
 	{
-		// if (TOKEN_IS(left_curly_bracket))
-		// 	goto epsilon;
-		
 		pd->lhs_var = NULL;
-		if (!pd->in_local_scope)
-			pd->rhs_func = NULL;
+		// if (!pd->in_local_scope)
+		// 	pd->rhs_func = NULL;
 
 		//<statement> -> $ID = <rvalue> ; <program>
 		if (IS_VAR_ID)
 		{
 			_DPRNR(0);
 
-			//push_current_token(pd); //$ID -> stack
-			//PUSH_TOKEN_FRONT;
-			Token id_cpy;
-			//Token next_cpy;
-			token_cpy(&id_cpy, &pd->token);
-			
+			// Token id_cpy;
+			// token_cpy(&id_cpy, &pd->token);
+			PUSH_TOKEN_FRONT;
 
 			GET_NEXT_TOKEN;
 			if (!TOKEN_IS(equal_sign))
 			{
-				//TOKEN_SET_AT(1); //[=^] -> [1]
-				
-				//push_current_token(pd); //[=^] -> stack
-				//PUSH_TOKEN_FRONT;
-				token_cpy(&s_TokenBackup, &pd->token);
+				PUSH_TOKEN_FRONT;
+				//token_cpy(&s_TokenBackup, &pd->token);
 
-				token_dest(&pd->token);
-				pd->token = id_cpy;
-				//pop_current_token_back(pd); //$ID -> token
-				//TOKEN_POP_AT(0); //[0]x -> pd
-				//POP_TOKEN_BACK;
+				// token_dest(&pd->token);
+				// pd->token = id_cpy;
+				POP_TOKEN_BACK;
+
 				pd->get_next_from_stack = true;
 				goto statement_rvalue;
 			}
 
-			//PUSH_TOKEN_FRONT;
-			//push_current_token(pd); //[=^] -> stack
-
-			//pop_current_token_back(pd); //$ID -> token
-			//TOKEN_SET_AT(1);
-			//TOKEN_POP_AT(0);
-			// PUSH_TOKEN_FRONT;
-			// POP_TOKEN_BACK;
-			token_cpy(&s_TokenBackup, &pd->token);
+			// token_cpy(&s_TokenBackup, &pd->token);
 				
-			token_dest(&pd->token);
-			pd->token = id_cpy;
+			// token_dest(&pd->token);
+			// pd->token = id_cpy;
+			PUSH_TOKEN_FRONT;
+			POP_TOKEN_BACK;
 			pd->get_next_from_stack = true;
-
-			
-
-			// push_current_token(pd);
-			// pop_current_token_back(pd);
 
 			{
 				if (!(pd->lhs_var = FIND_CURRENT_ID))
@@ -901,10 +590,12 @@ static int statement(ParserData* pd)
 				INTERNAL_ERROR_RET;
 
 			pd->label_deep++;
-			const char* func_name = pd->rhs_func ? pd->rhs_func->id : "";
+			const char* func_name = pd->current_func ? pd->current_func->id : "";
 			{ CODEGEN(emit_if_head); }
 
+			pd->in_if_while = true;
 			CHECK_RULE(expression_parsing);
+			pd->in_if_while = false;
 
 			{ CODEGEN(emit_if_open, func_name, pd->label_deep, pd->label_index); }
 
@@ -942,10 +633,12 @@ static int statement(ParserData* pd)
 				INTERNAL_ERROR_RET;
 
 			pd->label_deep++;
-			const char* func_name = pd->rhs_func ? pd->rhs_func->id : "";
+			const char* func_name = pd->current_func ? pd->current_func->id : "";
 			{ CODEGEN(emit_while_head, func_name, pd->label_deep, pd->label_index); }
 
+			pd->in_if_while = true;
 			CHECK_RULE(expression_parsing);
+			pd->in_if_while = false;
 
 			{ CODEGEN(emit_while_open, func_name, pd->label_deep, pd->label_index + 1); }
 
@@ -976,7 +669,7 @@ static int statement(ParserData* pd)
 				}
 				else
 				{
-					if (pd->rhs_func->type == TYPE_NULL)
+					if (pd->current_func->type == TYPE_NULL)
 					{
 						if (TOKEN_IS(semicolon))
 							goto no_retcode;
@@ -995,7 +688,7 @@ static int statement(ParserData* pd)
 
 			if (pd->in_local_scope)
 			{
-				if (pd->lhs_var->type != pd->rhs_func->type)
+				if (pd->lhs_var->type != pd->current_func->type)
 				{
 					if (!pd->func_questionmark || pd->lhs_var->type != TYPE_NULL)
 						PRINT_ERROR_RET(ERROR_SEM_TYPE_COMPAT, "invalid function return type.");
@@ -1041,19 +734,13 @@ static int program(ParserData* pd)
 			{ //Add func id to global table
 				if (FIND_CURRENT_ID) //Function already defined
 					PRINT_ERROR_RET(ERROR_SEM_ID_DEF, "function is already defined.");
-				ADD_CURRENT_ID(pd->rhs_func);
+				ADD_CURRENT_ID(pd->current_func);
 			}		
 
 			pd->in_local_scope = true;
 			symtable_init(&pd->localTable);
-			// symtable_init(&pd->localTable);
-			// if (!symtvec_push_front(&s_SymtVect, pd->localTable))
-			// 	INTERNAL_ERROR_RET;
-			// if (!strvec_push_front(&s_FuncVect, pd->rhs_func->id))
-			// 	INTERNAL_ERROR_RET;
 
-
-			{ CODEGEN(emit_function_open, pd->rhs_func->id); }
+			{ CODEGEN(emit_function_open, pd->current_func->id); }
 
 			NEXT_TK_CHECK_TOKEN(left_bracket);
 			{
@@ -1070,14 +757,10 @@ static int program(ParserData* pd)
 			}
 			NEXT_TK_CHECK_TOKEN(right_curly_bracket);
 			
-			{ CODEGEN(emit_function_close, pd->rhs_func->id); }
+			{ CODEGEN(emit_function_close, pd->current_func->id); }
 			
 			pd->in_local_scope = false;
 			symtable_dest(&pd->localTable);
-			// if (!symtvec_push_front(&s_SymtVect))
-			// 	INTERNAL_ERROR_RET;
-			// if (!strvec_push_front(&s_FuncVect))
-			// 	INTERNAL_ERROR_RET;
 			
 			NEXT_TK_CHECK_RULE(program);
 		}
@@ -1087,7 +770,6 @@ static int program(ParserData* pd)
 		{
 			_DPRNR(1);
 			CHECK_RULE(statement);
-			//CHECK_RULE(program);
 		}
 
 	}
@@ -1146,8 +828,6 @@ static int begin(ParserData* pd)
 
 		NEXT_TK_CHECK_RULE(program);
 		NEXT_TK_CHECK_RULE(end);
-
-		//return get_top_priority_error();
 	}
     RULE_CLOSE;
 }
@@ -1160,7 +840,6 @@ int parse_file(FILE* fptr)
 		goto error;
 
 	scanner_set_file(fptr);
-	//scanner_set_string(&string);
 
     int result = begin(&pd);
 	code_generator_flush(g_CodegenOut);
@@ -1171,7 +850,6 @@ int parse_file(FILE* fptr)
 error:
 	result = ERROR_INTERNAL;
 free:
-	//str_dest(&string);
 	free_data(&pd);
 end:
     return result;

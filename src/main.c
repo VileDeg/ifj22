@@ -31,8 +31,8 @@ int main(int argc, char** argv)
 
     int ret = 0;
     //FILE* source  = open_file("../mytests/01.php", "r");
-    //FILE* source  = open_file("../IFJ22_Tester/tests/Code generation/Builtin functions/Chr/Constant/prog", "r");
-    FILE* source  = open_file("../ifj-testsuite/tests/lex/ids/var_all.php", "r");
+    FILE* source  = open_file("../IFJ22_Tester/tests/Code generation/If/If empty string/prog", "r");
+    //FILE* source  = open_file("../ifj-testsuite/tests/sem/builtins/write_with_multiple_params.php", "r");
     
     FILE* codegenout = open_file("../code.ifjc22", "w");
     {
