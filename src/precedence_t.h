@@ -69,7 +69,7 @@ typedef enum {
 /**
  * @enum Expression rules.
  */
-typedef enum {
+typedef enum { //<-- assembler code depends on order of those
     RULE_ID,        // E -> id
     RULE_BR,        // E -> (E)
     RULE_ADD,       // E -> E + E

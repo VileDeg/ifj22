@@ -2,11 +2,23 @@
 
 <?php
 declare(strict_types=1);
-if("") {
-    write("BAD\n");
-} else {
-    write("GOOD\n");
+function f(int $x) : int {
+    if($x === 0) {
+        return 0;
+    } else {
+        if($x === 1) {
+            return 1;
+        } else {
+            $param1 = $x - 1;
+            $param2 = $x - 2;
+            $res1 = f($param1);
+            $res2 = f($param2);
+            return $res1 + $res2;
+        }
+    }
 }
+$res = f(9);
+write($res, "\n");
 
 
 --------------------List of tokens: --------------------
@@ -20,27 +32,16 @@ int  deci string       keyword      type
 1                                   integer         
                                     right_bracket   
                                     semicolon       
+                       function     keyword         
+          f                         ID              
+                                    left_bracket    
+                       int          keyword         
+          $x                        ID              
+                                    right_bracket   
+                                    colon           
+                       int          keyword         
+                                    left_curly_brack
                        if           keyword         
                                     left_bracket    
-                                    string          
-                                    right_bracket   
-                                    left_curly_brack
-          write                     ID              
-                                    left_bracket    
-          BAD
-                      string          
-                                    right_bracket   
-                                    semicolon       
-                                    right_curly_brac
-                       else         keyword         
-                                    left_curly_brack
-          write                     ID              
-                                    left_bracket    
-          GOOD
-                     string          
-                                    right_bracket   
-                                    semicolon       
-                                    right_curly_brac
-                                    EOF             
-
-
+          $x                        ID              
+                                    equal           

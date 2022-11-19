@@ -985,7 +985,10 @@ TEST 109: ./tests/sem/functions/function_return_expr_without type.php
 PROGRAM INPUT:
 
 ----
-SUCCESS
+Compiler error output:
+<empty>
+----
+ERROR: Unexpected exit code of IFJ compiler. Actual: 0 Expected: [6].
 
 ********************
 TEST 110: ./tests/sem/functions/function_return_no_expr_with_type.php
@@ -994,7 +997,10 @@ TEST 110: ./tests/sem/functions/function_return_no_expr_with_type.php
 PROGRAM INPUT:
 
 ----
-SUCCESS
+Compiler error output:
+<empty>
+----
+ERROR: Unexpected exit code of IFJ compiler. Actual: 2 Expected: [6].
 
 ********************
 TEST 111: ./tests/sem/functions/main_no_return.php
@@ -1039,7 +1045,10 @@ TEST 115: ./tests/sem/functions/return_invalid_type_1.php
 PROGRAM INPUT:
 
 ----
-SUCCESS
+Compiler error output:
+<empty>
+----
+ERROR: Unexpected exit code of IFJ compiler. Actual: 0 Expected: [4].
 
 ********************
 TEST 116: ./tests/sem/functions/return_invalid_type_2.php
@@ -1048,7 +1057,10 @@ TEST 116: ./tests/sem/functions/return_invalid_type_2.php
 PROGRAM INPUT:
 
 ----
-SUCCESS
+Compiler error output:
+<empty>
+----
+ERROR: Unexpected exit code of IFJ compiler. Actual: 0 Expected: [4].
 
 ********************
 TEST 117: ./tests/sem/functions/return_invalid_type_3.php
@@ -1057,7 +1069,10 @@ TEST 117: ./tests/sem/functions/return_invalid_type_3.php
 PROGRAM INPUT:
 
 ----
-SUCCESS
+Compiler error output:
+<empty>
+----
+ERROR: Unexpected exit code of IFJ compiler. Actual: 0 Expected: [4].
 
 ********************
 TEST 118: ./tests/sem/functions/simple_call_with_return_value.php
@@ -1165,11 +1180,7 @@ TEST 129: ./tests/syn/function/bad_body_1.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-[ERROR_SEM_RETURN]: invalid function return type (function is 'void').
-
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 6 Expected: [2].
+SUCCESS
 
 ********************
 TEST 130: ./tests/syn/function/bad_body_2.php
@@ -1439,11 +1450,7 @@ TEST 159: ./tests/syn/function/return_types.php
 PROGRAM INPUT:
 
 ----
-Compiler error output:
-[ERROR_SEM_TYPE_COMPAT]: invalid function return type.
-
-----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 4 Expected: [0].
+SUCCESS
 
 ********************
 TEST 160: ./tests/syn/function/return_types_optional.php

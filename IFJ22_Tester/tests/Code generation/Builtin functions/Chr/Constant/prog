@@ -1,8 +1,0 @@
-<?php
-declare(strict_types=1);
-$x = chr(33);
-if($x === "!") {
-    write("String is !\n");
-} else {
-    write("Not !\n");
-}

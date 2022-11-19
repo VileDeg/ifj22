@@ -134,6 +134,7 @@ Rule_type rule_info(Symbol* oper1, Symbol* oper2, Symbol* oper3)
         return RULE_N;
 }
 
+#if 0
 uint32_t implicit_conversion(Rule_type rule, DataType* dataType, bool* type_equal, Symbol* oper1, Symbol* oper2, Symbol* oper3) 
 {
     switch(rule) 
@@ -150,7 +151,7 @@ uint32_t implicit_conversion(Rule_type rule, DataType* dataType, bool* type_equa
 
             *dataType = oper2->dataType;
             break;
-        case RULE_ADD:                                                          
+        case RULE_ADD: break;      
         case RULE_SUB:
         case RULE_MUL:
             if (oper1->dataType == TYPE_INT && oper3->dataType == TYPE_INT)
@@ -208,6 +209,7 @@ uint32_t implicit_conversion(Rule_type rule, DataType* dataType, bool* type_equa
     }
     return SUCCESS;
 }
+#endif
 
 uint32_t num_of_symbols_to_reduce(bool* reduceFound, SymbolStack* stack)
 {
@@ -231,7 +233,7 @@ uint64_t reduce(ParserData* pd, SymbolStack* stack)
 {
     Rule_type RuleType;
     
-    DataType dataType;
+    DataType dataType = TYPE_UNDEF;
 
     bool reduceFound = false;
 
@@ -262,22 +264,24 @@ uint64_t reduce(ParserData* pd, SymbolStack* stack)
     if (RuleType == RULE_N)
         return ERROR_SYNTAX;
 
-    bool type_equal = false; // <-- for '===' and '!==' operators
-    if (implicit_conversion(RuleType, &dataType, &type_equal, oper1, oper2, oper3) != SUCCESS)
-        return ERROR_SYNTAX;
+    // bool type_equal = false; // <-- for '===' and '!==' operators
+    // if (implicit_conversion(RuleType, &dataType, &type_equal, oper1, oper2, oper3) != SUCCESS)
+    //     return ERROR_SYNTAX;
 
-    if (RuleType == RULE_EQ || RuleType == RULE_NEQ)
-    {
-        if (RuleType == RULE_EQ && type_equal || RuleType == RULE_NEQ && !type_equal)
-            { CODEGEN(emit_stack_operation, RuleType); }
-        else
-        {
-            { CODEGEN(emit_clear_stack); }
-            { CODEGEN(emit_push_bool_literal, type_equal); }
-        }
-    }
-    else
-        { CODEGEN(emit_stack_operation, RuleType); }
+    // if (RuleType == RULE_EQ || RuleType == RULE_NEQ)
+    // {
+    //     if (RuleType == RULE_EQ && type_equal || RuleType == RULE_NEQ && !type_equal)
+    //         { CODEGEN(emit_stack_operation, RuleType); }
+    //     else
+    //     {
+    //         { CODEGEN(emit_clear_stack); }
+    //         { CODEGEN(emit_push_bool_literal, type_equal); }
+    //     }
+    // }
+    // else
+    //     { CODEGEN(emit_stack_operation, RuleType); }
+    
+    { CODEGEN(emit_stack_operation, RuleType); }
     
     stack_pop_count(stack, SymbolCnt + 1);
 
@@ -305,6 +309,7 @@ uint64_t reduce(ParserData* pd, SymbolStack* stack)
 //         ERROR_RET(ERROR_INTERNAL);
 #endif
 
+#if 0
 DataType type_info(ParserData* pd, int* errcode)
 {
     TData* data = NULL;
@@ -337,35 +342,11 @@ DataType type_info(ParserData* pd, int* errcode)
         }
     }
 }
+#endif
 
 int64_t expression_parsing(ParserData* pd) 
 {
     int64_t RES;
-#if 0
-    if (pd->in_if_while)
-    {
-        PUSH_TOKEN_FRONT; // '('
-        GET_NEXT_TOKEN;
-        Token prev = pd->token;
-        PUSH_TOKEN_FRONT; // "" ?
-        GET_NEXT_TOKEN;
-        if (TOKEN_IS(right_bracket) && prev.type == token_string)
-        {
-            if (str_cmp(&prev.string, ""))
-            {
-                IFJ22_ASSERT(pd->lhs_var, "");
-                pd->lhs_var->type = TYPE_BOOL;
-                EMIT_NL("PUSHS bool@false");
-
-                POP_TOKEN_FRONT;
-                POP_TOKEN_FRONT;
-
-                GET_NEXT_TOKEN;
-                goto emit_res;
-            }
-        }
-    }
-#endif
 
     SymbolStack stack;
     stack_init(&stack);
@@ -437,23 +418,16 @@ int64_t expression_parsing(ParserData* pd)
     if (pd->lhs_var)
     {
         DataType type = lastNonterm->dataType;
-        // if (pd->in_if_while)
-        // {
-        //     if (type != TYPE_BOOL)
-        //     {
-        //         switch (type)
-        //         {
-        //         case TYPE_STRING:
-        //             if ()                    
-        //             break;
-        //         default:
-        //             break;
-        //         }
-        //     }
-        // }        
+
         pd->lhs_var->type = type;
-emit_res:        
-        { CODEGEN(emit_stack_pop_res, pd->lhs_var->id, pd->in_local_scope ? "LF" : "GF"); }
+
+        { CODEGEN(emit_stack_pop_res, pd->lhs_var->id, pd->lhs_var->global ? "GF" : "LF"); }
+
+        if (pd->in_if_while)
+        {
+            EMIT_NL("CREATEFRAME");
+            EMIT_NL("CALL !expr_res_bool_check\n");
+        }
     }
 
     stack_clear(&stack);

@@ -1,0 +1,47 @@
+
+
+LABEL !equal_op_conv_check
+PUSHFRAME
+
+DEFVAR LF@rule
+DEFVAR LF@op1
+POPS LF@op1
+DEFVAR LF@op2
+POPS LF@op2
+DEFVAR LF@op1type
+TYPE LF@op1type LF@op1
+DEFVAR LF@op2type
+TYPE LF@op2type LF@op2
+
+JUMPIFEQ !rule_neq LF@rule int@8
+
+
+JUMP !eoc_end_true
+
+    LABEL !rule_neq
+
+        JUMPIFEQ !op1_null LF@op1type string@nil
+        JUMPIFEQ !op2_null LF@op2type string@nil
+
+        JUMP !eoc_end_true
+        LABEL !op1_null
+            JUMPIFEQ !op1_null_op2_empty_str LF@op2 string@
+
+        JUMP !eoc_end_true
+            LABEL !op1_null_op2_empty_str
+                PUSHS bool@false
+                JUMP !eoc_end
+                
+        LABEL !op2_null
+            JUMPIFEQ !op2_null_op1_empty_str LF@op1 string@
+
+        JUMP !eoc_end_true
+            LABEL !op2_null_op1_empty_str
+                PUSHS bool@false
+                JUMP !eoc_end
+
+LABEL !eoc_end_true
+PUSHS bool@true
+LABEL !eoc_end
+POPFRAME
+RETURN

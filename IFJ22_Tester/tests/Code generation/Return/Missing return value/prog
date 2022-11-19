@@ -1,7 +1,0 @@
-<?php
-declare(strict_types=1);
-function f() : int {
-  return;
-}
-$x = f();
-write($x, "\n");

@@ -12,9 +12,10 @@
 
 extern FILE* g_CodegenOut;
 #ifdef IFJ22_DEBUG
-	#define CODEGEN(_funcptr, ...) do { if (!_funcptr(__VA_ARGS__)) return ERROR_INTERNAL;\
+	#define CODEGEN(_funcptr, ...) do {\
+		if (!_funcptr(__VA_ARGS__)) return ERROR_INTERNAL;\
 		IFJ22_ASSERT(g_CodegenOut, "Code generator output file not found");\
-		code_generator_flush(g_CodegenOut); }while(0)
+	}while(0)
 #else
 	#define CODEGEN(_funcptr, ...) if (!_funcptr(__VA_ARGS__)) return ERROR_INTERNAL
 #endif //IFJ22_DEBUG
@@ -61,6 +62,14 @@ bool emit_push_bool_literal(bool value);
 bool emit_pop();
 
 bool emit_clear_stack();
+
+//inline bool emit_data_type
+
+bool emit_function_type(DataType type, bool questionmark);
+
+bool emit_call_return_sem_check();
+
+bool emit_check_var_defined(const char* id, bool local);
 
 /**
  * Generation of function beginning.
@@ -146,6 +155,12 @@ bool emit_function_before_pass_params();
 //  * @return true if success.
 //  */
 // bool emit_function_convert_passed_param(DataType from, DataType to, int64_t index);
+
+
+// inline bool emit_expr_res_bool_check()
+// {
+// 	EMIT_NL(EXPR_RES_BOOL_CHECK);
+// }
 
 /**
  * Generation of passing parameters into function.

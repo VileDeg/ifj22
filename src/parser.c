@@ -9,12 +9,8 @@
 
 GENERATE_VECTOR_DEFINITION(Token, tk);
 
-// static tkvec_t s_TkVec;
-// static tkvec_t s_TkDisposeList;
-
 bool g_LastTokenWasFromStack = false;
 
-//static Token s_TokenBackup;
 #include "macros.h"
 
 int _get_next_token(ParserData* pd)
@@ -47,20 +43,6 @@ int _get_next_token(ParserData* pd)
 	return SUCCESS;
 }
 
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#if 1
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-#endif
-
 static int type		(ParserData* pd);
 static int term		(ParserData* pd);
 static int rvalue	(ParserData* pd);
@@ -80,7 +62,7 @@ static bool init_data(ParserData* pd)
 	//symtable_init(&pd->localTable);
 
 	pd->in_param_list   = pd->block_next_token     = 
-	pd->in_local_scope  = pd->func_questionmark    = 
+	pd->in_local_scope  = 
 	pd->var_not_yet_def = pd->get_next_from_stack  = 
 	pd->in_if_while 	= false;
 
@@ -98,62 +80,32 @@ static bool init_data(ParserData* pd)
 	//strvec_init(&s_StringVect);
 
 	TData* data = NULL;
-	bool err = false;
-	if (!(data = symtable_add_symbol(&pd->globalTable, "reads", &err)))
-		return false;
-	data->type = TYPE_STRING;
+	ADD_ID_TYPE(data, "reads", TYPE_STRING);
+	ADD_ID_TYPE(data, "readi", TYPE_INT);
+	ADD_ID_TYPE(data, "readf", TYPE_FLOAT);
 
-	if (!(data = symtable_add_symbol(&pd->globalTable, "readi", &err)))
-		return false;
-	data->type = TYPE_INT;
+	ADD_ID_TYPE(data, "write", TYPE_UNDEF);
 
-	if (!(data = symtable_add_symbol(&pd->globalTable, "readf", &err)))
-		return false;
-	data->type = TYPE_FLOAT;
+	ADD_ID_TYPE(data, "floatval", TYPE_FLOAT);
+	ADD_PARAM(data, TYPE_UNDEF, true);
+	ADD_ID_TYPE(data, "intval", TYPE_INT);
+	ADD_PARAM(data, TYPE_UNDEF, true);
+	ADD_ID_TYPE(data, "strval", TYPE_STRING);
+	ADD_PARAM(data, TYPE_UNDEF, true);
 
-	if (!(data = symtable_add_symbol(&pd->globalTable, "write", &err)))
-		return false;
-	
-	if (!(data = symtable_add_symbol(&pd->globalTable, "floatval", &err)))
-		return false;
-	data->type = TYPE_FLOAT;
-	if (!symtable_add_param(data, TYPE_UNDEF, true)) return false;
+	ADD_ID_TYPE(data, "strlen", TYPE_INT);
+	ADD_PARAM(data, TYPE_STRING, false);
+	ADD_ID_TYPE(data, "substring", TYPE_STRING);
+	ADD_PARAM(data, TYPE_STRING, false);
+	ADD_PARAM(data, TYPE_INT, false);
+	ADD_PARAM(data, TYPE_INT, false);
 
-	if (!(data = symtable_add_symbol(&pd->globalTable, "intval", &err)))
-		return false;
-	data->type = TYPE_INT;
-	if (!symtable_add_param(data, TYPE_UNDEF, true)) return false;
+	ADD_ID_TYPE(data, "ord", TYPE_INT);
+	ADD_PARAM(data, TYPE_STRING, false);
+	ADD_ID_TYPE(data, "chr", TYPE_STRING);
+	ADD_PARAM(data, TYPE_INT, false);
 
-	if (!(data = symtable_add_symbol(&pd->globalTable, "strval", &err)))
-		return false;
-	data->type = TYPE_STRING;
-	if (!symtable_add_param(data, TYPE_UNDEF, true)) return false;
-
-	if (!(data = symtable_add_symbol(&pd->globalTable, "strlen", &err)))
-		return false;
-	data->type = TYPE_INT;
-	if (!symtable_add_param(data, TYPE_STRING, false)) return false;
-
-	if (!(data = symtable_add_symbol(&pd->globalTable, "substring", &err)))
-		return false;
-	data->type = TYPE_STRING;
-	if (!symtable_add_param(data, TYPE_STRING, false)) return false;
-	if (!symtable_add_param(data, TYPE_INT, false)) return false;
-	if (!symtable_add_param(data, TYPE_INT, false)) return false;
-	
-	if (!(data = symtable_add_symbol(&pd->globalTable, "ord", &err)))
-		return false;
-	if (!symtable_add_param(data, TYPE_STRING, false)) return false;
-	data->type = TYPE_INT;
-
-	if (!(data = symtable_add_symbol(&pd->globalTable, "chr", &err)))
-		return false;
-	if (!symtable_add_param(data, TYPE_INT, false)) return false;
-	data->type = TYPE_STRING;
-
-	if (!(data = symtable_add_symbol(&pd->globalTable, "$EXPR_REG", &err)))
-		return false;
-	data->type = TYPE_BOOL;
+	ADD_ID_TYPE(data, "EXPR_VAL", TYPE_BOOL);
 
 	return true;
 }
@@ -342,11 +294,17 @@ static int type(ParserData* pd)
 		if (pd->token.questionmark)
 		{
 			//Type can be null!
-			pd->func_questionmark = true;
+			if (pd->current_func)
+				pd->current_func->qmark_type = true;
+			//pd->func_questionmark = true;
 			_rulenr += 3;
 		}
 		else
-			pd->func_questionmark = false;
+		{
+			//pd->func_questionmark = false;
+			if (pd->current_func)
+				pd->current_func->qmark_type = false;
+		}
 
 		int  tnum = 0;
 		if (KEYWORD_IS(float))
@@ -586,7 +544,7 @@ static int statement(ParserData* pd)
 			_DPRNR(1);
 
 			NEXT_TK_CHECK_TOKEN(left_bracket);
-			if (!(pd->lhs_var = symtable_find(&pd->globalTable, "$EXPR_REG")))
+			if (!(pd->lhs_var = symtable_find(&pd->globalTable, "EXPR_VAL")))
 				INTERNAL_ERROR_RET;
 
 			pd->label_deep++;
@@ -628,7 +586,7 @@ static int statement(ParserData* pd)
 			_DPRNR(2);
 			
 			NEXT_TK_CHECK_TOKEN(left_bracket);
-			pd->lhs_var = symtable_find(&pd->globalTable, "$EXPR_REG");
+			pd->lhs_var = symtable_find(&pd->globalTable, "EXPR_VAL");
 			if (!pd->lhs_var)
 				INTERNAL_ERROR_RET;
 
@@ -673,14 +631,14 @@ static int statement(ParserData* pd)
 					{
 						if (TOKEN_IS(semicolon))
 							goto no_retcode;
-						else
-							PRINT_ERROR_RET(ERROR_SEM_RETURN, "invalid function return type (function is 'void').");
+						// else
+						// 	PRINT_ERROR_RET(ERROR_SEM_RETURN, "invalid function return type (function is 'void').");
 
 					}
-					else if (TOKEN_IS(semicolon))
-						PRINT_ERROR_RET(ERROR_SEM_RETURN, "invalid function return type (return value is missing).");
+					// else if (TOKEN_IS(semicolon))
+					// 	PRINT_ERROR_RET(ERROR_SEM_RETURN, "invalid function return type (return value is missing).");
 					
-					if (!(pd->lhs_var = symtable_find(&pd->globalTable, "$EXPR_REG")))
+					if (!(pd->lhs_var = symtable_find(&pd->globalTable, "EXPR_VAL")))
 						INTERNAL_ERROR_RET;
 				}
 			}
@@ -688,12 +646,17 @@ static int statement(ParserData* pd)
 
 			if (pd->in_local_scope)
 			{
-				if (pd->lhs_var->type != pd->current_func->type)
-				{
-					if (!pd->func_questionmark || pd->lhs_var->type != TYPE_NULL)
-						PRINT_ERROR_RET(ERROR_SEM_TYPE_COMPAT, "invalid function return type.");
-				}
+				{ CODEGEN(emit_call_return_sem_check); }
 			}
+
+			// if (pd->in_local_scope)
+			// {
+			// 	if (pd->lhs_var->type != pd->current_func->type)
+			// 	{
+			// 		if (!pd->func_questionmark || pd->lhs_var->type != TYPE_NULL)
+			// 			PRINT_ERROR_RET(ERROR_SEM_TYPE_COMPAT, "invalid function return type.");
+			// 	}
+			// }
 
 			{ CODEGEN(emit_clear_stack); } //<-- get rid of return value on stack
 
@@ -750,6 +713,8 @@ static int program(ParserData* pd)
 			NEXT_TK_CHECK_TOKEN(colon);
 			
 			NEXT_TK_CHECK_RULE(func_type);
+
+			{ CODEGEN(emit_function_type, pd->current_func->type, pd->current_func->qmark_type); }
 			
 			NEXT_TK_CHECK_TOKEN(left_curly_bracket);
 			{

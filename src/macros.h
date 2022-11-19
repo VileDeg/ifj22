@@ -127,8 +127,15 @@
 	do {\
 		bool _err = false;\
 		_dst = symtable_add_symbol(pd->in_local_scope ? &pd->localTable : &pd->globalTable, _id, &_err);\
+		_dst->global = !pd->in_local_scope;\
 		if (_err) INTERNAL_ERROR_RET;\
 	} while(0)
+#define ADD_ID_TYPE(_dst, _id, _type) do {\
+		ADD_ID(_dst, _id);\
+		_dst->type = _type;\
+	} while(0)
+#define ADD_PARAM(_func, _type, _qmark)\
+	if (!symtable_add_param(_func, _type, _qmark)) return false;
 #define ADD_CURRENT_ID(_dst) ADD_ID(_dst, TK_STR(pd->token))
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -146,6 +153,7 @@
 
 #define EMIT(_text)\
     if (!str_concat(&g_Code, (_text))) return false; else {}\
+	code_generator_flush(g_CodegenOut); 
 
 #define EMIT_NL(_text)\
         EMIT(_text"\n");
@@ -158,5 +166,7 @@
         sprintf(_str, "%ld", (_number));  \
         EMIT(_str);                      \
     } while (0)
+
+
 
 #endif //  __MACROS_H__

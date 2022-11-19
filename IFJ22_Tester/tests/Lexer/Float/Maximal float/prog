@@ -1,3 +1,0 @@
-<?php
-declare(strict_types=1);
-$x = 04534.1543210e+5655;

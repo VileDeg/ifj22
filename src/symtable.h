@@ -30,6 +30,8 @@ typedef struct
     DataType type;
     str_t* params;
     char* id;
+    bool global;
+    bool qmark_type;
 } TData;
 
 /**

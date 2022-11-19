@@ -2,52 +2,40 @@
 
 <?php
 declare(strict_types=1);
-if("") {
-    write("BAD\n");
-} else {
-    write("GOOD\n");
+function f(int $x) : int {
+    if($x === 0) {
+        return 0;
+    } else {
+        if($x === 1) {
+            return 1;
+        } else {
+            $param1 = $x - 1;
+            $param2 = $x - 2;
+            $res1 = f($param1);
+            $res2 = f($param2);
+            return $res1 + $res2;
+        }
+    }
 }
+$res = f(9);
+write($res, "\n");
 
 
 --------------------Rules triggered: --------------------
 
 Current token:                                     prolog          
 begin -> <?php declare ( strict_types = 1 ) ; <program> <end>
-Current token:                        if           keyword         
-program -> <statement>
+Current token:                        function     keyword         
+program -> function ID ( <params> ) : <func_type> { <statement> } <program>
+Current token:                        int          keyword         
+params -> <type> $ID <param_n>
+Current token:                        int          keyword         
+type -> int
+Current token:                                     right_bracket   
+param_n -> , <params>
+Current token:                        int          keyword         
+func_type -> <type>
+Current token:                        int          keyword         
+type -> int
 Current token:                        if           keyword         
 statement -> if ( <expression> ) { <statement> } else { <statement> } <program>
-Current token:           write                     ID              
-statement -> <rvalue> ; <program>
-Current token:           write                     ID              
-rvalue -> $ID
-Current token:           BAD
-                      string          
-args -> <term> <arg_n>
-Current token:                                     right_bracket   
-arg_n -> ε
-Current token:                                     right_curly_brac
-program -> <statement>
-Current token:                                     right_curly_brac
-statement -> ε
-Current token:           write                     ID              
-statement -> <rvalue> ; <program>
-Current token:           write                     ID              
-rvalue -> $ID
-Current token:           GOOD
-                     string          
-args -> <term> <arg_n>
-Current token:                                     right_bracket   
-arg_n -> ε
-Current token:                                     right_curly_brac
-program -> <statement>
-Current token:                                     right_curly_brac
-statement -> ε
-Current token:                                     EOF             
-program -> <statement>
-Current token:                                     EOF             
-statement -> ε
-Current token:                                     EOF             
-end -> EOF
-
-
