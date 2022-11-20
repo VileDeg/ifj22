@@ -2,23 +2,15 @@
 
 <?php
 declare(strict_types=1);
-function f(int $x) : int {
-    if($x === 0) {
-        return 0;
-    } else {
-        if($x === 1) {
-            return 1;
-        } else {
-            $param1 = $x - 1;
-            $param2 = $x - 2;
-            $res1 = f($param1);
-            $res2 = f($param2);
-            return $res1 + $res2;
-        }
-    }
+function f() : void {
+  return;
 }
-$res = f(9);
-write($res, "\n");
+$x = f();
+if($x !== null) {
+  write("NOT NULL\n");
+} else {
+  write("NULL\n");
+}
 
 
 --------------------List of tokens: --------------------
@@ -35,13 +27,42 @@ int  deci string       keyword      type
                        function     keyword         
           f                         ID              
                                     left_bracket    
-                       int          keyword         
-          $x                        ID              
                                     right_bracket   
                                     colon           
-                       int          keyword         
+                       void         keyword         
                                     left_curly_brack
+                       return       keyword         
+                                    semicolon       
+                                    right_curly_brac
+          $x                        ID              
+                                    equal_sign      
+          f                         ID              
+                                    left_bracket    
+                                    right_bracket   
+                                    semicolon       
                        if           keyword         
                                     left_bracket    
           $x                        ID              
-                                    equal           
+                                    not_equal       
+                       null         null            
+                                    right_bracket   
+                                    left_curly_brack
+          write                     ID              
+                                    left_bracket    
+          NOT NULL
+                 string          
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          write                     ID              
+                                    left_bracket    
+          NULL
+                     string          
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                                    EOF             
+
+

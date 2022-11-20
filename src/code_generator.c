@@ -1,9 +1,12 @@
 #include "code_generator.h"
 #include "macros.h"
 #include "builtins.h"
+#include "internals.h"
 
 str_t g_Code;
 FILE* g_CodegenOut = NULL;
+
+#define _FLBEXT ""
 
 bool emit_header() {
     EMIT_NL(".IFJcode22\n"
@@ -12,7 +15,7 @@ bool emit_header() {
            "DEFVAR GF@TMP_REG3\n"
            "DEFVAR GF@EXPR_VAL\n"
            "DEFVAR GF@EXPR_TYPE\n"
-           "JUMP !program_body\n");
+           "JUMP !program_body"_FLBEXT"\n");
     return true;
 }
 
@@ -54,11 +57,9 @@ bool code_generator_init() {
     return true;
 }
 
-
 void code_generator_terminate() {
     str_dest(&g_Code);
 }
-
 
 void code_generator_flush(FILE* file) {
     fprintf(file, "%s", g_Code.ptr);
@@ -74,7 +75,7 @@ bool emit_clear_stack()
 
 bool emit_program_body_open()
 {
-    EMIT_NL("LABEL !program_body");
+    EMIT_NL("LABEL !program_body" _FLBEXT);
     //EMIT_NL("CREATEFRAME");
     return true;
 }
@@ -82,14 +83,7 @@ bool emit_program_body_open()
 bool emit_program_body_close()
 {
     EMIT_NL("CLEARS");
-    return true;
-}
-
-bool emit_push_bool_literal(bool value)
-{
-    EMIT("PUSHS bool@");
-    EMIT(value ? "true" : "false");
-    EMIT("\n");
+    EMIT_NL("# End of program");
     return true;
 }
 
@@ -97,7 +91,7 @@ bool emit_function_open(const char* name)
 {
     EMIT("JUMP !");
     EMIT(name);
-    EMIT_NL("_skip");
+    EMIT_NL("_skip" _FLBEXT);
 
     EMIT("\n# Function ");
     EMIT(name);
@@ -105,7 +99,7 @@ bool emit_function_open(const char* name)
 
     EMIT("LABEL !");
     EMIT(name);
-    EMIT("\n");
+    EMIT(_FLBEXT "\n");
 
     //EMIT_NL("CREATEFRAME");
     EMIT_NL("PUSHFRAME");
@@ -134,7 +128,7 @@ bool emit_function_type(DataType type, bool qmark)
 	str_dest(&str);
 
     EMIT_NL("DEFVAR LF@func_qmark");
-    EMIT("MOVE LF@func_qmark "); EMIT_NL(qmark ? "bool@true" : "bool@false");
+    EMIT("MOVE LF@func_qmark "); EMIT(qmark ? "bool@true" : "bool@false"); EMIT_NL();
 
     return true;
 }
@@ -150,22 +144,25 @@ bool emit_call_return_sem_check()
 
 bool emit_function_close(const char* name) 
 {
+    EMIT("LABEL !");
+    EMIT(name);
+    EMIT_NL("_end" _FLBEXT);
+
     EMIT_NL("POPFRAME");
 
     EMIT_NL("RETURN\n");
 
     EMIT("LABEL !");
     EMIT(name);
-    EMIT_NL("_skip");
+    EMIT_NL("_skip" _FLBEXT);
 
     return true;
 }
 
-
-bool emit_def_val(DataType type) {
+bool emit_default_value(DataType type) {
     switch (type) {
         case TYPE_FLOAT:
-            EMIT("float@0.0");
+            EMIT("float@0x0.0p+0");
             break;
 
         case TYPE_INT:
@@ -190,17 +187,15 @@ bool emit_def_val(DataType type) {
     return true;
 }
 
-
-bool emit_function_res(DataType type) {
+bool emit_function_result_declaration(DataType type) {
     EMIT_NL("DEFVAR LF@res");
 
     EMIT("MOVE LF@res ");
-    if (!emit_def_val(type)) return false;
+    if (!emit_default_value(type)) return false;
     EMIT("\n");
 
     return true;
 }
-
 
 bool emit_define_var(const char* var, bool in_local_scope) {
     EMIT("DEFVAR ");
@@ -213,35 +208,16 @@ bool emit_define_var(const char* var, bool in_local_scope) {
     return true;
 }
 
-
-// bool emit_var_def(DataType type, char* var) {
-//     EMIT("MOVE LF@");
-//     EMIT(var);
-//     EMIT(" ");
-//     if (!emit_def_val(type)) return false;
-//     EMIT("\n");
-
-//     return true;
-// }
-
-
 bool emit_function_call(const char* name) {
     EMIT("CALL !");
     EMIT(name);
-    EMIT("\n");
+    EMIT(_FLBEXT"\n");
 
     return true;
 }
 
-
 bool emit_function_res_assign(const char* var_name, bool local_frame)
 {
-    // if (var_type == TYPE_INT && res_type == TYPE_FLOAT) {
-    //     EMIT_NL("FLOAT2INT TF@res TF@res");
-    // } else if (var_type == TYPE_FLOAT && res_type == TYPE_INT) {
-    //     EMIT_NL("INT2FLOAT TF@res TF@res");
-    // }
-
     EMIT("MOVE ");
     EMIT(local_frame ? "LF@" : "GF@");
     EMIT(var_name);
@@ -249,7 +225,6 @@ bool emit_function_res_assign(const char* var_name, bool local_frame)
 
     return true;
 }
-
 
 bool emit_function_param_declare(const char* name, int64_t index) {
     EMIT("DEFVAR LF@");
@@ -264,7 +239,6 @@ bool emit_function_param_declare(const char* name, int64_t index) {
 
     return true;
 }
-
 
 bool emit_value_from_token(Token token, bool local_frame) 
 {
@@ -314,32 +288,11 @@ bool emit_value_from_token(Token token, bool local_frame)
     return true;
 }
 
-
 bool emit_function_before_pass_params() {
     EMIT_NL("CREATEFRAME");
 
     return true;
 }
-
-
-// bool emit_function_convert_passed_param(DataType from, DataType to, int64_t index) {
-//     if (to == TYPE_INT && from == TYPE_FLOAT) {
-//         EMIT("FLOAT2INT TF@-");
-//         EMIT_INT(index);
-//         EMIT(" TF@-");
-//         EMIT_INT(index);
-//         EMIT("\n");
-//     } else if (to == TYPE_FLOAT && from == TYPE_INT) {
-//         EMIT("INT2FLOAT TF@-");
-//         EMIT_INT(index);
-//         EMIT(" TF@-");
-//         EMIT_INT(index);
-//         EMIT("\n");
-//     }
-
-//     return true;
-// }
-
 
 bool emit_function_pass_param(Token token, int64_t index, bool local_frame) {
     EMIT("DEFVAR TF@-");
@@ -355,7 +308,6 @@ bool emit_function_pass_param(Token token, int64_t index, bool local_frame) {
     return true;
 }
 
-
 bool emit_function_pass_param_push(Token token, bool local_frame) {
     EMIT("PUSHS ");
     if (!emit_value_from_token(token, local_frame)) return false;
@@ -363,7 +315,6 @@ bool emit_function_pass_param_push(Token token, bool local_frame) {
 
     return true;
 }
-
 
 bool emit_function_pass_param_count(int64_t count)
 {
@@ -375,17 +326,15 @@ bool emit_function_pass_param_count(int64_t count)
     return true;
 }
 
-
 bool emit_function_return(const char* name) {
     EMIT_NL("MOVE LF@res GF@EXPR_VAL");
 
     EMIT("JUMP !");
     EMIT(name);
-    EMIT_NL("_end");
+    EMIT_NL("_end" _FLBEXT);
 
     return true;
 }
-
 
 bool emit_bool_value(bool value)
 {
@@ -394,13 +343,11 @@ bool emit_bool_value(bool value)
     return true;
 }
 
-
 bool emit_exp_res() {
     EMIT_NL("WRITE GF@EXPR_VAL");
 
     return true;
 }
-
 
 bool emit_push(Token token, bool local_frame) {
     EMIT("PUSHS ");
@@ -410,12 +357,12 @@ bool emit_push(Token token, bool local_frame) {
     return true;
 }
 
-
-
 bool emit_check_var_defined(const char* id, bool local)
 {
     EMIT("TYPE GF@EXPR_TYPE "); EMIT(local ? "LF@" : "GF@"); EMIT(id); EMIT_NL();
-    EMIT_NL("JUMPIFED !error_sem_four GF@EXPR_TYPE string@");
+    EMIT_NL("JUMPIFEQ !sem_error_four GF@EXPR_TYPE string@");
+
+    return true;
 }
 
 bool emit_pop()
@@ -423,10 +370,6 @@ bool emit_pop()
     EMIT_NL("POPS GF@TMP_REG1");
     return true;
 }
-
-//static int64_t s_EqCounter = 0;
-
-
 
 bool emit_stack_operation(Rule_type rule) {
     switch (rule) {
@@ -506,7 +449,6 @@ bool emit_stack_operation(Rule_type rule) {
     return true;
 }
 
-
 bool emit_stack_concat() {
     EMIT_NL("POPS GF@TMP_REG1\n"
            "POPS GF@TMP_REG\n"
@@ -515,23 +457,6 @@ bool emit_stack_concat() {
 
     return true;
 }
-
-
-// bool emit_stack_pop_res(const char* var, DataType res_type, DataType var_type, const char* frame) {
-//     if (var_type == TYPE_INT && res_type == TYPE_FLOAT) {
-//         EMIT_NL("FLOAT2INTS");
-//     } else if (var_type == TYPE_FLOAT && res_type == TYPE_INT) {
-//         EMIT_NL("INT2FLOATS");
-//     } //TODO: TYPE_BOOL ??
-
-//     EMIT("POPS ");
-//     EMIT(frame);
-//     EMIT("@");
-//     EMIT(var);
-//     EMIT("\n");
-
-//     return true;
-// }
 
 bool emit_stack_pop_res(const char* var, const char* frame) 
 {
@@ -544,38 +469,6 @@ bool emit_stack_pop_res(const char* var, const char* frame)
     return true;
 }
 
-bool emit_stack_top_int2float() {
-    EMIT_NL("INT2FLOATS");
-
-    return true;
-}
-
-
-bool emit_stack_top_float2int() {
-    EMIT_NL("FLOAT2INTS");
-
-    return true;
-}
-
-
-bool emit_stack_sec_int2float() {
-    EMIT_NL("POPS GF@TMP_REG1\n"
-           "INT2FLOATS\n"
-           "PUSHS GF@TMP_REG1");
-
-    return true;
-}
-
-
-bool emit_stack_sec_float2int() {
-    EMIT_NL("POPS GF@TMP_REG1\n"
-           "FLOAT2INTS\n"
-           "PUSHS GF@TMP_REG1");
-
-    return true;
-}
-
-
 bool emit_label(const char* name, int64_t deep, int64_t index) {
     EMIT("LABEL !");
     EMIT(name);
@@ -587,7 +480,6 @@ bool emit_label(const char* name, int64_t deep, int64_t index) {
 
     return true;
 }
-
 
 bool emit_if_head()
 {
@@ -608,7 +500,6 @@ bool emit_if_open(const char* name, int64_t deep, int64_t index) {
     return true;
 }
 
-
 bool emit_else(const char* name, int64_t deep, int64_t index) {
     EMIT("JUMP !");
     EMIT(name);
@@ -625,8 +516,6 @@ bool emit_else(const char* name, int64_t deep, int64_t index) {
     return true;
 }
 
-
-
 bool emit_if_close(const char* name, int64_t deep, int64_t index) {
     EMIT_NL("# if end");
     if (!emit_label(name, deep, index)) return false;
@@ -635,7 +524,6 @@ bool emit_if_close(const char* name, int64_t deep, int64_t index) {
     return true;
 }
 
-
 bool emit_while_head(const char* name, int64_t deep, int64_t index) {
     EMIT_NL("\n# while");
 
@@ -643,7 +531,6 @@ bool emit_while_head(const char* name, int64_t deep, int64_t index) {
 
     return true;
 }
-
 
 bool emit_while_open(const char* name, int64_t deep, int64_t index) {
     EMIT("JUMPIFEQ !");
@@ -657,8 +544,8 @@ bool emit_while_open(const char* name, int64_t deep, int64_t index) {
     return true;
 }
 
-
-bool emit_while_close(const char* name, int64_t deep, int64_t index) {
+bool emit_while_close(const char* name, int64_t deep, int64_t index) 
+{
     EMIT("JUMP !");
     EMIT(name);
     EMIT("_");
@@ -678,3 +565,48 @@ bool emit_while_close(const char* name, int64_t deep, int64_t index) {
 
     return true;
 }
+
+bool emit_expression_bool_convert()
+{
+    EMIT_NL("CREATEFRAME");
+    EMIT_NL("CALL !expr_res_bool_check\n");
+    return true;
+}
+
+#if 0
+bool emit_stack_top_int2float() {
+    EMIT_NL("INT2FLOATS");
+
+    return true;
+}
+
+bool emit_stack_top_float2int() {
+    EMIT_NL("FLOAT2INTS");
+
+    return true;
+}
+
+bool emit_stack_sec_int2float() {
+    EMIT_NL("POPS GF@TMP_REG1\n"
+           "INT2FLOATS\n"
+           "PUSHS GF@TMP_REG1");
+
+    return true;
+}
+
+bool emit_stack_sec_float2int() {
+    EMIT_NL("POPS GF@TMP_REG1\n"
+           "FLOAT2INTS\n"
+           "PUSHS GF@TMP_REG1");
+
+    return true;
+}
+
+bool emit_push_bool_literal(bool value)
+{
+    EMIT("PUSHS bool@");
+    EMIT(value ? "true" : "false");
+    EMIT("\n");
+    return true;
+}
+#endif

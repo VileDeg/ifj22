@@ -53,11 +53,11 @@ bool determine_type(Token* tk)
 
     if (str_cmp(&tk->string, "else"))
         tk->keyword = keyword_else;
-    else if (str_cmp(&tk->string, "float") || str_cmp(&tk->string, "?float"))
+    else if (str_cmp(&tk->string, "float"))
         tk->keyword = keyword_float;  
-    else if (str_cmp(&tk->string, "int") || str_cmp(&tk->string, "?int"))
+    else if (str_cmp(&tk->string, "int"))
         tk->keyword = keyword_int;
-    else if (str_cmp(&tk->string, "string") || str_cmp(&tk->string, "?string"))
+    else if (str_cmp(&tk->string, "string"))
         tk->keyword = keyword_string;
     else if (str_cmp(&tk->string, "function"))
         tk->keyword = keyword_function;
@@ -156,11 +156,10 @@ int scanner_get_next_token(Token* tk)
         
         if(is_correct_file_start == false)
         {
-            // if (sign != '<')
-            // {
-            //     PRINT_ERROR_RET(ERROR_LEXICAL, "wrong file start");
-            //     //return ERROR_LEXICAL;
-            // }
+            if (sign != '<')
+            {
+                PRINT_ERROR_RET(ERROR_LEXICAL, "wrong file start");
+            }
                 
             is_correct_file_start = true;
         }
@@ -402,6 +401,7 @@ int scanner_get_next_token(Token* tk)
 
             case(STATE_PROLOG):
                 tk->type = token_prologue;
+                ungetc(sign, s_Fptr);
                 return 0;
                                     
             case(STATE_QUESTION_MARK):

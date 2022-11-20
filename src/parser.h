@@ -28,7 +28,7 @@ typedef struct
     bool in_param_list;
     bool block_next_token;
     bool in_local_scope;
-    //bool func_questionmark;
+    bool return_found;
     bool var_not_yet_def;
     bool get_next_from_stack;
     bool in_if_while;

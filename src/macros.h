@@ -147,7 +147,7 @@
 #define TOKEN_IS_VALUE_TYPE   (TOKEN_IS(float) 	 || TOKEN_IS(integer)   || TOKEN_IS(string) || TOKEN_IS(null)  || TOKEN_IS(ID)	 	 )
 
 
-
+#define LETTFLIP(_s) ('z' - (_s) + 'a')
 
 
 

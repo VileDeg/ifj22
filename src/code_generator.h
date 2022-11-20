@@ -51,6 +51,7 @@ bool code_generator_init();
  */
 void code_generator_terminate();
 
+bool emit_expression_bool_convert();
 /**
  * Extract code into file.
  * @param file
@@ -90,14 +91,14 @@ bool emit_function_close(const char* name);
 //  * @param type
 //  * @return true if success.
 //  */
-// bool emit_def_val(DataType type);
+bool emit_default_value(DataType type);
 
 /**
  * Generation of @res value.
  * @param type
  * @return true if success.
  */
-bool emit_function_res(DataType type);
+bool emit_function_result_declaration(DataType type);
 
 /**
  * Generation of defvar.
@@ -113,7 +114,7 @@ bool emit_define_var(const char* var, bool in_local_scope);
 //  * @param var
 //  * @return true if success.
 //  */
-// bool emit_var_def(DataType type, const char* var);
+bool emit_var_default_value(DataType type, const char* var);
 
 /**
  * Generation of function calling.

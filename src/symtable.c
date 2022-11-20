@@ -4,6 +4,7 @@
 #include "symtable.h"
 #include "string_t.h"
 #include "errors.h"
+#include "macros.h"
 
 
 size_t hash_function(const char *str) {
@@ -102,7 +103,7 @@ bool symtable_add_param(TData *data, int64_t data_type, bool can_be_null)
     {
         if (data_type == stype[i])
         {
-            int sign = can_be_null ? 'z' - slett[i] + 'a' : slett[i];
+            int sign = can_be_null ? LETTFLIP(slett[i]) : slett[i];
             if (!str_add_sign(data->params, sign))
                 return false;
             return true;
@@ -111,35 +112,6 @@ bool symtable_add_param(TData *data, int64_t data_type, bool can_be_null)
 
     IFJ22_ASSERT(false, "Wrong type.");
     return false;
-
-    // switch (data_type) {
-    //     case (TYPE_FLOAT):
-    //         if (!str_add_sign(data->params, can_be_null ? 'z'-'f': 'f')) {
-    //             return false;
-    //         }
-    //         break;
-
-    //     case (TYPE_INT):
-    //         if (!str_add_sign(data->params, 'i')) {
-    //             return false;
-    //         }
-    //         break;
-
-    //     case (TYPE_STRING):
-    //         if (!str_add_sign(data->params, 's')) {
-    //             return false;
-    //         }
-    //         break;
-    //     case (TYPE_UNDEF):
-    //         if (!str_add_sign(data->params, 'u')) {
-    //             return false;
-    //         }
-    //         break;
-    //     default:
-    //         IFJ22_ASSERT(false, "Wrong type.");
-    //         break;
-    // }
-    // return true;
 }
 
 

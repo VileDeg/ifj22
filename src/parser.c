@@ -61,9 +61,9 @@ static bool init_data(ParserData* pd)
     symtable_init(&pd->globalTable);
 	//symtable_init(&pd->localTable);
 
-	pd->in_param_list   = pd->block_next_token     = 
-	pd->in_local_scope  = 
-	pd->var_not_yet_def = pd->get_next_from_stack  = 
+	pd->in_param_list   = pd->block_next_token    = 
+	pd->in_local_scope  = pd->return_found 		  =
+	pd->var_not_yet_def = pd->get_next_from_stack = 
 	pd->in_if_while 	= false;
 
 	pd->rhs_func = pd->current_func = pd->lhs_var = NULL;
@@ -122,7 +122,7 @@ static void free_data(ParserData* pd)
 
 static int term(ParserData* pd)
 {
-	#define LETTFLIP(_s) ('z' - (_s) + 'a')
+	
 
 	RULE_OPEN;
 	{
@@ -460,8 +460,19 @@ static int params(ParserData* pd)
 			NEXT_TK_CHECK_VAR_ID;
 			{ //Add var to local table
 				if (FIND_CURRENT_ID)
-					PRINT_ERROR_RET(ERROR_SEM_ID_DEF, "parameter already defined.");
-				ADD_CURRENT_ID(pd->lhs_var);
+					PRINT_ERROR_RET(ERROR_SEM_ID_DEF, "parameter redefinition.");
+				TData* data = NULL;
+				ADD_CURRENT_ID(data); //pd->lhs_var
+				int pnum = pd->current_func->params->len;
+				int sign = pd->current_func->params->ptr[pnum-1];
+				if (sign == 'i' || sign == LETTFLIP('i'))
+					data->type = TYPE_INT;
+				else if (sign == 'f' || sign == LETTFLIP('f'))
+					data->type = TYPE_FLOAT;
+				else if (sign == 's' || sign == LETTFLIP('s'))
+					data->type = TYPE_STRING;
+				else
+					INTERNAL_ERROR_RET;
 			}
 			
 			{ CODEGEN(emit_function_param_declare, TK_STR(pd->token), pd->param_index); }
@@ -521,9 +532,10 @@ static int statement(ParserData* pd)
 
 			{
 				if (!(pd->lhs_var = FIND_CURRENT_ID))
+				{
 					ADD_CURRENT_ID(pd->lhs_var);
-
-				{ CODEGEN(emit_define_var, pd->lhs_var->id, pd->in_local_scope); }
+					{ CODEGEN(emit_define_var, pd->lhs_var->id, pd->in_local_scope); }
+				}
 
 				NEXT_TK_CHECK_TOKEN(equal_sign);
 
@@ -620,7 +632,7 @@ static int statement(ParserData* pd)
 
 			GET_NEXT_TOKEN;
 			{
-				if (!pd->in_local_scope) //<-- if main doesn't return anything
+				if (!pd->in_local_scope) 
 				{
 					if (TOKEN_IS(semicolon))
 						goto no_retcode;
@@ -631,12 +643,12 @@ static int statement(ParserData* pd)
 					{
 						if (TOKEN_IS(semicolon))
 							goto no_retcode;
-						// else
-						// 	PRINT_ERROR_RET(ERROR_SEM_RETURN, "invalid function return type (function is 'void').");
+						else
+						 	PRINT_ERROR_RET(ERROR_SEM_RETURN, "invalid function return type (function is 'void').");
 
 					}
-					// else if (TOKEN_IS(semicolon))
-					// 	PRINT_ERROR_RET(ERROR_SEM_RETURN, "invalid function return type (return value is missing).");
+					else if (TOKEN_IS(semicolon))
+					 	PRINT_ERROR_RET(ERROR_SEM_RETURN, "invalid function return type (return value is missing).");
 					
 					if (!(pd->lhs_var = symtable_find(&pd->globalTable, "EXPR_VAL")))
 						INTERNAL_ERROR_RET;
@@ -646,8 +658,13 @@ static int statement(ParserData* pd)
 
 			if (pd->in_local_scope)
 			{
+				pd->return_found = true;
+
 				{ CODEGEN(emit_call_return_sem_check); }
+				{ CODEGEN(emit_function_return, pd->current_func->id); }
 			}
+			else
+				{ CODEGEN(emit_clear_stack); }
 
 			// if (pd->in_local_scope)
 			// {
@@ -657,8 +674,6 @@ static int statement(ParserData* pd)
 			// 			PRINT_ERROR_RET(ERROR_SEM_TYPE_COMPAT, "invalid function return type.");
 			// 	}
 			// }
-
-			{ CODEGEN(emit_clear_stack); } //<-- get rid of return value on stack
 
 			NEXT_TK_CHECK_TOKEN(semicolon);
 no_retcode:
@@ -714,13 +729,19 @@ static int program(ParserData* pd)
 			
 			NEXT_TK_CHECK_RULE(func_type);
 
+			{ CODEGEN(emit_function_result_declaration, pd->current_func->type); }
+
 			{ CODEGEN(emit_function_type, pd->current_func->type, pd->current_func->qmark_type); }
 			
+			pd->return_found = false;
 			NEXT_TK_CHECK_TOKEN(left_curly_bracket);
 			{
 				NEXT_TK_CHECK_RULE(statement);
 			}
 			NEXT_TK_CHECK_TOKEN(right_curly_bracket);
+			if (pd->current_func->type != TYPE_NULL && !pd->return_found)
+				PRINT_ERROR_RET(ERROR_SEM_TYPE_COMPAT, 
+					"function is not 'void' but 'return' is missing.");
 			
 			{ CODEGEN(emit_function_close, pd->current_func->id); }
 			

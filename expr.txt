@@ -19,9 +19,154 @@
 	3: $        UNDEF
 
 -5 :: stack_push
-	0: id       UNDEF
+	0: id       NULL
 	1: REDUCE   UNDEF
 	2: (        UNDEF
 	3: REDUCE   UNDEF
 	4: $        UNDEF
+
+-6 :: stack_pop
+	0: REDUCE   UNDEF
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-7 :: stack_pop
+	0: (        UNDEF
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-8 :: stack_push
+	0: E        NULL
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-9 :: stack_push_after_top_term
+	0: E        NULL
+	1: REDUCE   UNDEF
+	2: (        UNDEF
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-10 :: stack_push
+	0: !==      UNDEF
+	1: E        NULL
+	2: REDUCE   UNDEF
+	3: (        UNDEF
+	4: REDUCE   UNDEF
+	5: $        UNDEF
+
+-11 :: stack_push_after_top_term
+	0: REDUCE   UNDEF
+	1: !==      UNDEF
+	2: E        NULL
+	3: REDUCE   UNDEF
+	4: (        UNDEF
+	5: REDUCE   UNDEF
+	6: $        UNDEF
+
+-12 :: stack_push
+	0: null     NULL
+	1: REDUCE   UNDEF
+	2: !==      UNDEF
+	3: E        NULL
+	4: REDUCE   UNDEF
+	5: (        UNDEF
+	6: REDUCE   UNDEF
+	7: $        UNDEF
+
+-13 :: stack_pop
+	0: REDUCE   UNDEF
+	1: !==      UNDEF
+	2: E        NULL
+	3: REDUCE   UNDEF
+	4: (        UNDEF
+	5: REDUCE   UNDEF
+	6: $        UNDEF
+
+-14 :: stack_pop
+	0: !==      UNDEF
+	1: E        NULL
+	2: REDUCE   UNDEF
+	3: (        UNDEF
+	4: REDUCE   UNDEF
+	5: $        UNDEF
+
+-15 :: stack_push
+	0: E        NULL
+	1: !==      UNDEF
+	2: E        NULL
+	3: REDUCE   UNDEF
+	4: (        UNDEF
+	5: REDUCE   UNDEF
+	6: $        UNDEF
+
+-16 :: stack_pop
+	0: !==      UNDEF
+	1: E        NULL
+	2: REDUCE   UNDEF
+	3: (        UNDEF
+	4: REDUCE   UNDEF
+	5: $        UNDEF
+
+-17 :: stack_pop
+	0: E        NULL
+	1: REDUCE   UNDEF
+	2: (        UNDEF
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-18 :: stack_pop
+	0: REDUCE   UNDEF
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-19 :: stack_pop
+	0: (        UNDEF
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-20 :: stack_push
+	0: E        BOOL
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-21 :: stack_push
+	0: )        UNDEF
+	1: E        BOOL
+	2: (        UNDEF
+	3: REDUCE   UNDEF
+	4: $        UNDEF
+
+-22 :: stack_pop
+	0: E        BOOL
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
+
+-23 :: stack_pop
+	0: (        UNDEF
+	1: REDUCE   UNDEF
+	2: $        UNDEF
+
+-24 :: stack_pop
+	0: REDUCE   UNDEF
+	1: $        UNDEF
+
+-25 :: stack_pop
+	0: $        UNDEF
+
+-26 :: stack_push
+	0: E        BOOL
+	1: $        UNDEF
+
+-27 :: stack_pop
+	0: $        UNDEF
+
+-28 :: stack_pop
+
+-29 :: stack_clear
 

@@ -21,32 +21,6 @@
 
 #define NUMFERRORS 9
 
-extern const char* g_ErrStr[NUMFERRORS];
-
-// fprintf(stderr, "\033[1;31m");
-// fprintf(stderr, "\033[0m");
-
-#define _PRERRH(_errstr, _fmt, ...)\
-    do{\
-        fprintf(stderr, "[%s]: " _fmt "\n%s", _errstr, __VA_ARGS__);\
-    } while(0)\
-    
-#define _PRERR(...) _PRERRH(__VA_ARGS__, "")
-
-#define PRINT_ERROR(_errcode, ...) _PRERR(g_ErrStr[(_errcode)], __VA_ARGS__)
-#define PRINT_ERROR_RET(_errcode, ...) do{ _PRERR(g_ErrStr[(_errcode)], __VA_ARGS__); return _errcode; } while(0)
-
-#define INTERNAL_ERROR_RET PRINT_ERROR_RET(ERROR_INTERNAL, "internal error.")
-
-// #define PRINT_ERROR_LEX(...) _PRERR("ERROR_LEXICAL", __VA_ARGS__)
-// #define PRINT_ERROR_SYNT(...) _PRERR("ERROR_SYNTAX", __VA_ARGS__)
-// #define PRINT_ERROR_SEM_UNDEF_FUNC(...) _PRERR("ERROR_SEMANTIC_UNDEFINED_FUNCTION", __VA_ARGS__)
-// #define PRINT_ERROR_SEM_FUNC(...) _PRERR("ERROR_SEMANTIC_FUNCTION", __VA_ARGS__)
-// #define PRINT_ERROR_SEM_UNDEF_VAR(...) _PRERR("ERROR_SEMANTIC_UNDEFINED_VARIABLE", __VA_ARGS__)
-// #define PRINT_ERROR_SEM_RET(...) _PRERR("ERROR_SEMANTIC_RETURN", __VA_ARGS__)
-// #define PRINT_ERROR_SEM_EXPR(...) _PRERR("ERROR_SEMANTIC_EXPRESSION", __VA_ARGS__)
-// #define PRINT_ERROR_SEM_OTHER(...) _PRERR("ERROR_SEMANTIC_OTHER", __VA_ARGS__)
-// #define PRINT_ERROR_INTERN(...) _PRERR("ERROR_INTERNAL", __VA_ARGS__)
 
 #ifdef IFJ22_DEBUG
 
@@ -63,5 +37,42 @@ extern const char* g_ErrStr[NUMFERRORS];
 #else
 #define IFJ22_ASSERT(val, msg)
 #endif //IFJ22_DEBUG
+
+extern const char* g_ErrStr[NUMFERRORS];
+
+// fprintf(stderr, "\033[1;31m");
+// fprintf(stderr, "\033[0m");
+
+#define _PRERRH(_errstr, _fmt, ...)\
+    do{\
+        fprintf(stderr, "[%s]: " _fmt "\n%s", _errstr, __VA_ARGS__);\
+    } while(0)\
+    
+#define _PRERR(...) _PRERRH(__VA_ARGS__, "")
+
+#define PRINT_ERROR(_errcode, ...) _PRERR(g_ErrStr[(_errcode)], __VA_ARGS__)
+#define PRINT_ERROR_RET(_errcode, ...) do{\
+        fprintf(stderr, "[%s]::COMPILER ERROR on line: %d, in function: %s\n",\
+            __FILE__, __LINE__, __func__);\
+        _PRERR(g_ErrStr[(_errcode)], __VA_ARGS__);\
+        return _errcode;\
+    } while(0)
+
+#define INTERNAL_ERROR_RET do{\
+        _PRERR("ERROR_INTERNAL", "internal error.");\
+        IFJ22_ASSERT(false, "");\
+        return ERROR_INTERNAL;\
+    } while(0)
+
+// #define PRINT_ERROR_LEX(...) _PRERR("ERROR_LEXICAL", __VA_ARGS__)
+// #define PRINT_ERROR_SYNT(...) _PRERR("ERROR_SYNTAX", __VA_ARGS__)
+// #define PRINT_ERROR_SEM_UNDEF_FUNC(...) _PRERR("ERROR_SEMANTIC_UNDEFINED_FUNCTION", __VA_ARGS__)
+// #define PRINT_ERROR_SEM_FUNC(...) _PRERR("ERROR_SEMANTIC_FUNCTION", __VA_ARGS__)
+// #define PRINT_ERROR_SEM_UNDEF_VAR(...) _PRERR("ERROR_SEMANTIC_UNDEFINED_VARIABLE", __VA_ARGS__)
+// #define PRINT_ERROR_SEM_RET(...) _PRERR("ERROR_SEMANTIC_RETURN", __VA_ARGS__)
+// #define PRINT_ERROR_SEM_EXPR(...) _PRERR("ERROR_SEMANTIC_EXPRESSION", __VA_ARGS__)
+// #define PRINT_ERROR_SEM_OTHER(...) _PRERR("ERROR_SEMANTIC_OTHER", __VA_ARGS__)
+// #define PRINT_ERROR_INTERN(...) _PRERR("ERROR_INTERNAL", __VA_ARGS__)
+
 
 #endif //__ERRORS__

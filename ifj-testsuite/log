@@ -855,7 +855,10 @@ TEST 95: ./tests/sem/expressions/undefined_variable_1.php
 PROGRAM INPUT:
 
 ----
-SUCCESS
+Compiler error output:
+<empty>
+----
+ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [5].
 
 ********************
 TEST 96: ./tests/sem/expressions/undefined_variable_2.php
@@ -873,7 +876,10 @@ TEST 97: ./tests/sem/expressions/undefined_variable_3.php
 PROGRAM INPUT:
 
 ----
-SUCCESS
+Compiler error output:
+<empty>
+----
+ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [5].
 
 ********************
 TEST 98: ./tests/sem/functions/argument_type_conversion.php
@@ -1153,7 +1159,10 @@ TEST 126: ./tests/syn/expression/invalid_parentheses.php
 PROGRAM INPUT:
 
 ----
-SUCCESS
+Compiler error output:
+<empty>
+----
+ERROR: Unexpected exit code of IFJ compiler. Actual: 5 Expected: [2].
 
 ********************
 TEST 127: ./tests/syn/expression/parentheses.php
@@ -1162,7 +1171,10 @@ TEST 127: ./tests/syn/expression/parentheses.php
 PROGRAM INPUT:
 
 ----
-SUCCESS
+Compiler error output:
+<empty>
+----
+ERROR: Unexpected exit code of IFJ compiler. Actual: 5 Expected: [0].
 
 ********************
 TEST 128: ./tests/syn/expression/variables.php
@@ -1481,7 +1493,10 @@ TEST 162: ./tests/syn/statement/assignment.php
 PROGRAM INPUT:
 
 ----
-SUCCESS
+Compiler error output:
+<empty>
+----
+ERROR: Unexpected exit code of IFJ compiler. Actual: 5 Expected: [0].
 
 ********************
 TEST 163: ./tests/syn/statement/bad_assign_1.php
@@ -1520,7 +1535,7 @@ PROGRAM INPUT:
 Compiler error output:
 <empty>
 ----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 5 Expected: [2].
+ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [2].
 
 ********************
 TEST 167: ./tests/syn/statement/bad_call_1.php
@@ -1563,7 +1578,7 @@ PROGRAM INPUT:
 Compiler error output:
 <empty>
 ----
-ERROR: Unexpected exit code of IFJ compiler. Actual: 5 Expected: [2].
+ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [2].
 
 ********************
 TEST 171: ./tests/syn/statement/bad_call_5.php
@@ -1608,7 +1623,10 @@ TEST 175: ./tests/syn/statement/bad_if_1.php
 PROGRAM INPUT:
 
 ----
-SUCCESS
+Compiler error output:
+<empty>
+----
+ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [2].
 
 ********************
 TEST 176: ./tests/syn/statement/bad_if_2.php
@@ -1662,7 +1680,10 @@ TEST 181: ./tests/syn/statement/bad_while_1.php
 PROGRAM INPUT:
 
 ----
-SUCCESS
+Compiler error output:
+<empty>
+----
+ERROR: Unexpected exit code of IFJ compiler. Actual: -11 Expected: [2].
 
 ********************
 TEST 182: ./tests/syn/statement/bad_while_2.php
