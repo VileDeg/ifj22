@@ -333,12 +333,14 @@ DataType type_info(ParserData* pd, int* errcode)
             //{ CODEGEN(emit_check_var_defined, data->id, !data->global); }
             return data->type;
         }
-        return TYPE_UNDEF;
-        // if (!data || (pd->var_not_yet_def && pd->lhs_var == data))
-        // {
-        //     *errcode = ERROR_SEM_UNDEF_VAR;
-        //     return TYPE_UNDEF;
-        // }
+
+        //return TYPE_UNDEF;
+        if (!data || (pd->var_not_yet_def && pd->lhs_var == data))
+        {
+            IFJ22_ASSERT(false, "");
+            *errcode = ERROR_SEM_UNDEF_VAR;
+            return TYPE_UNDEF;
+        }
         
     }
     else
@@ -357,101 +359,102 @@ DataType type_info(ParserData* pd, int* errcode)
 
 int64_t expression_parsing(ParserData* pd) 
 {
-    int64_t RES;
-
-    SymbolStack stack;
-    stack_init(&stack);
-
-    INTERNAL(stack_push(&stack, OPER_DOLLAR, TYPE_UNDEF));
-    
-    // [x,y] = indices for precedence table
-    Oper_type currSymbol;
-    Oper_type stackSymbol;
-    Symbol* stackTerm;
-
-    bool success = false;
-    // bool type_info_err = false;
-    int type_info_errcode = SUCCESS;
-
-    do
+    RULE_OPEN;
     {
-        currSymbol = term_info(&pd->token);
-        INTERNAL(stackTerm = stack_get_top_term(&stack));
-        stackSymbol = stackTerm->operType;
+        SymbolStack stack;
+        stack_init(&stack);
 
-        //We return errcode only on the next iteration in case syntax error will occur in current iteration.
+        INTERNAL(stack_push(&stack, OPER_DOLLAR, TYPE_UNDEF));
         
-        // if (type_info_err)
-        //     ERROR_RET(type_info_errcode);
-        // type_info_errcode = SUCCESS;
-        //DataType symbolDataType = TYPE_UNDEF;
-        DataType symbolDataType = type_info(pd, &type_info_errcode);
-        if (type_info_errcode != SUCCESS)
-            ERROR_RET(type_info_errcode, "type_info error.");
-        // type_info_err = type_info_errcode != SUCCESS ? true : false; 
+        // [x,y] = indices for precedence table
+        Oper_type currSymbol;
+        Oper_type stackSymbol;
+        Symbol* stackTerm;
 
-        Index_num xIndex = index_info(stackTerm->operType);
-        Index_num yIndex = index_info(currSymbol);
-        Sign_type signType = precedence_table[xIndex][yIndex];
-        switch(signType) 
+        bool success = false;
+        // bool type_info_err = false;
+        int type_info_errcode = SUCCESS;
+
+        do
         {
-            case SHIFT:
-                INTERNAL(stack_push_after_top_term(&stack, OPER_REDUCE, TYPE_UNDEF));
+            currSymbol = term_info(&pd->token);
+            INTERNAL(stackTerm = stack_get_top_term(&stack));
+            stackSymbol = stackTerm->operType;
 
-                INTERNAL(stack_push(&stack, currSymbol, symbolDataType));
+            //We return errcode only on the next iteration in case syntax error will occur in current iteration.
+            
+            // if (type_info_err)
+            //     ERROR_RET(type_info_errcode);
+            // type_info_errcode = SUCCESS;
+            //DataType symbolDataType = TYPE_UNDEF;
+            DataType symbolDataType = type_info(pd, &type_info_errcode);
+            if (type_info_errcode != SUCCESS)
+                ERROR_RET(type_info_errcode, "type_info error.");
+            // type_info_err = type_info_errcode != SUCCESS ? true : false; 
 
-                if (currSymbol == DATA_ID || currSymbol == DATA_INT || currSymbol == DATA_FLOAT || 
-                    currSymbol == DATA_STRING || currSymbol == DATA_NULL)
-                {
-                    if (currSymbol == DATA_ID)
-                        { CODEGEN(emit_check_var_defined, pd->token.string.ptr, pd->in_local_scope); }
-                    CODEGEN(emit_push, pd->token, pd->in_local_scope);
-                }
+            Index_num xIndex = index_info(stackTerm->operType);
+            Index_num yIndex = index_info(currSymbol);
+            Sign_type signType = precedence_table[xIndex][yIndex];
+            switch(signType) 
+            {
+                case SHIFT:
+                    INTERNAL(stack_push_after_top_term(&stack, OPER_REDUCE, TYPE_UNDEF));
+
+                    INTERNAL(stack_push(&stack, currSymbol, symbolDataType));
+
+                    if (currSymbol == DATA_ID || currSymbol == DATA_INT || currSymbol == DATA_FLOAT || 
+                        currSymbol == DATA_STRING || currSymbol == DATA_NULL)
+                    {
+                        if (currSymbol == DATA_ID)
+                            { CODEGEN(emit_check_var_defined, pd->token.string.ptr, pd->in_local_scope); }
+                        CODEGEN(emit_push, pd->token, pd->in_local_scope);
+                    }
 
 
-                GET_NEXT_TOKEN;
-                break;
-            case EQUAL:
-                INTERNAL(stack_push(&stack, currSymbol, symbolDataType));
-                GET_NEXT_TOKEN;
-                break;
-            case REDUCE:
-                RESULT(reduce(pd, &stack));
-                break;
-            case NONE:
-                if (currSymbol == stackTerm->operType && currSymbol == OPER_DOLLAR) 
-                    success = true;
-                else 
-                    ERROR_RET(ERROR_SYNTAX, "expression_parsing error.");
-                break;
+                    GET_NEXT_TOKEN;
+                    break;
+                case EQUAL:
+                    INTERNAL(stack_push(&stack, currSymbol, symbolDataType));
+                    GET_NEXT_TOKEN;
+                    break;
+                case REDUCE:
+                    RESULT(reduce(pd, &stack));
+                    break;
+                case NONE:
+                    if (currSymbol == stackTerm->operType && currSymbol == OPER_DOLLAR) 
+                        success = true;
+                    else 
+                        ERROR_RET(ERROR_SYNTAX, "expression_parsing error.");
+                    break;
+            }
         }
-    }
-    while (!success);
+        while (!success);
 
-    Symbol* lastNonterm = stack.top;
+        Symbol* lastNonterm = stack.top;
 
-    INTERNAL(lastNonterm);
-    if (lastNonterm->operType != OPER_E)
-        ERROR_RET(ERROR_SYNTAX, "last nonterm is not E.");
+        INTERNAL(lastNonterm);
+        if (lastNonterm->operType != OPER_E)
+            ERROR_RET(ERROR_SYNTAX, "last nonterm is not E.");
 
-    if (pd->lhs_var)
-    {
-        DataType type = lastNonterm->dataType;
-
-        pd->lhs_var->type = type;
-
-        // if (!pd->in_if_while)
-        //     { CODEGEN(emit_check_var_defined, pd->lhs_var->id, !pd->lhs_var->global); }
-        { CODEGEN(emit_stack_pop_res, pd->lhs_var->id, pd->lhs_var->global ? "GF" : "LF"); }
-
-        if (pd->in_if_while)
+        if (pd->lhs_var)
         {
-            { CODEGEN(emit_expression_bool_convert); }
+            DataType type = lastNonterm->dataType;
+
+            pd->lhs_var->type = type;
+
+            // if (!pd->in_if_while)
+            //     { CODEGEN(emit_check_var_defined, pd->lhs_var->id, !pd->lhs_var->global); }
+            { CODEGEN(emit_stack_pop_res, pd->lhs_var->id, pd->lhs_var->global ? "GF" : "LF"); }
+
+            if (pd->in_if_while)
+            {
+                { CODEGEN(emit_expression_bool_convert); }
+            }
         }
+
+        stack_clear(&stack);
+
+        pd->block_next_token = true; // <-- we use this to avoid reading next token
     }
-
-    stack_clear(&stack);
-
-    pd->block_next_token = true; // <-- we use this to avoid reading next token
-    return SUCCESS;
+    RULE_CLOSE;
 }

@@ -134,10 +134,10 @@ int scanner_get_next_token(Token* tk)
 {
     // str_clear(&tk->string);
     //token_clear(tk);
-    if (!g_LastTokenWasFromStack)
-        token_dest(tk);
-    else
-        g_LastTokenWasFromStack = false;
+    // if (!g_LastTokenWasFromStack)
+    //     token_dest(tk);
+    // else
+    //     g_LastTokenWasFromStack = false;
     token_const(tk);
     //tk->string = &tk->string;
     // token_dest(tk);
@@ -504,8 +504,6 @@ int scanner_get_next_token(Token* tk)
                         //Error handling. 
                         str_add_sign(&tk->string, sign);
                         PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of integer: \"%s\"", line_counter, sign_counter, tk->string.ptr);
-                        
-                         
                     }
                     
                     sign = getchar_modified();

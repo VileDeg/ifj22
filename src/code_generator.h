@@ -13,7 +13,7 @@
 extern FILE* g_CodegenOut;
 #ifdef IFJ22_DEBUG
 	#define CODEGEN(_funcptr, ...) do {\
-		if (!_funcptr(__VA_ARGS__)) return ERROR_INTERNAL;\
+		if (!_funcptr(__VA_ARGS__)) INTERNAL_ERROR_RET;\
 		IFJ22_ASSERT(g_CodegenOut, "Code generator output file not found");\
 	}while(0)
 #else

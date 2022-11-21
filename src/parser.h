@@ -20,7 +20,9 @@ typedef struct
     TData* current_func;
 
     tkvec_t tk_vec;
-    tkvec_t tk_dispose_list;
+    //tkvec_t tk_dispose_list;
+    tkelem_t* front_ptr;
+
 
     // str_t    var_name;
     // DataType var_type;
@@ -30,7 +32,12 @@ typedef struct
     bool in_local_scope;
     bool return_found;
     bool var_not_yet_def;
-    bool get_next_from_stack;
+    //bool function_pass;
+    int mode;
+    bool func_pass_erase_tokens;
+    //bool token_pass;
+    //bool get_next_from_stack;
+
     bool in_if_while;
     
     int  param_index;
@@ -38,7 +45,7 @@ typedef struct
     int  label_deep;
 } ParserData;
 
-extern bool g_LastTokenWasFromStack;
+//extern bool g_LastTokenWasFromStack;
 
 int parse_file(FILE* fptr);
 

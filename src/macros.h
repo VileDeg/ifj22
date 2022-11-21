@@ -6,36 +6,38 @@
 #define TOKEN_IS(_postfix) (pd->token.type == token_##_postfix)
 #define TK_STR(_tk) _tk.string.ptr
 
-#define PUSH_TOKEN_FRONT do {\
+#if 0
+if (!g_LastTokenWasFromStack)\
+	token_dest(&pd->token);\
+		if (!g_LastTokenWasFromStack)\
+			token_dest(&pd->token);
+		g_LastTokenWasFromStack = true;
+	tkvec_push_back(&pd->tk_dispose_list, pd->token);
+	Token _copy;\
+		token_cpy(&_copy, &pd->token);
 		Token _copy;\
-		token_cpy(&_copy, &pd->token);\
-		INTERNAL(tkvec_push_front(&pd->tk_vec, _copy));\
-	} while(0)
+		token_cpy(&_copy, &pd->token);
+#endif
 
 #define POP_TOKEN_FRONT do {\
 		INTERNAL(!tkvec_empty(&pd->tk_vec));\
-		if (!g_LastTokenWasFromStack)\
-			token_dest(&pd->token);\
 		pd->token = tkvec_pop_front(&pd->tk_vec);\
-		tkvec_push_back(&pd->tk_dispose_list, pd->token);\
-		g_LastTokenWasFromStack = true;\
+	} while(0)
+
+#define PUSH_TOKEN_FRONT do {\
+		INTERNAL(tkvec_push_front(&pd->tk_vec, pd->token));\
 	} while(0)
 
 
 #define PUSH_TOKEN_BACK do {\
-		Token _copy;\
-		token_cpy(&_copy, &pd->token);\
-		INTERNAL(tkvec_push_back(&pd->tk_vec, _copy));\
+		INTERNAL(tkvec_push_back(&pd->tk_vec, pd->token));\
 	} while(0)
 
 #define POP_TOKEN_BACK do {\
 		INTERNAL(!tkvec_empty(&pd->tk_vec));\
-		if (!g_LastTokenWasFromStack)\
-			token_dest(&pd->token);\
 		pd->token = tkvec_pop_back(&pd->tk_vec);\
-		tkvec_push_back(&pd->tk_dispose_list, pd->token);\
-		g_LastTokenWasFromStack = true;\
 	} while(0)
+
 
 
 
@@ -123,20 +125,26 @@
 #define FIND_ID(_id) symtable_find(pd->in_local_scope ? &pd->localTable : &pd->globalTable, _id)
 #define FIND_CURRENT_ID FIND_ID(TK_STR(pd->token))
 
-#define ADD_ID(_dst, _id)\
+
+
+#define ADD_ID(_dst, _id, _table)\
 	do {\
 		bool _err = false;\
-		_dst = symtable_add_symbol(pd->in_local_scope ? &pd->localTable : &pd->globalTable, _id, &_err);\
+		_dst = symtable_add_symbol(_table, _id, &_err);\
 		_dst->global = !pd->in_local_scope;\
 		if (_err) INTERNAL_ERROR_RET;\
 	} while(0)
 #define ADD_ID_TYPE(_dst, _id, _type) do {\
-		ADD_ID(_dst, _id);\
+		ADD_ID(_dst, _id, pd->in_local_scope ? &pd->localTable : &pd->globalTable);\
 		_dst->type = _type;\
 	} while(0)
 #define ADD_PARAM(_func, _type, _qmark)\
 	if (!symtable_add_param(_func, _type, _qmark)) return false;
-#define ADD_CURRENT_ID(_dst) ADD_ID(_dst, TK_STR(pd->token))
+#define ADD_CURRENT_ID(_dst) ADD_ID(_dst, TK_STR(pd->token), pd->in_local_scope ? &pd->localTable : &pd->globalTable)
+
+#define ADD_FUNC_ID ADD_ID(pd->current_func, TK_STR(pd->token), &pd->globalTable)
+
+#define FIND_FUNC_ID (pd->rhs_func = symtable_find(&pd->globalTable, TK_STR(pd->token)))
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #define BLOCK_NEXT_TOKEN pd->block_next_token = true

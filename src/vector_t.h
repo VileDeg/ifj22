@@ -26,6 +26,7 @@ bool SUFF##vec_push_back(SUFF##vec_t* vec, TDATA data);\
 TDATA SUFF##vec_pop_front(SUFF##vec_t* vec);\
 TDATA SUFF##vec_pop_back(SUFF##vec_t* vec);\
 bool SUFF##vec_valid_at(SUFF##vec_t* vec, int64_t ind);\
+TDATA SUFF##vec_extract(SUFF##vec_t* vec, SUFF##elem_t* elem);\
 bool SUFF##vec_set_at(SUFF##vec_t* vec, int64_t ind, TDATA data);\
 TDATA SUFF##vec_get_at(SUFF##vec_t* vec, int64_t ind);\
 TDATA SUFF##vec_pop_at(SUFF##vec_t* vec, int64_t ind);\
@@ -116,6 +117,22 @@ TDATA SUFF##vec_pop_back(SUFF##vec_t* vec)\
 bool SUFF##vec_valid_at(SUFF##vec_t* vec, int64_t ind)\
 {\
     return vec->len > ind;\
+}\
+\
+TDATA SUFF##vec_extract(SUFF##vec_t* vec, SUFF##elem_t* elem)\
+{\
+    if (elem->prev)\
+        elem->prev->next = elem->next;\
+    else\
+        vec->back = elem->next;\
+    if (elem->next)\
+        elem->next->prev = elem->prev;\
+    else\
+        vec->front = elem->prev;\
+    TDATA _data = elem->data;\
+    free(elem);\
+    vec->len--;\
+    return _data;\
 }\
 \
 bool SUFF##vec_set_at(SUFF##vec_t* vec, int64_t ind, TDATA data)\

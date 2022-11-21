@@ -2,15 +2,21 @@
 
 <?php
 declare(strict_types=1);
-function f() : void {
-  return;
+function f(int $x) : int {
+    if($x === 0) {
+        return 0;
+    } else {
+        $inp = $x - 1;
+        $res = g($inp);
+        return $res + $x;
+    }
 }
-$x = f();
-if($x !== null) {
-  write("NOT NULL\n");
-} else {
-  write("NULL\n");
+function g(int $x) : int {
+    $res = f($x);
+    return $res + 1;
 }
+$res = g(10);
+write($res, "\n");
 
 
 --------------------Rules triggered: --------------------
@@ -19,59 +25,87 @@ Current token:                                     prolog
 begin -> <?php declare ( strict_types = 1 ) ; <program> <end>
 Current token:                        function     keyword         
 program -> function ID ( <params> ) : <func_type> { <statement> } <program>
+Current token:                        int          keyword         
+params -> <type> $ID <param_n>
+Current token:                        int          keyword         
+type -> int
 Current token:                                     right_bracket   
-params -> ε
-Current token:                        void         keyword         
-func_type -> void
+param_n -> , <params>
+Current token:                        int          keyword         
+func_type -> <type>
+Current token:                        int          keyword         
+type -> int
+Current token:                        if           keyword         
+statement -> if ( <expression> ) { <statement> } else { <statement> } <program>
 Current token:                        return       keyword         
 statement -> return <expression> ; <program>
 Current token:                                     right_curly_brac
 program -> <statement>
 Current token:                                     right_curly_brac
 statement -> ε
+Current token:           $inp                      ID              
+statement -> $ID = <rvalue> ; <program>
 Current token:           $x                        ID              
+rvalue -> ID ( <args> )
+Current token:           $res                      ID              
 program -> <statement>
-Current token:           $x                        ID              
+Current token:           $res                      ID              
+statement -> $ID = <rvalue> ; <program>
+Current token:           g                         ID              
+rvalue -> $ID
+Current token:                        function     keyword         
+program -> function ID ( <params> ) : <func_type> { <statement> } <program>
+Current token:                        int          keyword         
+params -> <type> $ID <param_n>
+Current token:                        int          keyword         
+type -> int
+Current token:                                     right_bracket   
+param_n -> , <params>
+Current token:                        int          keyword         
+func_type -> <type>
+Current token:                        int          keyword         
+type -> int
+Current token:           $res                      ID              
 statement -> $ID = <rvalue> ; <program>
 Current token:           f                         ID              
 rvalue -> $ID
-Current token:                                     right_bracket   
-args -> ε
-Current token:                        if           keyword         
-program -> <statement>
-Current token:                        if           keyword         
-statement -> if ( <expression> ) { <statement> } else { <statement> } <program>
-Current token:           write                     ID              
-statement -> <rvalue> ; <program>
-Current token:           write                     ID              
-rvalue -> $ID
-Current token:           NOT NULL
-                 string          
+Current token:           $x                        ID              
 args -> <term> <arg_n>
+Current token:           $x                        ID              
+term -> $ID
 Current token:                                     right_bracket   
 arg_n -> ε
+Current token:                        return       keyword         
+program -> <statement>
+Current token:                        return       keyword         
+statement -> return <expression> ; <program>
 Current token:                                     right_curly_brac
 program -> <statement>
 Current token:                                     right_curly_brac
 statement -> ε
-Current token:           write                     ID              
-statement -> <rvalue> ; <program>
-Current token:           write                     ID              
-rvalue -> $ID
-Current token:           NULL
-                     string          
+Current token:           $inp                      ID              
 args -> <term> <arg_n>
+Current token:           $inp                      ID              
+term -> $ID
 Current token:                                     right_bracket   
 arg_n -> ε
+Current token:                        return       keyword         
+program -> <statement>
+Current token:                        return       keyword         
+statement -> return <expression> ; <program>
 Current token:                                     right_curly_brac
 program -> <statement>
 Current token:                                     right_curly_brac
 statement -> ε
-Current token:                                     EOF             
+Current token:                                     right_curly_brac
 program -> <statement>
-Current token:                                     EOF             
+Current token:                                     right_curly_brac
 statement -> ε
-Current token:                                     EOF             
-end -> EOF
-
-
+Current token:           $res                      ID              
+program -> <statement>
+Current token:           $res                      ID              
+statement -> $ID = <rvalue> ; <program>
+Current token:           $res                      ID              
+statement -> <rvalue> ; <program>
+Current token:           $res                      ID              
+rvalue -> ID ( <args> )

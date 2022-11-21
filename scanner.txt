@@ -2,15 +2,21 @@
 
 <?php
 declare(strict_types=1);
-function f() : void {
-  return;
+function f(int $x) : int {
+    if($x === 0) {
+        return 0;
+    } else {
+        $inp = $x - 1;
+        $res = g($inp);
+        return $res + $x;
+    }
 }
-$x = f();
-if($x !== null) {
-  write("NOT NULL\n");
-} else {
-  write("NULL\n");
+function g(int $x) : int {
+    $res = f($x);
+    return $res + 1;
 }
+$res = g(10);
+write($res, "\n");
 
 
 --------------------List of tokens: --------------------
@@ -27,42 +33,164 @@ int  deci string       keyword      type
                        function     keyword         
           f                         ID              
                                     left_bracket    
+                       int          keyword         
+          $x                        ID              
                                     right_bracket   
                                     colon           
-                       void         keyword         
+                       int          keyword         
                                     left_curly_brack
-                       return       keyword         
-                                    semicolon       
-                                    right_curly_brac
-          $x                        ID              
-                                    equal_sign      
-          f                         ID              
-                                    left_bracket    
-                                    right_bracket   
-                                    semicolon       
                        if           keyword         
                                     left_bracket    
           $x                        ID              
-                                    not_equal       
-                       null         null            
+                                    equal           
+0                                   integer         
                                     right_bracket   
                                     left_curly_brack
-          write                     ID              
-                                    left_bracket    
-          NOT NULL
-                 string          
-                                    right_bracket   
+                       return       keyword         
+0                                   integer         
                                     semicolon       
                                     right_curly_brac
                        else         keyword         
                                     left_curly_brack
-          write                     ID              
+          $inp                      ID              
+                                    equal_sign      
+          $x                        ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+          $res                      ID              
+                                    equal_sign      
+          g                         ID              
                                     left_bracket    
-          NULL
-                     string          
+          $inp                      ID              
                                     right_bracket   
                                     semicolon       
+                       return       keyword         
+          $res                      ID              
+                                    plus            
+          $x                        ID              
+                                    semicolon       
                                     right_curly_brac
+                                    right_curly_brac
+                       function     keyword         
+          g                         ID              
+                                    left_bracket    
+                       int          keyword         
+          $x                        ID              
+                                    right_bracket   
+                                    colon           
+                       int          keyword         
+                                    left_curly_brack
+          $res                      ID              
+                                    equal_sign      
+          f                         ID              
+                                    left_bracket    
+          $x                        ID              
+                                    right_bracket   
+                                    semicolon       
+                       return       keyword         
+          $res                      ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+          $res                      ID              
+                                    equal_sign      
+          g                         ID              
+                                    left_bracket    
+10                                  integer         
+                                    right_bracket   
+                                    semicolon       
+          write                     ID              
+                                    left_bracket    
+          $res                      ID              
+                                    comma           
+          
+                         string          
+                                    right_bracket   
+                                    semicolon       
                                     EOF             
-
-
+                                    prolog          
+          declare                   ID              
+                                    left_bracket    
+          strict_types              ID              
+                                    equal_sign      
+1                                   integer         
+                                    right_bracket   
+                                    semicolon       
+                       function     keyword         
+          f                         ID              
+                                    left_bracket    
+                       int          keyword         
+          $x                        ID              
+                                    right_bracket   
+                                    colon           
+                       int          keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $x                        ID              
+                                    equal           
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+                       return       keyword         
+0                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $inp                      ID              
+                                    equal_sign      
+          $x                        ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+          $res                      ID              
+                                    equal_sign      
+          g                         ID              
+                                    left_bracket    
+          $inp                      ID              
+                                    right_bracket   
+                                    semicolon       
+                       return       keyword         
+          $res                      ID              
+                                    plus            
+          $x                        ID              
+                                    semicolon       
+                                    right_curly_brac
+                                    right_curly_brac
+                       function     keyword         
+          g                         ID              
+                                    left_bracket    
+                       int          keyword         
+          $x                        ID              
+                                    right_bracket   
+                                    colon           
+                       int          keyword         
+                                    left_curly_brack
+          $res                      ID              
+                                    equal_sign      
+          f                         ID              
+                                    left_bracket    
+          $x                        ID              
+                                    right_bracket   
+                                    semicolon       
+                       return       keyword         
+          $res                      ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                                    left_bracket    
+          $inp                      ID              
+                                    right_bracket   
+                                    semicolon       
+                       return       keyword         
+          $res                      ID              
+                                    plus            
+          $x                        ID              
+                                    semicolon       
+                                    right_curly_brac
+                                    right_curly_brac
+          $res                      ID              
