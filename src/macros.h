@@ -1,7 +1,7 @@
 #ifndef __MACROS_H__
 #define __MACROS_H__
 
-#define INTERNAL(_expr) if (!(_expr)) { INTERNAL_ERROR_RET; } else {}
+#define INTERNAL(_expr) if (!(_expr)) { INTERNAL_ERROR_RET(); } else {}
 
 #define TOKEN_IS(_postfix) (pd->token.type == token_##_postfix)
 #define TK_STR(_tk) _tk.string.ptr
@@ -68,6 +68,11 @@ if (!g_LastTokenWasFromStack)\
 #endif
 
 
+#define MODE_TOKEN_PASS 0
+#define MODE_FUNCTION_PASS 1
+#define MODE_MAIN_PASS 2
+
+
 
 #define KEYWORD_IS(_kw) (TOKEN_IS(keyword) && pd->token.keyword == keyword_##_kw)
 
@@ -126,13 +131,13 @@ if (!g_LastTokenWasFromStack)\
 #define FIND_CURRENT_ID FIND_ID(TK_STR(pd->token))
 
 
-
 #define ADD_ID(_dst, _id, _table)\
 	do {\
 		bool _err = false;\
 		_dst = symtable_add_symbol(_table, _id, &_err);\
+		if (_err || !_dst)\
+			INTERNAL_ERROR_RET("function with this name was already added. OR memory error.");\
 		_dst->global = !pd->in_local_scope;\
-		if (_err) INTERNAL_ERROR_RET;\
 	} while(0)
 #define ADD_ID_TYPE(_dst, _id, _type) do {\
 		ADD_ID(_dst, _id, pd->in_local_scope ? &pd->localTable : &pd->globalTable);\

@@ -110,7 +110,7 @@ bool symtable_add_param(TData *data, int64_t data_type, bool can_be_null)
         }
     }
 
-    IFJ22_ASSERT(false, "Wrong type.");
+    VILE_ASSERT(false, "Wrong type.");
     return false;
 }
 

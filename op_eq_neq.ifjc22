@@ -1,0 +1,42 @@
+"# Operator '==='\n"\
+"LABEL !*op_eq_neq\n"\
+"PUSHFRAME\n"\
+\n"\
+"DEFVAR LF@op1\n"\
+"DEFVAR LF@op2\n"\
+"DEFVAR LF@op1type\n"\
+"DEFVAR LF@op2type\n"\
+"DEFVAR LF@rule\n"\
+\n"\
+"POPS LF@rule\n"\
+"POPS LF@op2\n"\
+"POPS LF@op1\n"\
+\n"\
+"TYPE LF@op1type LF@op1\n"\
+"TYPE LF@op2type LF@op2\n"\
+\n"\
+"PUSHS LF@op1\n"\
+"PUSHS LF@op2\n"\
+\n"\
+"JUMPIFEQ !*op_eq_neq_equal LF@rule string@equal\n"\
+"JUMPIFEQ !*op_eq_neq_noteq LF@rule string@noteq\n"\
+\n"\
+"JUMP !*sem_error_eight\n"\
+\n"\
+"LABEL !*op_eq_neq_equal\n"\
+    "JUMPIFNEQ !*op_eq_neq_false LF@op1type LF@op2type\n"\
+    "EQS\n"\
+    "JUMP !*op_eq_neq_end\n"\
+\n"\
+"LABEL !*op_eq_neq_noteq\n"\
+    "JUMPIFEQ !*op_eq_neq_false LF@op1type LF@op2type\n"\
+    "EQS\n"\
+    "NOTS\n"\
+    "JUMP !*op_eq_neq_end\n"\
+\n"\
+"LABEL !*op_eq_neq_false\n"\
+"PUSHS bool@false\n"\
+\n"\
+"LABEL !*op_eq_neq_end\n"\
+"POPFRAME\n"\
+"RETURN\n" _BFNEND

@@ -11,9 +11,9 @@ static int filesopened = 0;
 
 static FILE* open_file(const char* filepath, const char* modes)
 {
-    IFJ22_ASSERT(filesopened <= MAX_FILES, "");
+    VILE_ASSERT(filesopened <= MAX_FILES, "");
     FILE* ret = fopen(filepath, modes);
-    IFJ22_ASSERT(ret, "");
+    VILE_ASSERT(ret, "");
     open_files[filesopened] = ret;
     ++filesopened;
     return ret;

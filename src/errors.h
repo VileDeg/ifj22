@@ -22,21 +22,21 @@
 #define NUMFERRORS 9
 
 
-#ifdef IFJ22_DEBUG
+#ifdef VILE_DEBUG
 
-    #define IFJ22_DEBUGBRK raise(SIGTRAP)
-    #define IFJ22_ASSERT(val, msg)\
+    #define VILE_DEBUGBRK raise(SIGTRAP)
+    #define VILE_ASSERT(val, msg)\
         do{\
         if (!(val))\
         {\
             fprintf(stderr, "[%s]::ASSERT on line: %d, in function: %s\n\t%s\n",\
                 __FILE__, __LINE__, __func__, msg);\
-            IFJ22_DEBUGBRK;\
+            VILE_DEBUGBRK;\
         }\
         } while(0)
 #else
-#define IFJ22_ASSERT(val, msg)
-#endif //IFJ22_DEBUG
+#define VILE_ASSERT(val, msg)
+#endif //VILE_DEBUG
 
 extern const char* g_ErrStr[NUMFERRORS];
 
@@ -58,9 +58,9 @@ extern const char* g_ErrStr[NUMFERRORS];
         return _errcode;\
     } while(0)
 
-#define INTERNAL_ERROR_RET do{\
-        _PRERR("ERROR_INTERNAL", "internal error.");\
-        IFJ22_ASSERT(false, "");\
+#define INTERNAL_ERROR_RET(...) do{\
+        _PRERR("ERROR_INTERNAL", __VA_ARGS__);\
+        VILE_ASSERT(false, "");\
         return ERROR_INTERNAL;\
     } while(0)
 

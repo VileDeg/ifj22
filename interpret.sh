@@ -5,4 +5,4 @@ cd out
 ./ifj22 -src > ../code.ifjc22
 cd ..
 ./ic22int code.ifjc22
-echo $?
+echo -e "\n$?"

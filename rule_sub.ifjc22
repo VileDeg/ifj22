@@ -1,0 +1,54 @@
+LABEL !*rule_sub
+PUSHFRAME
+
+DEFVAR LF@op1
+DEFVAR LF@op2
+POPS LF@op1
+POPS LF@op2
+
+DEFVAR LF@op1type
+DEFVAR LF@op2type
+TYPE LF@op1type LF@op1
+TYPE LF@op2type LF@op2
+
+JUMPIFEQ !*sem_error_seven LF@op1type string@string
+JUMPIFEQ !*sem_error_seven LF@op2type string@string
+
+JUMPIFEQ !*rule_sub_op1_nil LF@op1type string@nil
+LABEL !*rule_sub_check_op2_nil
+JUMPIFEQ !*rule_sub_op2_nil LF@op2type string@nil
+
+LABEL !*rule_sub_check_op1_float
+JUMPIFEQ !*rule_sub_op1_float LF@op1type string@float
+JUMPIFEQ !*rule_sub_op2_float LF@op2type string@float
+
+JUMP !*rule_sub_end
+
+LABEL !*rule_sub_op1_nil
+    MOVE LF@op1 0
+    JUMP !*rule_sub_check_op2_nil
+
+LABEL !*rule_sub_op2_nil
+    MOVE LF@op2 0
+    JUMP !*rule_sub_check_op1_float
+
+
+LABEL !*rule_sub_op1_float
+    JUMPIFEQ !*rule_sub_op1_float_op2_int LF@op2type string@int
+    JUMP !*rule_sub_end
+    
+    LABEL !*rule_sub_op1_float_op2_int
+        INT2FLOAT LF@op2 LF@op2
+        JUMP !*rule_sub_end
+
+LABEL !*rule_sub_op2_float
+    INT2FLOAT LF@op1 LF@op1
+    JUMP !*rule_sub_end
+
+LABEL !*rule_sub_end
+PUSHS LF@op1
+PUSHS LF@op2
+ADDS
+
+POPFRAME
+RETURN

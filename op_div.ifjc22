@@ -1,0 +1,61 @@
+"# Operator '/'\n"\
+"LABEL !*op_div\n"\
+"PUSHFRAME\n"\
+"\n"\
+"DEFVAR LF@op1\n"\
+"DEFVAR LF@op2\n"\
+"DEFVAR LF@op1type\n"\
+"DEFVAR LF@op2type\n"\
+"DEFVAR LF@rule\n"\
+"\n"\
+"POPS LF@rule\n"\
+"POPS LF@op2\n"\
+"POPS LF@op1\n"\
+"\n"\
+"TYPE LF@op1type LF@op1\n"\
+"TYPE LF@op2type LF@op2\n"\
+"\n"\
+"JUMPIFEQ !*sem_error_seven LF@op1type string@string\n"\
+"JUMPIFEQ !*sem_error_seven LF@op2type string@string\n"\
+"\n"\
+"JUMPIFEQ !*op_div_op1_nil LF@op1type string@nil\n"\
+"LABEL !*op_div_check_op2_nil\n"\
+"JUMPIFEQ !*op_div_op2_nil LF@op2type string@nil\n"\
+"\n"\
+"LABEL !*op_div_check_op1_int\n"\
+"JUMPIFEQ !*op_div_op1_int LF@op1type string@int\n"\
+"JUMPIFEQ !*op_div_op2_int LF@op2type string@int\n"\
+"JUMPIFEQ !*op_div_op1_float LF@op1type string@float\n"\
+"\n"\
+"JUMP !*sem_error_seven\n"\
+"\n"\
+"LABEL !*op_div_op1_nil\n"\
+"	MOVE LF@op1 int@0\n"\
+"	INT2FLOAT LF@op1 LF@op1\n"\
+"	JUMP !*op_div_check_op2_nil\n"\
+"\n"\
+"LABEL !*op_div_op2_nil\n"\
+"	MOVE LF@op2 int@0\n"\
+"	INT2FLOAT LF@op2 LF@op1\n"\
+"	JUMP !*op_div_check_op1_int\n"\
+"\n"\
+"LABEL !*op_div_op1_int\n"\
+"	INT2FLOAT LF@op1 LF@op1\n"\
+"	JUMP !*op_div_do\n"\
+"\n"\
+"LABEL !*op_div_op2_int\n"\
+"	INT2FLOAT LF@op2 LF@op2\n"\
+"	JUMP !*op_div_do\n"\
+
+"LABEL !*op_div_op1_float\n"\
+"   JUMPIFNEQ !*sem_error_seven LF@op2type string@float\n"\
+"\n"\
+"LABEL !*op_div_do\n"\
+"PUSHS LF@op1\n"\
+"PUSHS LF@op2\n"\
+"\n"\
+"DIVS\n"\
+"\n"\
+"LABEL !*op_div_end\n"\
+"POPFRAME\n"\
+"RETURN\n" _BFNEND

@@ -9,12 +9,16 @@
 #include "string_t.h"
 #include "scanner.h"
 #include "precedence_t.h"
+#include "macros.h"
 
 extern FILE* g_CodegenOut;
 #ifdef IFJ22_DEBUG
 	#define CODEGEN(_funcptr, ...) do {\
-		if (!_funcptr(__VA_ARGS__)) INTERNAL_ERROR_RET;\
-		IFJ22_ASSERT(g_CodegenOut, "Code generator output file not found");\
+		if (pd->mode == MODE_MAIN_PASS)\
+		{\
+			if (!_funcptr(__VA_ARGS__)) INTERNAL_ERROR_RET();\
+			VILE_ASSERT(g_CodegenOut, "Code generator output file not found");\
+		}\
 	}while(0)
 #else
 	#define CODEGEN(_funcptr, ...) if (!_funcptr(__VA_ARGS__)) return ERROR_INTERNAL

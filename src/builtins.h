@@ -63,30 +63,46 @@
     "# Function floatval\n" \
     "LABEL !floatval\n" \
     "PUSHFRAME\n" \
-    "DEFVAR TF@type\n"\
-    "TYPE TF@type LF@-0\n"\
-    "JUMPIFEQ !floatval_end TF@type string@float\n"\
-    "JUMPIFEQ !floatval_end TF@type string@string\n"\
+	"\n"\
+    "DEFVAR LF@type\n"\
     "DEFVAR LF@res\n"\
-    "JUMPIFEQ !floatval_arg_null TF@type string@null\n"\
+	"\n"\
+	"MOVE LF@res LF@-0\n"\
+    "TYPE LF@type LF@-0\n"\
+	"\n"\
+    "JUMPIFEQ !floatval_end_err LF@type string@string\n"\
+    "JUMPIFEQ !floatval_end LF@type string@float\n"\
+    "JUMPIFEQ !floatval_arg_nil LF@type string@nil\n"\
+	"JUMPIFEQ !floatval_arg_int LF@type string@int\n"\
+	"\n"\
+	"JUMP !*sem_error_eight\n"\
+	"\n"\
+	"LABEL !floatval_arg_int\n" \
     "INT2FLOAT LF@res LF@-0\n"\
     "JUMP !floatval_end\n"\
-    "LABEL !floatval_arg_null\n" \
-    "MOVE LF@res float@0x0.0p+0\n" \
+	"\n"\
+    "LABEL !floatval_arg_nil\n" \
+	"MOVE LF@res float@0x0.0p+0\n" \
+	"JUMP !floatval_end\n"\
+	"\n"\
+	"LABEL !floatval_end_err\n"\
+	"MOVE LF@res nil@nil\n"\
+	"\n"\
     "LABEL !floatval_end\n"\
     "POPFRAME\n"          \
     "RETURN\n" _BFNEND
+
 /// function intval(term) : int
 #define FUNCTION_INTVAL\
     "# Function intval\n" \
     "LABEL !intval\n" \
     "PUSHFRAME\n" \
-    "DEFVAR TF@type\n"\
-    "TYPE TF@type LF@-0\n"\
-    "JUMPIFEQ !intval_end TF@type string@int\n"\
-    "JUMPIFEQ !intval_end TF@type string@string\n"\
+    "DEFVAR LF@type\n"\
+    "TYPE LF@type LF@-0\n"\
+    "JUMPIFEQ !intval_end LF@type string@int\n"\
+    "JUMPIFEQ !intval_end LF@type string@string\n"\
     "DEFVAR LF@res\n"\
-    "JUMPIFEQ !intval_arg_null TF@type string@null\n"\
+    "JUMPIFEQ !intval_arg_null LF@type string@null\n"\
     "FLOAT2INT LF@res LF@-0\n"\
     "JUMP !intval_end\n"\
     "LABEL !intval_arg_null\n" \
@@ -99,9 +115,9 @@
     "# Function strval\n" \
     "LABEL !strval\n" \
     "PUSHFRAME\n" \
-    "DEFVAR TF@type\n"\
-    "TYPE TF@type LF@-0\n"\
-    "JUMPIFNEQ !strval_end TF@type string@null\n"\
+    "DEFVAR LF@type\n"\
+    "TYPE LF@type LF@-0\n"\
+    "JUMPIFNEQ !strval_end LF@type string@null\n"\
     "DEFVAR LF@res\n"\
     "MOVE LF@res string@\n" \
     "LABEL !strval_end\n"\

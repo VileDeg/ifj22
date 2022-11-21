@@ -103,8 +103,8 @@ void debug_print_token(Token tk)
                 "", debug_kw(tk.keyword), debug_tk_type(tk.type));
             break;
         default:
-            //IFJ22_ASSERT(tk.string != NULL, "");
-            IFJ22_ASSERT(tk.string.ptr != NULL, "");
+            //VILE_ASSERT(tk.string != NULL, "");
+            VILE_ASSERT(tk.string.ptr != NULL, "");
             DEBUGPR(s_TokenDebugFormat, "", "",
                 tk.string.ptr, "", debug_tk_type(tk.type));
     }
@@ -124,14 +124,14 @@ void print_file_contents(FILE* src)
     while(fgets(line, maxlen, src)!= NULL)
         DEBUGPR("%s", line);
 
-    IFJ22_ASSERT(src != stdin, "");
+    VILE_ASSERT(src != stdin, "");
     rewind(src);
     DEBUGPR(VSPACE "\n");
 }
 
 // int test_stdin(FILE* scan_out)
 // {
-//     IFJ22_ASSERT(scan_out, "");
+//     VILE_ASSERT(scan_out, "");
     
 //     str_t string;
 //     str_const(&string);
@@ -228,7 +228,7 @@ static struct {
 void populate_rule_definitions()
 {
     FILE* fptr = fopen(s_RulesFilepath, "r");
-    IFJ22_ASSERT(fptr, "");
+    VILE_ASSERT(fptr, "");
 
     uint64_t rule = 0;
     
@@ -241,7 +241,7 @@ void populate_rule_definitions()
         {
             RuleInfo.rule_name[rule][letter] = c;
             ++letter;
-            IFJ22_ASSERT(letter < RULE_EXP_MXLEN, "");
+            VILE_ASSERT(letter < RULE_EXP_MXLEN, "");
         }
         letter = 0;
         //Skip to after ->
@@ -257,7 +257,7 @@ void populate_rule_definitions()
                 break;
             RuleInfo.exp_string[rule][letter] = c;
             ++letter;
-            IFJ22_ASSERT(letter < RULE_EXP_MXLEN, "");
+            VILE_ASSERT(letter < RULE_EXP_MXLEN, "");
         }
 
         do
@@ -291,5 +291,5 @@ const char* get_rule_expansion_by_name(const char* rulename, int expnum)
             --expnum;
         }
     }
-    IFJ22_ASSERT(false, "Rule not found.");
+    VILE_ASSERT(false, "Rule not found.");
 }

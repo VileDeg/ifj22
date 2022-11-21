@@ -56,7 +56,7 @@ void stack_print(SymbolStack* stack, const char* func)
 
 void stack_init(SymbolStack* stack) 
 {
-    IFJ22_ASSERT(stack, "Stack is null.");
+    VILE_ASSERT(stack, "Stack is null.");
     stack->top = NULL;
 
     stack_print(stack, __func__);
@@ -64,7 +64,7 @@ void stack_init(SymbolStack* stack)
 
 bool stack_push(SymbolStack* stack, Oper_type operType, DataType dataType) 
 {
-    IFJ22_ASSERT(stack, "Stack is null.");
+    VILE_ASSERT(stack, "Stack is null.");
     Symbol *new = malloc(sizeof(Symbol));
     if (new == NULL)
         return false;
@@ -79,7 +79,7 @@ bool stack_push(SymbolStack* stack, Oper_type operType, DataType dataType)
 
 void stack_pop(SymbolStack* stack) 
 {
-    IFJ22_ASSERT(stack, "Stack is null.");
+    VILE_ASSERT(stack, "Stack is null.");
     Symbol *tmp = stack->top;
     stack->top = tmp->next;
     free(tmp);
@@ -94,7 +94,7 @@ void stack_pop_count(SymbolStack* stack, int cnt)
 
 void stack_clear(SymbolStack* stack)
 {
-    IFJ22_ASSERT(stack, "Stack is null.");
+    VILE_ASSERT(stack, "Stack is null.");
     while(stack->top != NULL) {
         stack_pop(stack);
     }

@@ -337,7 +337,7 @@ DataType type_info(ParserData* pd, int* errcode)
         //return TYPE_UNDEF;
         if (!data || (pd->var_not_yet_def && pd->lhs_var == data))
         {
-            IFJ22_ASSERT(false, "");
+            VILE_ASSERT(false, "");
             *errcode = ERROR_SEM_UNDEF_VAR;
             return TYPE_UNDEF;
         }

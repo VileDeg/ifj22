@@ -1,17 +1,11 @@
 <?php
 declare(strict_types=1);
-function f(int $x) : int {
-    if($x === 0) {
-        return 0;
-    } else {
-        $inp = $x - 1;
-        $res = g($inp);
-        return $res + $x;
-    }
-}
-function g(int $x) : int {
-    $res = f($x);
-    return $res + 1;
-}
-$res = g(10);
-write($res, "\n");
+$x = 2 / 3;
+$y = 2.0 / 3;
+$z = 2 / 3.0;
+$w = 2.0 / 3.0;
+
+write($x, "\n");
+write($y, "\n");
+write($z, "\n");
+write($w, "\n");

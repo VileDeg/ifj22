@@ -34,7 +34,7 @@ typedef struct
     bool var_not_yet_def;
     //bool function_pass;
     int mode;
-    bool func_pass_erase_tokens;
+    //bool func_pass_erase_tokens;
     //bool token_pass;
     //bool get_next_from_stack;
 

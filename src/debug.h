@@ -20,7 +20,7 @@
     FILE* get_pars_out();
     FILE* get_expr_out();
 
-    #define DEBUGPR(...) do { IFJ22_ASSERT(g_DebugOut != NULL, "Output file not found");\
+    #define DEBUGPR(...) do { VILE_ASSERT(g_DebugOut != NULL, "Output file not found");\
         fprintf(g_DebugOut, __VA_ARGS__); fflush(g_DebugOut); } while(0)
     
     #define EXPRDBGPR(...) do {\

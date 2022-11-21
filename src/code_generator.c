@@ -1,5 +1,4 @@
 #include "code_generator.h"
-#include "macros.h"
 #include "builtins.h"
 #include "internals.h"
 
@@ -26,9 +25,9 @@ bool emit_internal_funcs()
     EMIT(EXPR_RES_BOOL_CHECK_CODE);
     EMIT(RETURN_SEMANTIC_CHECK);
     
-    EMIT(RULE_ADD_CODE);
-    EMIT(RULE_EQ_CODE);
-    EMIT(RULE_NEQ_CODE);
+    EMIT(OP_ASM_CODE);
+    EMIT(OP_DIV_CODE);
+    EMIT(OP_EQ_NEQ_CODE);
 
     return true;
 }
@@ -138,7 +137,7 @@ bool emit_call_return_sem_check()
     EMIT_NL("PUSHS LF@func_qmark");
     EMIT_NL("PUSHS LF@func_type");
     EMIT_NL("CREATEFRAME");
-	EMIT_NL("CALL !return_semantic_check");
+	EMIT_NL("CALL !*return_semantic_check");
     return true;
 }
 
@@ -372,15 +371,38 @@ bool emit_pop()
 }
 
 bool emit_stack_operation(Rule_type rule) {
-    switch (rule) {
+    switch (rule) 
+    {
         case RULE_ADD:
-            //EMIT_NL("ADDS");
+            EMIT_NL("PUSHS string@add");
             EMIT_NL("CREATEFRAME");
-            EMIT_NL("CALL !rule_add");
+            EMIT_NL("CALL !*op_asm");
+            break;
+        case RULE_SUB:
+            EMIT_NL("PUSHS string@sub");
+            EMIT_NL("CREATEFRAME");
+            EMIT_NL("CALL !*op_asm");
+            break;
+        case RULE_MUL:
+            EMIT_NL("PUSHS string@mul");
+            EMIT_NL("CREATEFRAME");
+            EMIT_NL("CALL !*op_asm");
             break;
 
-        case RULE_SUB:
-            EMIT_NL("SUBS");
+        case RULE_EQ:
+            EMIT_NL("PUSHS string@equal");
+            EMIT_NL("CREATEFRAME");
+            EMIT_NL("CALL !*op_eq_neq");
+            break;
+        case RULE_NEQ:
+            EMIT_NL("PUSHS string@noteq");
+            EMIT_NL("CREATEFRAME");
+            EMIT_NL("CALL !*op_eq_neq");
+            break;
+        
+        case RULE_DIV:
+            EMIT_NL("CREATEFRAME");
+            EMIT_NL("CALL !*op_div");
             break;
 
         case RULE_DOT:
@@ -388,41 +410,6 @@ bool emit_stack_operation(Rule_type rule) {
                     "POPS GF@TMP_REG\n"
                     "CONCAT GF@TMP_REG1 GF@TMP_REG GF@TMP_REG3\n"
                     "PUSHS GF@TMP_REG1");
-            break;
-
-        case RULE_MUL:
-            EMIT_NL("MULS");
-            break;
-
-        case RULE_DIV:
-            EMIT_NL("DIVS");
-            break;
-
-        case RULE_EQ:
-            // char str[MAX_DIGITS];
-            // sprintf(str, "%d", s_EqCounter);
-            // EMIT_NL("POPS GF@TMP_REG1\n"
-            //         "TYPE GF@TMP_REG1 GF@TMP_REG1\n"
-            //         "POPS GF@TMP_REG\n"
-            //         "TYPE GF@TMP_REG GF@TMP_REG\n"
-            //         "POPS GF@TMP_REG\n"
-            //         "JUMPIFNEQ  GF@TMP_REG1 GF@TMP_REG");
-            // EMIT("LABEL !eq");
-            // EMIT(str); EMIT("\n");
-            
-
-
-            //EMIT_NL("EQS");
-            // ++s_EqCounter;
-            EMIT_NL("CREATEFRAME");
-            EMIT_NL("CALL !rule_eq");
-            break;
-
-        case RULE_NEQ:
-            // EMIT_NL(
-            //     "EQS\n"
-            //     "NOTS");
-            EMIT_NL("CALL !rule_neq");
             break;
 
         case RULE_LT:
@@ -569,7 +556,7 @@ bool emit_while_close(const char* name, int64_t deep, int64_t index)
 bool emit_expression_bool_convert()
 {
     EMIT_NL("CREATEFRAME");
-    EMIT_NL("CALL !expr_res_bool_check\n");
+    EMIT_NL("CALL !*expr_res_bool_check\n");
     return true;
 }
 
