@@ -8,393 +8,73 @@
 	1: $        UNDEF
 
 -3 :: stack_push
-	0: int      INT
+	0: (        UNDEF
 	1: REDUCE   UNDEF
 	2: $        UNDEF
 
--4 :: stack_pop
+-4 :: stack_push_after_top_term
 	0: REDUCE   UNDEF
-	1: $        UNDEF
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
 
--5 :: stack_pop
-	0: $        UNDEF
+-5 :: stack_push
+	0: float    FLOAT
+	1: REDUCE   UNDEF
+	2: (        UNDEF
+	3: REDUCE   UNDEF
+	4: $        UNDEF
 
--6 :: stack_push
-	0: E        INT
-	1: $        UNDEF
+-6 :: stack_pop
+	0: REDUCE   UNDEF
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
 
--7 :: stack_push_after_top_term
-	0: E        INT
+-7 :: stack_pop
+	0: (        UNDEF
 	1: REDUCE   UNDEF
 	2: $        UNDEF
 
 -8 :: stack_push
-	0: /        UNDEF
-	1: E        INT
+	0: E        FLOAT
+	1: (        UNDEF
 	2: REDUCE   UNDEF
 	3: $        UNDEF
 
--9 :: stack_push_after_top_term
-	0: REDUCE   UNDEF
-	1: /        UNDEF
-	2: E        INT
+-9 :: stack_push
+	0: )        UNDEF
+	1: E        FLOAT
+	2: (        UNDEF
 	3: REDUCE   UNDEF
 	4: $        UNDEF
 
--10 :: stack_push
-	0: int      INT
-	1: REDUCE   UNDEF
-	2: /        UNDEF
-	3: E        INT
-	4: REDUCE   UNDEF
-	5: $        UNDEF
+-10 :: stack_pop
+	0: E        FLOAT
+	1: (        UNDEF
+	2: REDUCE   UNDEF
+	3: $        UNDEF
 
 -11 :: stack_pop
-	0: REDUCE   UNDEF
-	1: /        UNDEF
-	2: E        INT
-	3: REDUCE   UNDEF
-	4: $        UNDEF
+	0: (        UNDEF
+	1: REDUCE   UNDEF
+	2: $        UNDEF
 
 -12 :: stack_pop
-	0: /        UNDEF
-	1: E        INT
-	2: REDUCE   UNDEF
-	3: $        UNDEF
+	0: REDUCE   UNDEF
+	1: $        UNDEF
 
--13 :: stack_push
-	0: E        INT
-	1: /        UNDEF
-	2: E        INT
-	3: REDUCE   UNDEF
-	4: $        UNDEF
+-13 :: stack_pop
+	0: $        UNDEF
 
--14 :: stack_pop
-	0: /        UNDEF
-	1: E        INT
-	2: REDUCE   UNDEF
-	3: $        UNDEF
+-14 :: stack_push
+	0: E        FLOAT
+	1: $        UNDEF
 
 -15 :: stack_pop
-	0: E        INT
-	1: REDUCE   UNDEF
-	2: $        UNDEF
+	0: $        UNDEF
 
 -16 :: stack_pop
-	0: REDUCE   UNDEF
-	1: $        UNDEF
 
--17 :: stack_pop
-	0: $        UNDEF
-
--18 :: stack_push
-	0: E        STRING
-	1: $        UNDEF
-
--19 :: stack_pop
-	0: $        UNDEF
-
--20 :: stack_pop
-
--21 :: stack_clear
-
--22 :: stack_init
-
--23 :: stack_push
-	0: $        UNDEF
-
--24 :: stack_push_after_top_term
-	0: REDUCE   UNDEF
-	1: $        UNDEF
-
--25 :: stack_push
-	0: float    FLOAT
-	1: REDUCE   UNDEF
-	2: $        UNDEF
-
--26 :: stack_pop
-	0: REDUCE   UNDEF
-	1: $        UNDEF
-
--27 :: stack_pop
-	0: $        UNDEF
-
--28 :: stack_push
-	0: E        FLOAT
-	1: $        UNDEF
-
--29 :: stack_push_after_top_term
-	0: E        FLOAT
-	1: REDUCE   UNDEF
-	2: $        UNDEF
-
--30 :: stack_push
-	0: /        UNDEF
-	1: E        FLOAT
-	2: REDUCE   UNDEF
-	3: $        UNDEF
-
--31 :: stack_push_after_top_term
-	0: REDUCE   UNDEF
-	1: /        UNDEF
-	2: E        FLOAT
-	3: REDUCE   UNDEF
-	4: $        UNDEF
-
--32 :: stack_push
-	0: int      INT
-	1: REDUCE   UNDEF
-	2: /        UNDEF
-	3: E        FLOAT
-	4: REDUCE   UNDEF
-	5: $        UNDEF
-
--33 :: stack_pop
-	0: REDUCE   UNDEF
-	1: /        UNDEF
-	2: E        FLOAT
-	3: REDUCE   UNDEF
-	4: $        UNDEF
-
--34 :: stack_pop
-	0: /        UNDEF
-	1: E        FLOAT
-	2: REDUCE   UNDEF
-	3: $        UNDEF
-
--35 :: stack_push
-	0: E        INT
-	1: /        UNDEF
-	2: E        FLOAT
-	3: REDUCE   UNDEF
-	4: $        UNDEF
-
--36 :: stack_pop
-	0: /        UNDEF
-	1: E        FLOAT
-	2: REDUCE   UNDEF
-	3: $        UNDEF
-
--37 :: stack_pop
-	0: E        FLOAT
-	1: REDUCE   UNDEF
-	2: $        UNDEF
-
--38 :: stack_pop
-	0: REDUCE   UNDEF
-	1: $        UNDEF
-
--39 :: stack_pop
-	0: $        UNDEF
-
--40 :: stack_push
-	0: E        STRING
-	1: $        UNDEF
-
--41 :: stack_pop
-	0: $        UNDEF
-
--42 :: stack_pop
-
--43 :: stack_clear
-
--44 :: stack_init
-
--45 :: stack_push
-	0: $        UNDEF
-
--46 :: stack_push_after_top_term
-	0: REDUCE   UNDEF
-	1: $        UNDEF
-
--47 :: stack_push
-	0: int      INT
-	1: REDUCE   UNDEF
-	2: $        UNDEF
-
--48 :: stack_pop
-	0: REDUCE   UNDEF
-	1: $        UNDEF
-
--49 :: stack_pop
-	0: $        UNDEF
-
--50 :: stack_push
-	0: E        INT
-	1: $        UNDEF
-
--51 :: stack_push_after_top_term
-	0: E        INT
-	1: REDUCE   UNDEF
-	2: $        UNDEF
-
--52 :: stack_push
-	0: /        UNDEF
-	1: E        INT
-	2: REDUCE   UNDEF
-	3: $        UNDEF
-
--53 :: stack_push_after_top_term
-	0: REDUCE   UNDEF
-	1: /        UNDEF
-	2: E        INT
-	3: REDUCE   UNDEF
-	4: $        UNDEF
-
--54 :: stack_push
-	0: float    FLOAT
-	1: REDUCE   UNDEF
-	2: /        UNDEF
-	3: E        INT
-	4: REDUCE   UNDEF
-	5: $        UNDEF
-
--55 :: stack_pop
-	0: REDUCE   UNDEF
-	1: /        UNDEF
-	2: E        INT
-	3: REDUCE   UNDEF
-	4: $        UNDEF
-
--56 :: stack_pop
-	0: /        UNDEF
-	1: E        INT
-	2: REDUCE   UNDEF
-	3: $        UNDEF
-
--57 :: stack_push
-	0: E        FLOAT
-	1: /        UNDEF
-	2: E        INT
-	3: REDUCE   UNDEF
-	4: $        UNDEF
-
--58 :: stack_pop
-	0: /        UNDEF
-	1: E        INT
-	2: REDUCE   UNDEF
-	3: $        UNDEF
-
--59 :: stack_pop
-	0: E        INT
-	1: REDUCE   UNDEF
-	2: $        UNDEF
-
--60 :: stack_pop
-	0: REDUCE   UNDEF
-	1: $        UNDEF
-
--61 :: stack_pop
-	0: $        UNDEF
-
--62 :: stack_push
-	0: E        STRING
-	1: $        UNDEF
-
--63 :: stack_pop
-	0: $        UNDEF
-
--64 :: stack_pop
-
--65 :: stack_clear
-
--66 :: stack_init
-
--67 :: stack_push
-	0: $        UNDEF
-
--68 :: stack_push_after_top_term
-	0: REDUCE   UNDEF
-	1: $        UNDEF
-
--69 :: stack_push
-	0: float    FLOAT
-	1: REDUCE   UNDEF
-	2: $        UNDEF
-
--70 :: stack_pop
-	0: REDUCE   UNDEF
-	1: $        UNDEF
-
--71 :: stack_pop
-	0: $        UNDEF
-
--72 :: stack_push
-	0: E        FLOAT
-	1: $        UNDEF
-
--73 :: stack_push_after_top_term
-	0: E        FLOAT
-	1: REDUCE   UNDEF
-	2: $        UNDEF
-
--74 :: stack_push
-	0: /        UNDEF
-	1: E        FLOAT
-	2: REDUCE   UNDEF
-	3: $        UNDEF
-
--75 :: stack_push_after_top_term
-	0: REDUCE   UNDEF
-	1: /        UNDEF
-	2: E        FLOAT
-	3: REDUCE   UNDEF
-	4: $        UNDEF
-
--76 :: stack_push
-	0: float    FLOAT
-	1: REDUCE   UNDEF
-	2: /        UNDEF
-	3: E        FLOAT
-	4: REDUCE   UNDEF
-	5: $        UNDEF
-
--77 :: stack_pop
-	0: REDUCE   UNDEF
-	1: /        UNDEF
-	2: E        FLOAT
-	3: REDUCE   UNDEF
-	4: $        UNDEF
-
--78 :: stack_pop
-	0: /        UNDEF
-	1: E        FLOAT
-	2: REDUCE   UNDEF
-	3: $        UNDEF
-
--79 :: stack_push
-	0: E        FLOAT
-	1: /        UNDEF
-	2: E        FLOAT
-	3: REDUCE   UNDEF
-	4: $        UNDEF
-
--80 :: stack_pop
-	0: /        UNDEF
-	1: E        FLOAT
-	2: REDUCE   UNDEF
-	3: $        UNDEF
-
--81 :: stack_pop
-	0: E        FLOAT
-	1: REDUCE   UNDEF
-	2: $        UNDEF
-
--82 :: stack_pop
-	0: REDUCE   UNDEF
-	1: $        UNDEF
-
--83 :: stack_pop
-	0: $        UNDEF
-
--84 :: stack_push
-	0: E        STRING
-	1: $        UNDEF
-
--85 :: stack_pop
-	0: $        UNDEF
-
--86 :: stack_pop
-
--87 :: stack_clear
+-17 :: stack_clear
 

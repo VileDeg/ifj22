@@ -27,6 +27,7 @@ bool emit_internal_funcs()
     
     EMIT(OP_ASM_CODE);
     EMIT(OP_DIV_CODE);
+    EMIT(OP_DOT_CODE);
     EMIT(OP_EQ_NEQ_CODE);
 
     return true;
@@ -406,10 +407,8 @@ bool emit_stack_operation(Rule_type rule) {
             break;
 
         case RULE_DOT:
-            EMIT_NL("POPS GF@TMP_REG3\n"
-                    "POPS GF@TMP_REG\n"
-                    "CONCAT GF@TMP_REG1 GF@TMP_REG GF@TMP_REG3\n"
-                    "PUSHS GF@TMP_REG1");
+            EMIT_NL("CREATEFRAME");
+            EMIT_NL("CALL !*op_dot");
             break;
 
         case RULE_LT:

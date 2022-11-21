@@ -2,93 +2,35 @@
 
 <?php
 declare(strict_types=1);
-$x = 2 / 3;
-$y = 2.0 / 3;
-$z = 2 / 3.0;
-$w = 2.0 / 3.0;
+if (0.1) {}
+else {write("aboba", "\n");}
 
-write($x, "\n");
-write($y, "\n");
-write($z, "\n");
-write($w, "\n");
 
 
 --------------------Rules triggered: --------------------
 
 Current token:                                     EOF             
 begin -> <?php declare ( strict_types = 1 ) ; <program> <end>
-Current token:           $x                        ID              
+Current token:                        if           keyword         
 program -> <statement>
-Current token:           $x                        ID              
-statement -> $ID = <rvalue> ; <program>
-Current token: 2                                   integer         
-rvalue -> ID ( <args> )
-Current token:           $y                        ID              
-program -> <statement>
-Current token:           $y                        ID              
-statement -> $ID = <rvalue> ; <program>
-Current token:      2                              double          
-rvalue -> ID ( <args> )
-Current token:           $z                        ID              
-program -> <statement>
-Current token:           $z                        ID              
-statement -> $ID = <rvalue> ; <program>
-Current token: 2                                   integer         
-rvalue -> ID ( <args> )
-Current token:           $w                        ID              
-program -> <statement>
-Current token:           $w                        ID              
-statement -> $ID = <rvalue> ; <program>
-Current token:      2                              double          
-rvalue -> ID ( <args> )
-Current token:           write                     ID              
-program -> <statement>
+Current token:                        if           keyword         
+statement -> if ( <expression> ) { <statement> } else { <statement> } <program>
+Current token:                                     right_curly_brac
+statement -> ε
 Current token:           write                     ID              
 statement -> <rvalue> ; <program>
 Current token:           write                     ID              
 rvalue -> $ID
-Current token:           $x                        ID              
+Current token:           aboba                     string          
 args -> <term> <arg_n>
 Current token:                                     comma           
 arg_n -> , <args>
 Current token:                                     right_bracket   
 arg_n -> ε
-Current token:           write                     ID              
+Current token:                                     right_curly_brac
 program -> <statement>
-Current token:           write                     ID              
-statement -> <rvalue> ; <program>
-Current token:           write                     ID              
-rvalue -> $ID
-Current token:           $y                        ID              
-args -> <term> <arg_n>
-Current token:                                     comma           
-arg_n -> , <args>
-Current token:                                     right_bracket   
-arg_n -> ε
-Current token:           write                     ID              
-program -> <statement>
-Current token:           write                     ID              
-statement -> <rvalue> ; <program>
-Current token:           write                     ID              
-rvalue -> $ID
-Current token:           $z                        ID              
-args -> <term> <arg_n>
-Current token:                                     comma           
-arg_n -> , <args>
-Current token:                                     right_bracket   
-arg_n -> ε
-Current token:           write                     ID              
-program -> <statement>
-Current token:           write                     ID              
-statement -> <rvalue> ; <program>
-Current token:           write                     ID              
-rvalue -> $ID
-Current token:           $w                        ID              
-args -> <term> <arg_n>
-Current token:                                     comma           
-arg_n -> , <args>
-Current token:                                     right_bracket   
-arg_n -> ε
+Current token:                                     right_curly_brac
+statement -> ε
 Current token:                                     EOF             
 program -> <statement>
 Current token:                                     EOF             

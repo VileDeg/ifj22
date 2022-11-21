@@ -2,15 +2,9 @@
 
 <?php
 declare(strict_types=1);
-$x = 2 / 3;
-$y = 2.0 / 3;
-$z = 2 / 3.0;
-$w = 2.0 / 3.0;
+if (0.1) {}
+else {write("aboba", "\n");}
 
-write($x, "\n");
-write($y, "\n");
-write($z, "\n");
-write($w, "\n");
 
 
 --------------------List of tokens: --------------------
@@ -24,62 +18,23 @@ int  deci string       keyword      type
 1                                   integer         
                                     right_bracket   
                                     semicolon       
-          $x                        ID              
-                                    equal_sign      
-2                                   integer         
-                                    divide          
-3                                   integer         
-                                    semicolon       
-          $y                        ID              
-                                    equal_sign      
-     2                              double          
-                                    divide          
-3                                   integer         
-                                    semicolon       
-          $z                        ID              
-                                    equal_sign      
-2                                   integer         
-                                    divide          
-     3                              double          
-                                    semicolon       
-          $w                        ID              
-                                    equal_sign      
-     2                              double          
-                                    divide          
-     3                              double          
-                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+     0.1                            double          
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
           write                     ID              
                                     left_bracket    
-          $x                        ID              
+          aboba                     string          
                                     comma           
           
                          string          
                                     right_bracket   
                                     semicolon       
-          write                     ID              
-                                    left_bracket    
-          $y                        ID              
-                                    comma           
-          
-                         string          
-                                    right_bracket   
-                                    semicolon       
-          write                     ID              
-                                    left_bracket    
-          $z                        ID              
-                                    comma           
-          
-                         string          
-                                    right_bracket   
-                                    semicolon       
-          write                     ID              
-                                    left_bracket    
-          $w                        ID              
-                                    comma           
-          
-                         string          
-                                    right_bracket   
-                                    semicolon       
+                                    right_curly_brac
                                     EOF             
                                     prolog          
           declare                   ID              
@@ -89,119 +44,41 @@ int  deci string       keyword      type
 1                                   integer         
                                     right_bracket   
                                     semicolon       
-          $x                        ID              
-                                    equal_sign      
-2                                   integer         
-                                    divide          
-3                                   integer         
-                                    semicolon       
-          $y                        ID              
-                                    equal_sign      
-     2                              double          
-                                    divide          
-3                                   integer         
-                                    semicolon       
-          $z                        ID              
-                                    equal_sign      
-2                                   integer         
-                                    divide          
-     3                              double          
-                                    semicolon       
-          $w                        ID              
-                                    equal_sign      
-     2                              double          
-                                    divide          
-     3                              double          
-                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+     0.1                            double          
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
           write                     ID              
                                     left_bracket    
-          $x                        ID              
+          aboba                     string          
                                     comma           
           
                          string          
                                     right_bracket   
                                     semicolon       
-          write                     ID              
-                                    left_bracket    
-          $y                        ID              
-                                    comma           
-          
-                         string          
-                                    right_bracket   
-                                    semicolon       
-          write                     ID              
-                                    left_bracket    
-          $z                        ID              
-                                    comma           
-          
-                         string          
-                                    right_bracket   
-                                    semicolon       
-          write                     ID              
-                                    left_bracket    
-          $w                        ID              
-                                    comma           
-          
-                         string          
-                                    right_bracket   
-                                    semicolon       
+                                    right_curly_brac
                                     EOF             
-          $x                        ID              
-                                    equal_sign      
-2                                   integer         
-                                    divide          
-3                                   integer         
-                                    semicolon       
-          $y                        ID              
-                                    equal_sign      
-     2                              double          
-                                    divide          
-3                                   integer         
-                                    semicolon       
-          $z                        ID              
-                                    equal_sign      
-2                                   integer         
-                                    divide          
-     3                              double          
-                                    semicolon       
-          $w                        ID              
-                                    equal_sign      
-     2                              double          
-                                    divide          
-     3                              double          
-                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+     0.1                            double          
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
           write                     ID              
                                     left_bracket    
-          $x                        ID              
+          aboba                     string          
                                     comma           
           
                          string          
                                     right_bracket   
                                     semicolon       
-          write                     ID              
-                                    left_bracket    
-          $y                        ID              
-                                    comma           
-          
-                         string          
-                                    right_bracket   
-                                    semicolon       
-          write                     ID              
-                                    left_bracket    
-          $z                        ID              
-                                    comma           
-          
-                         string          
-                                    right_bracket   
-                                    semicolon       
-          write                     ID              
-                                    left_bracket    
-          $w                        ID              
-                                    comma           
-          
-                         string          
-                                    right_bracket   
-                                    semicolon       
+                                    right_curly_brac
                                     EOF             
 
 
