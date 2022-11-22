@@ -10,10 +10,9 @@ OPT=-O0
 
 PLATFORM=-m64
 
-DEBUGFLAGS=-DIFJ22_DEBUG
+#DEBUGFLAGS=-DIFJ22_DEBUG
 WARNINGS=-Wall -Wextra -pedantic
 CFLAGS=-std=c11 -g3 -I$(INCDIR) $(OPT) $(PLATFORM) $(DEBUGFLAGS)
-#LDFLAGS=
 
 CFILES=$(wildcard $(CODEDIR)/*.c)
 OBJ=$(patsubst $(CODEDIR)/%.c,$(OUTDIR)/%.o,$(CFILES))
@@ -33,10 +32,5 @@ $(CFILES): Makefile
 $(OUTDIR)/%.o: $(CODEDIR)/%.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# $(DEPLIST):
-# 	gcc -MM $(CFILES) > $@
-
 clean:
 	rm -rf $(BIN) $(wildcard $(OUTDIR)/*.o)
-
-#-include $(DEPLIST)

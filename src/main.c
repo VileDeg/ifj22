@@ -27,18 +27,13 @@ static void close_all_files()
 
 int main(int argc, char** argv)
 {
-    populate_rule_definitions();
-
     int ret = 0;
-    //FILE* source  = open_file("../mytests/01.php", "r");
-    //FILE* source  = open_file("../IFJ22_Tester/tests/Code generation/If/If empty string/prog", "r");
-    //FILE* source  = open_file("../ifj-testsuite/tests/sem/functions/function_return_expr_without type.php", "r");
-    FILE* source  = open_file("../input.php", "r");
-    
-    FILE* codegenout = open_file("../code.ifjc22", "w");
     {
         if (argc > 1 && !strcmp(argv[1], "-src"))
         {
+            populate_rule_definitions();
+            FILE* source  = open_file("../input.php", "r");
+            FILE* codegenout = open_file("../code.ifjc22", "w");
             FILE* scanout = open_file("../scanner.txt", "w");
             FILE* parsout = open_file("../parser.txt", "w");
             FILE* exprout = open_file("../expr.txt", "w");
