@@ -6,12 +6,8 @@
 #include "errors.h"
 #include "parser.h"
 
-
 // File to read from
 static FILE* s_Fptr;
-
-// Creates dynamic string.
-//static str_t* &tk->string;
 
 static unsigned int sign_counter = 0;
 static unsigned int line_counter = 1;
@@ -26,17 +22,6 @@ FILE* scanner_get_file()
 {
     return s_Fptr;
 }
-
-// void scanner_set_string(str_t* str)
-// {
-//     &tk->string = str;
-// }
-
-// void scanner_reset()
-// {
-//     sign_counter = 0;
-//     line_counter = 1;
-// }
 
 //Comparing string we've gotten and compares with KW. In case it isn't a KW -> it's an ID.
 bool determine_type(Token* tk)
@@ -123,7 +108,6 @@ bool token_const(Token* tk)
 
 bool token_cpy(Token* dst, Token* src)
 {
-    //str_dest(&dst->string);
     *dst = *src;
     str_const(&dst->string);
     str_cpy(&dst->string, &src->string);
@@ -132,16 +116,7 @@ bool token_cpy(Token* dst, Token* src)
 //Function for reading string from stdin and converting into tk.
 int scanner_get_next_token(Token* tk)
 {
-    // str_clear(&tk->string);
-    //token_clear(tk);
-    // if (!g_LastTokenWasFromStack)
-    //     token_dest(tk);
-    // else
-    //     g_LastTokenWasFromStack = false;
     token_const(tk);
-    //tk->string = &tk->string;
-    // token_dest(tk);
-    // token_const(tk);
     
     int current_state = STATE_START; 
     int sign;                 //Sign which is taken one by one from the input string.

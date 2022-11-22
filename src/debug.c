@@ -92,7 +92,6 @@ void debug_print_token(Token tk)
                 "", "", debug_tk_type(tk.type));
             break;
         case token_float:
-        //case token_exponent:
             snprintf(str, mxlen, "%g", tk.decimal);
             DEBUGPR(s_TokenDebugFormat, "", str,
                 "", "", debug_tk_type(tk.type));
@@ -103,7 +102,6 @@ void debug_print_token(Token tk)
                 "", debug_kw(tk.keyword), debug_tk_type(tk.type));
             break;
         default:
-            //VILE_ASSERT(tk.string != NULL, "");
             VILE_ASSERT(tk.string.ptr != NULL, "");
             DEBUGPR(s_TokenDebugFormat, "", "",
                 tk.string.ptr, "", debug_tk_type(tk.type));
@@ -128,36 +126,6 @@ void print_file_contents(FILE* src)
     rewind(src);
     DEBUGPR(VSPACE "\n");
 }
-
-// int test_stdin(FILE* scan_out)
-// {
-//     VILE_ASSERT(scan_out, "");
-    
-//     str_t string;
-//     str_const(&string);
-//     scanner_set_file(stdin);
-//     scanner_set_string(&string);
-
-//     set_debug_out(scan_out);
-//     HEADER("List of tokens: ");
-//     DEBUGPR(s_TokenDebugFormat, "int", "deci", "string", "keyword", "type");
-//     Token tk;
-//     int result;
-//     while (tk.type != token_EOF)
-//     {
-//         result = scanner_get_next_token(&tk);
-//         if (result != SUCCESS)
-//             break;
-
-//         debug_print_token(tk);
-//     }
-//     DEBUGPR(VSPACE);
-
-//     str_dest(&string);
-
-//     return result;
-// }
-
 
 void debug_setup(FILE* source, bool show_source_contents, 
     FILE* scan_out, FILE* pars_out, FILE* expr_out, FILE* codegen_out)
@@ -214,7 +182,6 @@ void debug_terminate(FILE* scan_out, FILE* pars_out)
     }
 }
 
-
 static const char* s_RulesFilepath = "../LL-grammar.txt";
 #define RULE_EXP_MXLEN 256
 #define NUM_RULES 35
@@ -222,8 +189,6 @@ static struct {
     char rule_name [NUM_RULES][RULE_EXP_MXLEN];
     char exp_string[NUM_RULES][RULE_EXP_MXLEN];
 } RuleInfo;
-
-
 
 void populate_rule_definitions()
 {

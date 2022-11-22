@@ -3,10 +3,6 @@
 
 #include <signal.h>
 
-// #define TOKEN_OK 0
-// #define RULE_OK 0
-// #define REDUCE_OK 0
-// #define EXPRESSION_OK 0
 #define SUCCESS 0
 
 #define ERROR_LEXICAL 1               //Error in lexical analyse (chybná struktura aktuálního lexému).       
@@ -40,9 +36,6 @@
 
 extern const char* g_ErrStr[NUMFERRORS];
 
-// fprintf(stderr, "\033[1;31m");
-// fprintf(stderr, "\033[0m");
-
 #define _PRERRH(_errstr, _fmt, ...)\
     do{\
         fprintf(stderr, "[%s]: " _fmt "\n%s", _errstr, __VA_ARGS__);\
@@ -63,16 +56,5 @@ extern const char* g_ErrStr[NUMFERRORS];
         VILE_ASSERT(false, "");\
         return ERROR_INTERNAL;\
     } while(0)
-
-// #define PRINT_ERROR_LEX(...) _PRERR("ERROR_LEXICAL", __VA_ARGS__)
-// #define PRINT_ERROR_SYNT(...) _PRERR("ERROR_SYNTAX", __VA_ARGS__)
-// #define PRINT_ERROR_SEM_UNDEF_FUNC(...) _PRERR("ERROR_SEMANTIC_UNDEFINED_FUNCTION", __VA_ARGS__)
-// #define PRINT_ERROR_SEM_FUNC(...) _PRERR("ERROR_SEMANTIC_FUNCTION", __VA_ARGS__)
-// #define PRINT_ERROR_SEM_UNDEF_VAR(...) _PRERR("ERROR_SEMANTIC_UNDEFINED_VARIABLE", __VA_ARGS__)
-// #define PRINT_ERROR_SEM_RET(...) _PRERR("ERROR_SEMANTIC_RETURN", __VA_ARGS__)
-// #define PRINT_ERROR_SEM_EXPR(...) _PRERR("ERROR_SEMANTIC_EXPRESSION", __VA_ARGS__)
-// #define PRINT_ERROR_SEM_OTHER(...) _PRERR("ERROR_SEMANTIC_OTHER", __VA_ARGS__)
-// #define PRINT_ERROR_INTERN(...) _PRERR("ERROR_INTERNAL", __VA_ARGS__)
-
 
 #endif //__ERRORS__

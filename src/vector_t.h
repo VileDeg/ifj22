@@ -25,11 +25,7 @@ bool SUFF##vec_push_front(SUFF##vec_t* vec, TDATA data);\
 bool SUFF##vec_push_back(SUFF##vec_t* vec, TDATA data);\
 TDATA SUFF##vec_pop_front(SUFF##vec_t* vec);\
 TDATA SUFF##vec_pop_back(SUFF##vec_t* vec);\
-bool SUFF##vec_valid_at(SUFF##vec_t* vec, int64_t ind);\
 TDATA SUFF##vec_extract(SUFF##vec_t* vec, SUFF##elem_t* elem);\
-bool SUFF##vec_set_at(SUFF##vec_t* vec, int64_t ind, TDATA data);\
-TDATA SUFF##vec_get_at(SUFF##vec_t* vec, int64_t ind);\
-TDATA SUFF##vec_pop_at(SUFF##vec_t* vec, int64_t ind);\
 void SUFF##vec_dispose(SUFF##vec_t* vec, void(*dest)(TDATA*));
 
 #define GENERATE_VECTOR_DEFINITION(TDATA, SUFF)\
@@ -114,11 +110,6 @@ TDATA SUFF##vec_pop_back(SUFF##vec_t* vec)\
     return data;\
 }\
 \
-bool SUFF##vec_valid_at(SUFF##vec_t* vec, int64_t ind)\
-{\
-    return vec->len > ind;\
-}\
-\
 TDATA SUFF##vec_extract(SUFF##vec_t* vec, SUFF##elem_t* elem)\
 {\
     if (elem->prev)\
@@ -133,58 +124,6 @@ TDATA SUFF##vec_extract(SUFF##vec_t* vec, SUFF##elem_t* elem)\
     free(elem);\
     vec->len--;\
     return _data;\
-}\
-\
-bool SUFF##vec_set_at(SUFF##vec_t* vec, int64_t ind, TDATA data)\
-{\
-    SUFF##elem_t* _curr = vec->front;\
-    for (int64_t i = 0; _curr; _curr = _curr->next, ++i)\
-    {\
-        if (i == ind)\
-        {\
-            _curr->data = data;\
-            return true;\
-        }\
-    }\
-    return false;\
-}\
-\
-TDATA SUFF##vec_get_at(SUFF##vec_t* vec, int64_t ind)\
-{\
-    SUFF##elem_t* _curr = vec->front;\
-    for (int64_t i = 0; _curr; _curr = _curr->next, ++i)\
-    {\
-        if (i == ind)\
-            break;\
-    }\
-    return _curr->data;\
-}\
-\
-TDATA SUFF##vec_pop_at(SUFF##vec_t* vec, int64_t ind)\
-{\
-    SUFF##elem_t* _curr = vec->front;\
-    SUFF##elem_t* _prev = NULL;\
-    TDATA data;\
-    for (int64_t i = 0; _curr;\
-        _prev = _curr, _curr = _curr->next, ++i)\
-    {\
-        if (i == ind)\
-        {\
-            if (_prev)\
-                _prev->next = _curr->next;\
-            else\
-                vec->front = _curr->next;\
-            if (_curr->next)\
-                _curr->next->prev = _prev;\
-            else\
-                vec->back = _prev;\
-            data = _curr->data;\
-            free(_curr);\
-            break;\
-        }\
-    }\
-    vec->len--;\
-    return data;\
 }\
 \
 void SUFF##vec_dispose(SUFF##vec_t* vec, void(*dest)(TDATA*))\

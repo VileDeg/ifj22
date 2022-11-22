@@ -230,6 +230,156 @@
 	"POPFRAME\n"\
 	"RETURN\n" _BFNEND
 
+#define OP_COMPARE_CODE\
+	"# Operator '>', '<', '>=', '<='" _OPSEP"\n"\
+	"LABEL !*op_rel\n"\
+	"PUSHFRAME\n"\
+	"\n"\
+	"DEFVAR LF@op1\n"\
+	"DEFVAR LF@op2\n"\
+	"DEFVAR LF@op1type\n"\
+	"DEFVAR LF@op2type\n"\
+	"DEFVAR LF@rule\n"\
+	"\n"\
+	"POPS LF@rule\n"\
+	"POPS LF@op2\n"\
+	"POPS LF@op1\n"\
+	"\n"\
+	"TYPE LF@op1type LF@op1\n"\
+	"TYPE LF@op2type LF@op2\n"\
+	"\n"\
+	"JUMPIFEQ !*op_rel_op1_nil LF@op1type string@nil\n"\
+	"JUMPIFEQ !*op_rel_op2_nil LF@op2type string@nil\n"\
+	"\n"\
+	"JUMPIFEQ !*op_rel_op1_int LF@op1type string@int\n"\
+	"JUMPIFEQ !*op_rel_op2_int LF@op2type string@int\n"\
+	"\n"\
+	"JUMPIFEQ !*op_rel_op1_float LF@op1type string@float\n"\
+	"\n"\
+	"JUMPIFEQ !*op_rel_op1_str LF@op1type string@string\n"\
+	"\n"\
+	"LABEL !*op_rel_op1_float\n"\
+	"    JUMPIFNEQ !*sem_error_seven LF@op2type string@float\n"\
+	"    JUMP !*op_rel_do\n"\
+	"\n"\
+	"LABEL !*op_rel_op1_str\n"\
+	"    JUMPIFNEQ !*sem_error_seven LF@op2type string@string\n"\
+	"    JUMP !*op_rel_do\n"\
+	"\n"\
+	"LABEL !*op_rel_op1_int\n"\
+	"    JUMPIFEQ !*op_rel_op1_int_op2_float LF@op2type string@float\n"\
+	"    JUMPIFEQ !*op_rel_do LF@op2type string@int\n"\
+	"    JUMP !*sem_error_seven\n"\
+	"\n"\
+	"LABEL !*op_rel_op1_int_op2_float\n"\
+	"    INT2FLOAT LF@op1 LF@op1\n"\
+	"    JUMP !*op_rel_do\n"\
+	"\n"\
+	"LABEL !*op_rel_op2_int\n"\
+	"    JUMPIFNEQ !*sem_error_seven LF@op1type string@float\n"\
+	"    INT2FLOAT LF@op2 LF@op2\n"\
+	"    JUMP !*op_rel_do\n"\
+	"\n"\
+	"LABEL !*op_rel_op1_nil\n"\
+	"    JUMPIFEQ !*op_rel_op1_nil_op2_nil LF@op2type string@nil\n"\
+	"    JUMPIFEQ !*op_rel_op1_nil_op2_str LF@op2type string@string\n"\
+	"    JUMPIFEQ !*op_rel_op1_nil_op2_int LF@op2type string@int\n"\
+	"    JUMPIFEQ !*op_rel_op1_nil_op2_float LF@op2type string@float\n"\
+	"    JUMP !*sem_error_seven\n"\
+	"\n"\
+	"    LABEL !*op_rel_op1_nil_op2_nil\n"\
+	"        MOVE LF@op1 bool@false\n"\
+	"        MOVE LF@op2 bool@false\n"\
+	"        JUMP !*op_rel_do\n"\
+	"\n"\
+	"    LABEL !*op_rel_op1_nil_op2_str\n"\
+	"        MOVE LF@op1 string@\n"\
+	"        JUMP !*op_rel_do\n"\
+	"\n"\
+	"    LABEL !*op_rel_op1_nil_op2_int\n"\
+	"        MOVE LF@op1 bool@false\n"\
+	"\n"\
+	"        JUMPIFEQ !*op_rel_op1_nil_op2_int_zero LF@op2 int@0\n"\
+	"        MOVE LF@op2 bool@true\n"\
+	"        JUMP !*op_rel_do\n"\
+	"\n"\
+	"        LABEL !*op_rel_op1_nil_op2_int_zero\n"\
+	"            MOVE LF@op2 bool@false\n"\
+	"            JUMP !*op_rel_do\n"\
+	"    \n"\
+	"    LABEL !*op_rel_op1_nil_op2_float\n"\
+	"        MOVE LF@op1 bool@false\n"\
+	"\n"\
+	"        JUMPIFEQ !*op_rel_op1_nil_op2_float_zero LF@op2 float@0x0.0p+0\n"\
+	"        MOVE LF@op2 bool@true\n"\
+	"        JUMP !*op_rel_do\n"\
+	"\n"\
+	"        LABEL !*op_rel_op1_nil_op2_float_zero\n"\
+	"            MOVE LF@op2 bool@false\n"\
+	"            JUMP !*op_rel_do\n"\
+	"\n"\
+	"LABEL !*op_rel_op2_nil\n"\
+	"    JUMPIFEQ !*op_rel_op2_nil_op1_str LF@op1type string@string\n"\
+	"    JUMPIFEQ !*op_rel_op2_nil_op1_int LF@op1type string@int\n"\
+	"    JUMPIFEQ !*op_rel_op2_nil_op1_float LF@op1type string@float\n"\
+	"    JUMP !*sem_error_seven\n"\
+	"\n"\
+	"    LABEL !*op_rel_op2_nil_op1_str\n"\
+	"        MOVE LF@op2 string@\n"\
+	"        JUMP !*op_rel_do\n"\
+	"\n"\
+	"    LABEL !*op_rel_op2_nil_op1_int\n"\
+	"        MOVE LF@op2 bool@false\n"\
+	"\n"\
+	"        JUMPIFEQ !*op_rel_op2_nil_op1_int_zero LF@op1 int@0\n"\
+	"        MOVE LF@op1 bool@true\n"\
+	"        JUMP !*op_rel_do\n"\
+	"\n"\
+	"        LABEL !*op_rel_op2_nil_op1_int_zero\n"\
+	"            MOVE LF@op1 bool@false\n"\
+	"            JUMP !*op_rel_do\n"\
+	"    \n"\
+	"    LABEL !*op_rel_op2_nil_op1_float\n"\
+	"        MOVE LF@op2 bool@false\n"\
+	"\n"\
+	"        JUMPIFEQ !*op_rel_op2_nil_op1_float_zero LF@op1 float@0x0.0p+0\n"\
+	"        MOVE LF@op1 bool@true\n"\
+	"        JUMP !*op_rel_do\n"\
+	"\n"\
+	"        LABEL !*op_rel_op2_nil_op1_float_zero\n"\
+	"            MOVE LF@op1 bool@false\n"\
+	"            JUMP !*op_rel_do\n"\
+	"\n"\
+	"LABEL !*op_rel_do\n"\
+	"PUSHS LF@op1\n"\
+	"PUSHS LF@op2\n"\
+	"\n"\
+	"JUMPIFEQ !*op_rel_gt LF@rule string@gt\n"\
+	"JUMPIFEQ !*op_rel_gt LF@rule string@geq\n"\
+	"JUMPIFEQ !*op_rel_lt LF@rule string@lt\n"\
+	"JUMPIFEQ !*op_rel_lt LF@rule string@leq\n"\
+	"JUMP !*sem_error_eight\n"\
+	"\n"\
+	"LABEL !*op_rel_gt\n"\
+	"    GTS\n"\
+	"    JUMPIFEQ !*op_rel_leq_geq LF@rule string@geq\n"\
+	"    JUMP !*op_rel_end\n"\
+	"\n"\
+	"LABEL !*op_rel_lt\n"\
+	"    LTS\n"\
+	"    JUMPIFEQ !*op_rel_leq_geq LF@rule string@leq\n"\
+	"    JUMP !*op_rel_end\n"\
+	"\n"\
+	"LABEL !*op_rel_leq_geq\n"\
+	"    PUSHS LF@op1\n"\
+	"    PUSHS LF@op2\n"\
+	"    EQS\n"\
+	"    ORS\n"\
+	"\n"\
+	"LABEL !*op_rel_end\n"\
+	"POPFRAME\n"\
+	"RETURN\n" _BFNEND
+
 #define ERROR_LABELS_CODE\
 	"# Runtime error labels" _OPSEP"\n"\
 	"LABEL !*sem_error_three\n"\

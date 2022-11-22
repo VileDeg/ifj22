@@ -1,0 +1,153 @@
+# Operator '>', '<', '>=', '<='
+LABEL !*op_rel
+PUSHFRAME
+
+DEFVAR LF@op1
+DEFVAR LF@op2
+DEFVAR LF@op1type
+DEFVAR LF@op2type
+DEFVAR LF@rule
+
+POPS LF@rule
+POPS LF@op2
+POPS LF@op1
+
+TYPE LF@op1type LF@op1
+TYPE LF@op2type LF@op2
+
+JUMPIFEQ !*op_rel_op1_nil LF@op1type string@nil
+JUMPIFEQ !*op_rel_op2_nil LF@op2type string@nil
+
+JUMPIFEQ !*op_rel_op1_int LF@op1type string@int
+JUMPIFEQ !*op_rel_op2_int LF@op2type string@int
+
+JUMPIFEQ !*op_rel_op1_float LF@op1type string@float
+
+JUMPIFEQ !*op_rel_op1_str LF@op1type string@string
+
+LABEL !*op_rel_op1_float
+    JUMPIFNEQ !*sem_error_seven LF@op2type string@float
+    JUMP !*op_rel_do
+
+LABEL !*op_rel_op1_str
+    JUMPIFNEQ !*sem_error_seven LF@op2type string@string
+    JUMP !*op_rel_do
+
+LABEL !*op_rel_op1_int
+    JUMPIFEQ !*op_rel_op1_int_op2_float LF@op2type string@float
+    JUMPIFEQ !*op_rel_do LF@op2type string@int
+    JUMP !*sem_error_seven
+
+LABEL !*op_rel_op1_int_op2_float
+    INT2FLOAT LF@op1 LF@op1
+    JUMP !*op_rel_do
+
+LABEL !*op_rel_op2_int
+    JUMPIFNEQ !*sem_error_seven LF@op1type string@float
+    INT2FLOAT LF@op2 LF@op2
+    JUMP !*op_rel_do
+
+LABEL !*op_rel_op1_int_op2_float
+    INT2FLOAT LF@op1 LF@op1
+    JUMP !*op_rel_do
+
+LABEL !*op_rel_op1_nil
+    JUMPIFEQ !*op_rel_op1_nil_op2_nil LF@op2type string@nil
+    JUMPIFEQ !*op_rel_op1_nil_op2_str LF@op2type string@string
+    JUMPIFEQ !*op_rel_op1_nil_op2_int LF@op2type string@int
+    JUMPIFEQ !*op_rel_op1_nil_op2_float LF@op2type string@float
+    JUMP !*sem_error_seven
+
+    LABEL !*op_rel_op1_nil_op2_nil
+        MOVE LF@op1 bool@false
+        MOVE LF@op2 bool@false
+        JUMP !*op_rel_do
+
+    LABEL !*op_rel_op1_nil_op2_str
+        MOVE LF@op1 string@
+        JUMP !*op_rel_do
+
+    LABEL !*op_rel_op1_nil_op2_int
+        MOVE LF@op1 bool@false
+
+        JUMPIFEQ !*op_rel_op1_nil_op2_int_zero LF@op2 int@0
+        MOVE LF@op2 bool@true
+        JUMP !*op_rel_do
+
+        LABEL !*op_rel_op1_nil_op2_int_zero
+            MOVE LF@op2 bool@false
+            JUMP !*op_rel_do
+    
+    LABEL !*op_rel_op1_nil_op2_float
+        MOVE LF@op1 bool@false
+
+        JUMPIFEQ !*op_rel_op1_nil_op2_float_zero LF@op2 float@0x0.0p+0
+        MOVE LF@op2 bool@true
+        JUMP !*op_rel_do
+
+        LABEL !*op_rel_op1_nil_op2_float_zero
+            MOVE LF@op2 bool@false
+            JUMP !*op_rel_do
+
+LABEL !*op_rel_op2_nil
+    JUMPIFEQ !*op_rel_op2_nil_op1_str LF@op1type string@string
+    JUMPIFEQ !*op_rel_op2_nil_op1_int LF@op1type string@int
+    JUMPIFEQ !*op_rel_op2_nil_op1_float LF@op1type string@float
+    JUMP !*sem_error_seven
+
+    LABEL !*op_rel_op2_nil_op1_str
+        MOVE LF@op2 string@
+        JUMP !*op_rel_do
+
+    LABEL !*op_rel_op2_nil_op1_int
+        MOVE LF@op2 bool@false
+
+        JUMPIFEQ !*op_rel_op2_nil_op1_int_zero LF@op1 int@0
+        MOVE LF@op1 bool@true
+        JUMP !*op_rel_do
+
+        LABEL !*op_rel_op2_nil_op1_int_zero
+            MOVE LF@op1 bool@false
+            JUMP !*op_rel_do
+    
+    LABEL !*op_rel_op2_nil_op1_float
+        MOVE LF@op2 bool@false
+
+        JUMPIFEQ !*op_rel_op2_nil_op1_float_zero LF@op1 float@0x0.0p+0
+        MOVE LF@op1 bool@true
+        JUMP !*op_rel_do
+
+        LABEL !*op_rel_op2_nil_op1_float_zero
+            MOVE LF@op1 bool@false
+            JUMP !*op_rel_do
+
+
+LABEL !*op_rel_do
+PUSHS LF@op1
+PUSHS LF@op2
+
+JUMPIFEQ !*op_rel_gt LF@rule string@gt
+JUMPIFEQ !*op_rel_gt LF@rule string@geq
+JUMPIFEQ !*op_rel_lt LF@rule string@lt
+JUMPIFEQ !*op_rel_lt LF@rule string@leq
+JUMP !*sem_error_eight
+
+LABEL !*op_rel_gt
+    GTS
+    JUMPIFEQ !*op_rel_leq_geq LF@rule string@geq
+    JUMP !*op_rel_end
+
+LABEL !*op_rel_lt
+    LTS
+    JUMPIFEQ !*op_rel_leq_geq LF@rule string@leq
+    JUMP !*op_rel_end
+
+LABEL !*op_rel_leq_geq
+    PUSHS LF@op1
+    PUSHS LF@op2
+    EQS
+    ORS
+
+LABEL !*op_rel_end
+POPFRAME
+RETURN\n _BFNEND

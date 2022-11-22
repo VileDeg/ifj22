@@ -1,0 +1,102 @@
+# Operator '>', '<', '>=', '<='
+LABEL !*op_rel
+PUSHFRAME
+
+DEFVAR LF@op1
+DEFVAR LF@op2
+DEFVAR LF@op1type
+DEFVAR LF@op2type
+DEFVAR LF@rule
+
+POPS LF@rule
+POPS LF@op2
+POPS LF@op1
+
+TYPE LF@op1type LF@op1
+TYPE LF@op2type LF@op2
+
+JUMPIFEQ !*op_rel_op1_str LF@op1type string@string
+LABEL !*op_rel_check_op2_str
+JUMPIFEQ !*op_rel_op2_str LF@op2type string@string
+
+JUMPIFEQ !*op_rel_op1_int LF@op1type string@int
+LABEL !*op_rel_check_op2_int
+JUMPIFEQ !*op_rel_op2_int LF@op2type string@nt
+
+JUMP !*sem_error_eight
+
+LABEL !*op_rel_op1_str
+    JUMPIFEQ !*op_rel_op1_str_op2_nil LF@op2type string@nil
+    JUMPIFEQ !*sem_error_seven LF@op2type string@int
+    JUMP !*op_rel_check_op2_str
+
+LABEL !*op_rel_op2_str
+    JUMPIFEQ !*op_rel_op2_str_op1_nil LF@op1type string@nil
+    JUMPIFEQ !*sem_error_seven LF@op1type string@int
+    JUMP !*op_rel_check_op2_str
+
+LABEL !*op_rel_op1_str_op2_nil
+    MOVE LF@op2 string@
+    JUMP !*op_rel_do
+
+LABEL !*op_rel_op2_str_op1_nil
+    MOVE LF@op1 string@
+    JUMP !*op_rel_do
+
+LABEL !*op_rel_op1_int
+
+LABEL !*op_rel_op1_int_op2_nil
+    MOVE LF@op2 bool@false
+    JUMPIFEQ !*op_rel_op1_int_op2_nil_false LF@op1 int@0
+    JUMP !*op_rel_op1_int_op2_nil_true
+
+    LABEL !*op_rel_op1_int_op2_nil_false
+        MOVE LF@op1 bool@false
+        JUMP !*op_rel_do
+
+    LABEL !*op_rel_op1_int_op2_nil_true
+        MOVE LF@op1 bool@true
+        JUMP !*op_rel_do
+
+LABEL !*op_rel_op2_int_op1_nil
+MOVE LF@op1 bool@false
+JUMPIFEQ !*op_rel_op2_int_op1_nil_false LF@op2 int@0
+JUMP !*op_rel_op2_int_op1_nil_true
+
+    LABEL !*op_rel_op2_int_op1_nil_false
+        MOVE LF@op2 bool@false
+        JUMP !*op_rel_do
+
+    LABEL !*op_rel_op2_int_op1_nil_true
+        MOVE LF@op2 bool@true
+        JUMP !*op_rel_do
+
+
+LABEL !*op_rel_do
+PUSHS LF@op1
+PUSHS LF@op2
+JUMPIFEQ !*op_rel_gt LF@rule string@gt
+JUMPIFEQ !*op_rel_gt LF@rule string@geq
+JUMPIFEQ !*op_rel_lt LF@rule string@lt
+JUMPIFEQ !*op_rel_lt LF@rule string@leq
+JUMP !*sem_error_eight
+
+LABEL !*op_rel_gt
+    GTS
+    JUMPIFEQ !*op_rel_leq_geq LF@rule string@geq
+    JUMP !*op_rel_end
+
+LABEL !*op_rel_lt
+    LTS
+    JUMPIFEQ !*op_rel_leq_geq LF@rule string@leq
+    JUMP !*op_rel_end
+
+LABEL !*op_rel_leq_geq
+    PUSHS LF@op1
+    PUSHS LF@op2
+    EQS
+    ORS
+
+LABEL !*op_rel_end
+POPFRAME
+RETURN\n _BFNEND

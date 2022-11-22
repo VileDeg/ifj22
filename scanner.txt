@@ -2,9 +2,13 @@
 
 <?php
 declare(strict_types=1);
-if (0.1) {}
-else {write("aboba", "\n");}
 
+$res = 1 > null;
+write($res, "\n");
+$res = 2 > 0.0;
+write($res, "\n");
+$res = 2 < 0;
+write($res, "\n");
 
 
 --------------------List of tokens: --------------------
@@ -18,23 +22,48 @@ int  deci string       keyword      type
 1                                   integer         
                                     right_bracket   
                                     semicolon       
-                       if           keyword         
-                                    left_bracket    
-     0.1                            double          
-                                    right_bracket   
-                                    left_curly_brack
-                                    right_curly_brac
-                       else         keyword         
-                                    left_curly_brack
+          $res                      ID              
+                                    equal_sign      
+1                                   integer         
+                                    greater         
+                       null         null            
+                                    semicolon       
           write                     ID              
                                     left_bracket    
-          aboba                     string          
+          $res                      ID              
                                     comma           
           
                          string          
                                     right_bracket   
                                     semicolon       
-                                    right_curly_brac
+          $res                      ID              
+                                    equal_sign      
+2                                   integer         
+                                    greater         
+     0                              double          
+                                    semicolon       
+          write                     ID              
+                                    left_bracket    
+          $res                      ID              
+                                    comma           
+          
+                         string          
+                                    right_bracket   
+                                    semicolon       
+          $res                      ID              
+                                    equal_sign      
+2                                   integer         
+                                    less            
+0                                   integer         
+                                    semicolon       
+          write                     ID              
+                                    left_bracket    
+          $res                      ID              
+                                    comma           
+          
+                         string          
+                                    right_bracket   
+                                    semicolon       
                                     EOF             
                                     prolog          
           declare                   ID              
@@ -44,41 +73,48 @@ int  deci string       keyword      type
 1                                   integer         
                                     right_bracket   
                                     semicolon       
-                       if           keyword         
-                                    left_bracket    
-     0.1                            double          
-                                    right_bracket   
-                                    left_curly_brack
-                                    right_curly_brac
-                       else         keyword         
-                                    left_curly_brack
+          $res                      ID              
+                                    equal_sign      
+1                                   integer         
+                                    greater         
+                       null         null            
+                                    semicolon       
           write                     ID              
                                     left_bracket    
-          aboba                     string          
+          $res                      ID              
                                     comma           
           
                          string          
                                     right_bracket   
                                     semicolon       
-                                    right_curly_brac
-                                    EOF             
-                       if           keyword         
-                                    left_bracket    
-     0.1                            double          
-                                    right_bracket   
-                                    left_curly_brack
-                                    right_curly_brac
-                       else         keyword         
-                                    left_curly_brack
+          $res                      ID              
+                                    equal_sign      
+2                                   integer         
+                                    greater         
+     0                              double          
+                                    semicolon       
           write                     ID              
                                     left_bracket    
-          aboba                     string          
+          $res                      ID              
                                     comma           
           
                          string          
                                     right_bracket   
                                     semicolon       
-                                    right_curly_brac
+          $res                      ID              
+                                    equal_sign      
+2                                   integer         
+                                    less            
+0                                   integer         
+                                    semicolon       
+          write                     ID              
+                                    left_bracket    
+          $res                      ID              
+                                    comma           
+          
+                         string          
+                                    right_bracket   
+                                    semicolon       
                                     EOF             
 
 

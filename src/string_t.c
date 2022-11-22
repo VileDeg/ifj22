@@ -20,7 +20,6 @@ void str_clear(str_t* str)
 {
     str->len = 0;
     memset(str->ptr, 0, str->cap);
-	//str->ptr[str->len] = '\0';
 }
 
 //Initialization of string.
@@ -84,8 +83,6 @@ bool str_cmp(str_t *first, const char *second)
 {
     return !strcmp(first->ptr, second);
 }
-
-
 
 char str_last_sign(str_t* str)
 {

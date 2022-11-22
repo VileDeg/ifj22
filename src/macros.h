@@ -6,19 +6,6 @@
 #define TOKEN_IS(_postfix) (pd->token.type == token_##_postfix)
 #define TK_STR(_tk) _tk.string.ptr
 
-#if 0
-if (!g_LastTokenWasFromStack)\
-	token_dest(&pd->token);\
-		if (!g_LastTokenWasFromStack)\
-			token_dest(&pd->token);
-		g_LastTokenWasFromStack = true;
-	tkvec_push_back(&pd->tk_dispose_list, pd->token);
-	Token _copy;\
-		token_cpy(&_copy, &pd->token);
-		Token _copy;\
-		token_cpy(&_copy, &pd->token);
-#endif
-
 #define POP_TOKEN_FRONT do {\
 		INTERNAL(!tkvec_empty(&pd->tk_vec));\
 		pd->token = tkvec_pop_front(&pd->tk_vec);\
@@ -42,10 +29,16 @@ if (!g_LastTokenWasFromStack)\
 
 
 #define GET_NEXT_TOKEN\
-		do {\
-			if ((RES = _get_next_token(pd)) != SUCCESS)\
-				return RES;\
-		} while(0)
+	do {\
+		if ((RES = _get_next_token(pd)) != SUCCESS)\
+			return RES;\
+	} while(0)
+
+#define VEC_NEXT_TOKEN do {\
+		INTERNAL(!tkvec_empty(&pd->tk_vec));\
+		pd->token = pd->front_ptr->data;\
+		pd->front_ptr = pd->front_ptr->prev;\
+	} while (0)
 
 #define RES result
 #define DEF_RES int64_t RES = SUCCESS;
@@ -68,9 +61,8 @@ if (!g_LastTokenWasFromStack)\
 #endif
 
 
-#define MODE_TOKEN_PASS 0
-#define MODE_FUNCTION_PASS 1
-#define MODE_MAIN_PASS 2
+#define MODE_FUNCTION_PASS 0
+#define MODE_MAIN_PASS 1
 
 
 

@@ -2,35 +2,73 @@
 
 <?php
 declare(strict_types=1);
-if (0.1) {}
-else {write("aboba", "\n");}
 
+$res = 1 > null;
+write($res, "\n");
+$res = 2 > 0.0;
+write($res, "\n");
+$res = 2 < 0;
+write($res, "\n");
 
 
 --------------------Rules triggered: --------------------
 
 Current token:                                     EOF             
 begin -> <?php declare ( strict_types = 1 ) ; <program> <end>
-Current token:                        if           keyword         
+Current token:           $res                      ID              
 program -> <statement>
-Current token:                        if           keyword         
-statement -> if ( <expression> ) { <statement> } else { <statement> } <program>
-Current token:                                     right_curly_brac
-statement -> ε
+Current token:           $res                      ID              
+statement -> $ID = <rvalue> ; <program>
+Current token: 1                                   integer         
+rvalue -> ID ( <args> )
+Current token:           write                     ID              
+program -> <statement>
 Current token:           write                     ID              
 statement -> <rvalue> ; <program>
 Current token:           write                     ID              
 rvalue -> $ID
-Current token:           aboba                     string          
+Current token:           $res                      ID              
 args -> <term> <arg_n>
 Current token:                                     comma           
 arg_n -> , <args>
 Current token:                                     right_bracket   
 arg_n -> ε
-Current token:                                     right_curly_brac
+Current token:           $res                      ID              
 program -> <statement>
-Current token:                                     right_curly_brac
-statement -> ε
+Current token:           $res                      ID              
+statement -> $ID = <rvalue> ; <program>
+Current token: 2                                   integer         
+rvalue -> ID ( <args> )
+Current token:           write                     ID              
+program -> <statement>
+Current token:           write                     ID              
+statement -> <rvalue> ; <program>
+Current token:           write                     ID              
+rvalue -> $ID
+Current token:           $res                      ID              
+args -> <term> <arg_n>
+Current token:                                     comma           
+arg_n -> , <args>
+Current token:                                     right_bracket   
+arg_n -> ε
+Current token:           $res                      ID              
+program -> <statement>
+Current token:           $res                      ID              
+statement -> $ID = <rvalue> ; <program>
+Current token: 2                                   integer         
+rvalue -> ID ( <args> )
+Current token:           write                     ID              
+program -> <statement>
+Current token:           write                     ID              
+statement -> <rvalue> ; <program>
+Current token:           write                     ID              
+rvalue -> $ID
+Current token:           $res                      ID              
+args -> <term> <arg_n>
+Current token:                                     comma           
+arg_n -> , <args>
+Current token:                                     right_bracket   
+arg_n -> ε
 Current token:                                     EOF             
 program -> <statement>
 Current token:                                     EOF             

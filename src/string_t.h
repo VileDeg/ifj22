@@ -3,7 +3,6 @@
 
 #include <stdbool.h>
 #include <inttypes.h>
-//#include "base.h"
 
 //Struct of the allocation for string.
 typedef struct

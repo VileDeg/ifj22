@@ -4,11 +4,12 @@
 /**
 * BUILT-IN FUNCTIONS
 */
+#define _BFNBEG(_name) "# Function " _name " <builtin> ===================================\n"
 #define _BFNEND "\n"
 
 /// function reads() : ?string
 #define FUNCTION_READS              \
-	"# Function reads\n"        \
+	_BFNBEG("reads")\
 	"LABEL !reads\n"            \
 	"PUSHFRAME\n"               \
 	"DEFVAR LF@res\n"           \
@@ -18,7 +19,7 @@
 
 /// function readi() : ?int
 #define FUCNTION_READI          \
-	"# Function readi\n"    \
+	_BFNBEG("readi")\
 	"LABEL !readi\n"        \
 	"PUSHFRAME\n"           \
 	"DEFVAR LF@res\n"       \
@@ -28,7 +29,7 @@
 
 /// function readf() : ?float
 #define FUNCTION_READF              \
-	"# Function readf\n"        \
+	_BFNBEG("readf")\
 	"LABEL !readf\n"            \
 	"PUSHFRAME\n"               \
 	"DEFVAR LF@res\n"           \
@@ -38,7 +39,7 @@
 
 /// function write ( term1 , term2 , ..., term𝑛 ) : void
 #define FUNCTION_WRITE                              \
-	"# Function write\n"                        \
+	_BFNBEG("write")\
 	"LABEL !write\n"                            \
 	"PUSHFRAME\n"                               \
 	"DEFVAR LF@to_write\n"                      \
@@ -60,7 +61,7 @@
 
 /// function floatval(term) : float
 #define FUNCTION_FLOATVAL\
-    "# Function floatval\n" \
+    _BFNBEG("floatval")\
     "LABEL !floatval\n" \
     "PUSHFRAME\n" \
 	"\n"\
@@ -94,7 +95,7 @@
 
 /// function intval(term) : int
 #define FUNCTION_INTVAL\
-    "# Function intval\n" \
+    _BFNBEG("intval")\
     "LABEL !intval\n" \
     "PUSHFRAME\n" \
     "DEFVAR LF@type\n"\
@@ -112,7 +113,7 @@
     "RETURN\n" _BFNEND
 /// function strval(term) : string
 #define FUNCTION_STRVAL\
-    "# Function strval\n" \
+    _BFNBEG("strval")\
     "LABEL !strval\n" \
     "PUSHFRAME\n" \
     "DEFVAR LF@type\n"\
@@ -126,7 +127,7 @@
 
 /// function strlen(string $𝑠) : int
 #define FUNCTION_STRLEN                 \
-	"# Function strlen\n"           \
+	_BFNBEG("strlen")\
 	"LABEL !strlen\n"               \
 	"PUSHFRAME\n"                   \
 	"DEFVAR LF@res\n"               \
@@ -136,7 +137,7 @@
 
 /// function substring(string $𝑠, int $𝑖, int $𝑗) : ?string
 #define FUNCTION_SUBSTRING                              \
-	"# Function substring\n"                        \
+	_BFNBEG("substring")\
 	"LABEL !substring\n"                            \
 	"PUSHFRAME\n"                                   \
 	"DEFVAR LF@res\n"                               \
@@ -176,7 +177,7 @@
 
 /// function ord(string $c) : int
 #define FUNCTION_ORD                                \
-	"# Function ord\n"                          \
+	_BFNBEG("ord")\
 	"LABEL !ord\n"                              \
 	"PUSHFRAME\n"                               \
 	"DEFVAR LF@res\n"                           \
@@ -197,7 +198,7 @@
 
 /// function chr(int $i) : string
 #define FUNCTION_CHR                            \
-	"# Function chr\n"                      \
+	_BFNBEG("chr")\
 	"LABEL !chr\n"                          \
 	"PUSHFRAME\n"                           \
 	"DEFVAR LF@res\n"                       \
@@ -208,11 +209,4 @@
 
 #endif // !__BUILTINS_H__
 
-//from chr:
-	//"DEFVAR LF@cond\n"                      \
-	// "GT LF@cond LF@-0 int@255\n"            \
-	// "JUMPIFEQ !chr_end LF@cond bool@true\n" \
-	// "LT LF@cond LF@-0 int@0\n"              \
-	// "JUMPIFEQ !chr_end LF@cond bool@true\n" \
-
-	//"LABEL !chr_end\n"                      
+       

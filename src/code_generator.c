@@ -29,6 +29,7 @@ bool emit_internal_funcs()
     EMIT(OP_DIV_CODE);
     EMIT(OP_DOT_CODE);
     EMIT(OP_EQ_NEQ_CODE);
+    EMIT(OP_COMPARE_CODE);
 
     return true;
 }
@@ -389,6 +390,11 @@ bool emit_stack_operation(Rule_type rule) {
             EMIT_NL("CREATEFRAME");
             EMIT_NL("CALL !*op_asm");
             break;
+        
+        case RULE_DIV:
+            EMIT_NL("CREATEFRAME");
+            EMIT_NL("CALL !*op_div");
+            break;
 
         case RULE_EQ:
             EMIT_NL("PUSHS string@equal");
@@ -401,32 +407,30 @@ bool emit_stack_operation(Rule_type rule) {
             EMIT_NL("CALL !*op_eq_neq");
             break;
         
-        case RULE_DIV:
-            EMIT_NL("CREATEFRAME");
-            EMIT_NL("CALL !*op_div");
-            break;
-
         case RULE_DOT:
             EMIT_NL("CREATEFRAME");
             EMIT_NL("CALL !*op_dot");
             break;
 
         case RULE_LT:
-            EMIT_NL("LTS");
+            EMIT_NL("PUSHS string@lt");
+            EMIT_NL("CREATEFRAME");
+            EMIT_NL("CALL !*op_rel");
             break;
-
         case RULE_GT:
-            EMIT_NL("GTS");
+            EMIT_NL("PUSHS string@gt");
+            EMIT_NL("CREATEFRAME");
+            EMIT_NL("CALL !*op_rel");
             break;
-
         case RULE_LEQ:
-            EMIT_NL("GTS\n"
-                       "NOTS");
+            EMIT_NL("PUSHS string@leq");
+            EMIT_NL("CREATEFRAME");
+            EMIT_NL("CALL !*op_rel");
             break;
-
         case RULE_GEQ:
-            EMIT_NL("LTS\n"
-                       "NOTS");
+            EMIT_NL("PUSHS string@geq");
+            EMIT_NL("CREATEFRAME");
+            EMIT_NL("CALL !*op_rel");
             break;
 
         default:

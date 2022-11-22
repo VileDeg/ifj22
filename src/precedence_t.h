@@ -6,9 +6,6 @@
 #include <stdlib.h>
 #include "parser.h"
 
-
-
-
 #define TAB_SIZE 8
 
 /*

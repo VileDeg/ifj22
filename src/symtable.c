@@ -6,8 +6,8 @@
 #include "errors.h"
 #include "macros.h"
 
-
-size_t hash_function(const char *str) {
+size_t hash_function(const char *str) 
+{
     uint32_t h=0;     // must have 32 bits
     const unsigned char *p;
     for(p=(const unsigned char*)str; *p!='\0'; p++)
@@ -15,21 +15,19 @@ size_t hash_function(const char *str) {
     return h % MAX_SYMTABLE_SIZE;
 }
 
-
-void symtable_init(TSymtable *st) {
-    if (st == NULL) {
+void symtable_init(TSymtable *st) 
+{
+    if (!st)
         return;
-    }
-    for (int64_t i = 0; i < MAX_SYMTABLE_SIZE; i++) {
-        st->items[i] = NULL;
-    }
-}
 
+    for (int64_t i = 0; i < MAX_SYMTABLE_SIZE; i++)
+        st->items[i] = NULL;
+}
 
 TItem *item_const(const char *key, bool *alloc_failed) 
 {
     TItem *new_item = calloc(sizeof(TItem), 1);
-    if (new_item == NULL)
+    if (!new_item)
         goto mem_fail;
     if (!(new_item->key = calloc(1, strlen(key) + 1)))
         goto key_fail;
@@ -61,34 +59,35 @@ mem_fail:
     return NULL;
 }
 
-
-TData *symtable_add_symbol(TSymtable *st, const char *key, bool *alloc_failed) {
+TData *symtable_add_symbol(TSymtable *st, const char *key, bool *alloc_failed) 
+{
     *alloc_failed = false;
-    if (st == NULL || key == NULL) {
+    if (!st || !key) 
+    {
         *alloc_failed = true;
         return  NULL;
     }
     size_t index = hash_function(key);
     TItem *last = NULL;
     TItem *tmp = st->items[index];
-    while (tmp != NULL) {
-        if (strcmp(tmp->key, key) == 0) {
+    while (tmp) 
+    {
+        if (!strcmp(tmp->key, key))
             return NULL;                                //nothing to add
-        }
+
         last = tmp;
         tmp = tmp->next;
     }
     TItem *new_item = item_const(key, alloc_failed);
-    if (new_item == NULL)
+    if (!new_item)
         return NULL;
-    if (last == NULL) {
+    if (!last)
         st->items[index] = new_item;
-    } else {
+    else
         last->next = new_item;
-    }
+    
     return &new_item->data;
 }
-
 
 bool symtable_add_param(TData *data, int64_t data_type, bool can_be_null) 
 {
@@ -114,39 +113,42 @@ bool symtable_add_param(TData *data, int64_t data_type, bool can_be_null)
     return false;
 }
 
-
-TData *symtable_find(TSymtable *st, const char *key) {
-    if (st == NULL || key == NULL) {
+TData *symtable_find(TSymtable *st, const char *key) 
+{
+    if (!st || !key)
         return NULL;
-    }
+
     size_t index = hash_function(key);
     TItem *tmp = st->items[index];
-    while (tmp != NULL) {
-        if (strcmp(tmp->key, key) == 0) {
+    while (tmp != NULL) 
+    {
+        if (!strcmp(tmp->key, key))
             return &tmp->data;
-        }
+
         tmp = tmp->next;
     }
     return NULL;
 }
 
-
-bool symtable_delete_symbol(TSymtable *st, const char *key) {
-    if (st == NULL || key == NULL) {
+bool symtable_delete_symbol(TSymtable *st, const char *key) 
+{
+    if (!st || !key)
         return false;
-    }
+
     size_t index = hash_function(key);
     TItem *last = NULL;
     TItem *tmp = st->items[index];
-    while (tmp != NULL) {
-        if (strcmp(key, tmp->key) == 0) {
-            if (last == NULL) {
+    while (tmp) 
+    {
+        if (!strcmp(key, tmp->key)) 
+        {
+            if (!last)
                 st->items[index] = st->items[index]->next;
-            } else {
+            else
                 last->next = tmp->next;
-            }
+
             free(tmp->key);
-            if (tmp->data.params != NULL) {
+            if (tmp->data.params) {
                 str_dest(tmp->data.params);
                 free(tmp->data.params);
             }
@@ -159,19 +161,21 @@ bool symtable_delete_symbol(TSymtable *st, const char *key) {
     return false;
 }
 
-
-void symtable_dest(TSymtable *st) {
-    if (st == NULL) {
+void symtable_dest(TSymtable *st) 
+{
+    if (!st)
         return;
-    }
 
-    for (int64_t i = 0; i < MAX_SYMTABLE_SIZE; i++) {
+    for (int64_t i = 0; i < MAX_SYMTABLE_SIZE; i++) 
+    {
         TItem *to_delete = st->items[i];
         TItem *tmp = NULL;
-        while (to_delete != NULL) {
+        while (to_delete) 
+        {
             tmp = to_delete->next;
             free(to_delete->key);
-            if (to_delete->data.params != NULL) {
+            if (to_delete->data.params) 
+            {
                 str_dest(to_delete->data.params);
                 free(to_delete->data.params);
             }
