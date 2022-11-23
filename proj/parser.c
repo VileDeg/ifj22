@@ -16,7 +16,6 @@ int _get_next_token(ParserData* pd)
 	int RES = SUCCESS;
 	if (!pd->block_next_token) 
 	{
-		static tkelem_t* front_ptr = NULL;
 		switch (pd->mode)
 		{
 		case MODE_FUNCTION_PASS:
@@ -420,7 +419,6 @@ static int param_type(ParserData* pd)
 			PRINT_ERROR_RET(ERROR_SEM_ID_DEF, "parameter already defined.");
 		TData* data = NULL;
 		ADD_CURRENT_ID(data); //pd->lhs_var
-		int pnum = pd->current_func->params->len;
 		int sign = pd->current_func->params->ptr[pd->param_index]; //pnum
 		if (sign == 'i' || sign == LETTFLIP('i'))
 			data->type = TYPE_INT;
@@ -958,6 +956,5 @@ error:
 	result = ERROR_INTERNAL;
 free:
 	free_data(&pd);
-end:
     return result;
 }

@@ -35,7 +35,7 @@ int main(int argc, char** argv)
         {
             populate_rule_definitions();
             FILE* source  = open_file(FILE_PREF "input.php", "r");
-            FILE* codegenout = open_file(FILE_PREF "code.ifjc22", "w");
+            //FILE* codegenout = open_file(FILE_PREF "code.ifjc22", "w");
             FILE* scanout = open_file(FILE_PREF "scanner.txt", "w");
             FILE* parsout = open_file(FILE_PREF "parser.txt", "w");
             FILE* exprout = open_file(FILE_PREF "expr.txt", "w");

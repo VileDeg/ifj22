@@ -122,6 +122,7 @@ bool emit_function_type(DataType type, bool qmark)
 		case TYPE_INT	: str_concat(&str, "int")  	; break;
 		case TYPE_STRING: str_concat(&str, "string"); break;
 		case TYPE_NULL	: str_concat(&str, "nil")	; break;
+        default : VILE_ASSERT(false, "Oops."); INTERNAL_ERROR_RET("");
 	}
 
 	EMIT("MOVE LF@func_type "); EMIT("string@"); EMIT(str.ptr); EMIT_NL();

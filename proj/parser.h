@@ -31,9 +31,9 @@ typedef struct
 
     bool in_if_while;
     
-    int  param_index;
-    int  label_index;
-    int  label_deep;
+    int64_t  param_index;
+    int64_t  label_index;
+    int64_t  label_deep;
 } ParserData;
 
 int parse_file(FILE* fptr);

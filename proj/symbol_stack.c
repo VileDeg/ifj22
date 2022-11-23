@@ -1,6 +1,7 @@
 #include "symbol_stack.h"
 #include "debug.h"
 
+#ifdef VILE_DEBUG
 #define NUMFDT 6
 
 static const char* dtstr[NUMFDT] = {
@@ -39,7 +40,6 @@ static const char* opstr[NUMFOPT] = {
     "E"       
 };
 
-#ifdef VILE_DEBUG
 static int s_Iter = 0;
 void stack_print(SymbolStack* stack, const char* func)
 {
@@ -54,7 +54,7 @@ void stack_print(SymbolStack* stack, const char* func)
     ++s_Iter;
 }
 #else
-void stack_print(SymbolStack* stack, const char* func) {}
+void stack_print(SymbolStack* stack, const char* func) { (void)stack; (void)func; }
 #endif // VILE_DEBUG
 
 
@@ -144,8 +144,6 @@ bool stack_push_after_top_term(SymbolStack* stack, Oper_type operType, DataType 
 
 Symbol* stack_get_top_term(SymbolStack* stack) 
 {
-    Symbol *tmp = stack->top;
-    
     for(Symbol *tmp = stack->top; tmp != NULL; tmp = tmp->next) 
     {
         if(tmp->operType < OPER_REDUCE)

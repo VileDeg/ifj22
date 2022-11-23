@@ -136,6 +136,8 @@ Rule_type rule_info(Symbol* oper1, Symbol* oper2, Symbol* oper3)
 
 uint32_t implicit_conversion(Rule_type rule, DataType* dataType, Symbol* oper1, Symbol* oper2, Symbol* oper3) 
 {
+    (void) oper3;
+
     switch(rule) 
     {
         case RULE_ID:
@@ -160,6 +162,7 @@ uint32_t implicit_conversion(Rule_type rule, DataType* dataType, Symbol* oper1, 
             break;
         case RULE_DIV:
             *dataType = TYPE_FLOAT;
+            break;
         case RULE_DOT:
             *dataType = TYPE_STRING;
             break;
@@ -199,6 +202,8 @@ uint32_t num_of_symbols_to_reduce(bool* reduceFound, SymbolStack* stack)
 
 uint64_t reduce(ParserData* pd, SymbolStack* stack) 
 {
+    (void) pd;
+
     Rule_type RuleType;
     
     DataType dataType = TYPE_UNDEF;
@@ -296,6 +301,7 @@ DataType type_info(ParserData* pd, int* errcode)
             default:            return TYPE_UNDEF;
         }
     }
+    return TYPE_UNDEF;
 }
 
 int64_t expression_parsing(ParserData* pd) 
@@ -320,6 +326,7 @@ int64_t expression_parsing(ParserData* pd)
             currSymbol = term_info(&pd->token);
             INTERNAL(stackTerm = stack_get_top_term(&stack));
             stackSymbol = stackTerm->operType;
+            (void)stackSymbol;
 
             DataType symbolDataType = type_info(pd, &type_info_errcode);
             if (type_info_errcode != SUCCESS)

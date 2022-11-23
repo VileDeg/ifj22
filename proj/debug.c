@@ -18,7 +18,7 @@ FILE* get_scan_out() { return s_ScanOut; }
 FILE* get_pars_out() { return s_ParsOut; }
 FILE* get_expr_out() { return s_ExprOut; }
 
-static uint64_t max_kw = 10;
+static int max_kw = 10;
 static const char* kw_str[] =
 {
     "else",
@@ -68,12 +68,12 @@ static const char* tk_types_str[] = {
 
 const char* debug_kw(Keyword kw)
 {
-    return kw < max_kw ? kw_str[kw] : "**NIL**";
+    return (int)kw < max_kw ? kw_str[kw] : "**NIL**";
 }
 
 const char* debug_tk_type(Token_type tt)
 {
-   return tt < max_kw_type ? tk_types_str[tt] : "**NIL**";
+   return (int)tt < max_kw_type ? tk_types_str[tt] : "**NIL**";
 }
 
 static const char* s_TokenDebugFormat = "%-4.4s %-4.4s %-12.12s %-12.12s %-16.16s\n";
@@ -195,8 +195,6 @@ void populate_rule_definitions()
     FILE* fptr = fopen(s_RulesFilepath, "r");
     VILE_ASSERT(fptr, "");
 
-    uint64_t rule = 0;
-    
     for (uint64_t rule = 0; rule < NUM_RULES; rule++)
     {
         int c = fgetc(fptr); //skip <
@@ -257,4 +255,5 @@ const char* get_rule_expansion_by_name(const char* rulename, int expnum)
         }
     }
     VILE_ASSERT(false, "Rule not found.");
+    return NULL;
 }

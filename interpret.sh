@@ -1,5 +1,5 @@
 FILE=../code.ifjc22
-INT=./../src/ic22int
+INT=./../ic22int
 
 make
 cd out

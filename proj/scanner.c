@@ -104,19 +104,23 @@ bool token_const(Token* tk)
     memset(tk, 0, sizeof(Token));
     if (!str_const(&tk->string))
         return false;
+    return true;
 }
 
 bool token_cpy(Token* dst, Token* src)
 {
     *dst = *src;
-    str_const(&dst->string);
+    if (!str_const(&dst->string))
+        return false;
     str_cpy(&dst->string, &src->string);
+    return true;
 }
 
 //Function for reading string from stdin and converting into tk.
 int scanner_get_next_token(Token* tk)
 {
-    token_const(tk);
+    if (!token_const(tk))
+        INTERNAL_ERROR_RET("Memory fail.");
     
     int current_state = STATE_START; 
     int sign;                 //Sign which is taken one by one from the input string.

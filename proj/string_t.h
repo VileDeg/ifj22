@@ -8,8 +8,8 @@
 typedef struct
 {
   	char*    ptr;                 // String. 
-	uint64_t len;      // Length of string.
-	uint64_t cap;  // Size of the allocated memory.
+	int64_t len;      // Length of string.
+	int64_t cap;  // Size of the allocated memory.
 } str_t;
 
 //Free memory that was allocated for the string.
