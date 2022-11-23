@@ -9,6 +9,8 @@
 static FILE* open_files[MAX_FILES];
 static int filesopened = 0;
 
+#define FILE_PREF "../"
+
 static FILE* open_file(const char* filepath, const char* modes)
 {
     VILE_ASSERT(filesopened <= MAX_FILES, "");
@@ -32,11 +34,11 @@ int main(int argc, char** argv)
         if (argc > 1 && !strcmp(argv[1], "-src"))
         {
             populate_rule_definitions();
-            FILE* source  = open_file("../input.php", "r");
-            FILE* codegenout = open_file("../code.ifjc22", "w");
-            FILE* scanout = open_file("../scanner.txt", "w");
-            FILE* parsout = open_file("../parser.txt", "w");
-            FILE* exprout = open_file("../expr.txt", "w");
+            FILE* source  = open_file(FILE_PREF "input.php", "r");
+            FILE* codegenout = open_file(FILE_PREF "code.ifjc22", "w");
+            FILE* scanout = open_file(FILE_PREF "scanner.txt", "w");
+            FILE* parsout = open_file(FILE_PREF "parser.txt", "w");
+            FILE* exprout = open_file(FILE_PREF "expr.txt", "w");
 
             debug_setup(source, true, scanout, parsout, exprout, stdout);
             {

@@ -12,7 +12,7 @@
 #include "macros.h"
 
 extern FILE* g_CodegenOut;
-#ifdef IFJ22_DEBUG
+#ifdef VILE_DEBUG
 	#define CODEGEN(_funcptr, ...) do {\
 		if (pd->mode == MODE_MAIN_PASS)\
 		{\
@@ -22,7 +22,7 @@ extern FILE* g_CodegenOut;
 	}while(0)
 #else
 	#define CODEGEN(_funcptr, ...) if (!_funcptr(__VA_ARGS__)) return ERROR_INTERNAL
-#endif //IFJ22_DEBUG
+#endif //VILE_DEBUG
  
 extern str_t g_Code;
 
@@ -189,7 +189,7 @@ bool emit_function_pass_param_count(int64_t count);
  * @param name
  * @return true if success.
  */
-bool emit_function_return(const char* name);
+bool emit_function_return(const char* name, bool is_void);
 
 // /**
 //  * Generation of input.

@@ -90,7 +90,7 @@
 	"MOVE LF@res nil@nil\n"\
 	"\n"\
     "LABEL !floatval_end\n"\
-    "POPFRAME\n"          \
+    "POPFRAME\n"\
     "RETURN\n" _BFNEND
 
 /// function intval(term) : int
@@ -98,31 +98,62 @@
     _BFNBEG("intval")\
     "LABEL !intval\n" \
     "PUSHFRAME\n" \
+	"\n"\
     "DEFVAR LF@type\n"\
-    "TYPE LF@type LF@-0\n"\
-    "JUMPIFEQ !intval_end LF@type string@int\n"\
-    "JUMPIFEQ !intval_end LF@type string@string\n"\
     "DEFVAR LF@res\n"\
-    "JUMPIFEQ !intval_arg_null LF@type string@null\n"\
+	"\n"\
+	"MOVE LF@res LF@-0\n"\
+    "TYPE LF@type LF@-0\n"\
+	"\n"\
+	"JUMPIFEQ !intval_end_err LF@type string@string\n"\
+    "JUMPIFEQ !intval_end LF@type string@int\n"\
+    "JUMPIFEQ !intval_arg_nil LF@type string@nil\n"\
+    "JUMPIFEQ !intval_arg_float LF@type string@float\n"\
+	"\n"\
+	"JUMP !*sem_error_eight\n"\
+	"\n"\
+	"LABEL !intval_arg_float\n"\
     "FLOAT2INT LF@res LF@-0\n"\
     "JUMP !intval_end\n"\
-    "LABEL !intval_arg_null\n" \
+	"\n"\
+    "LABEL !intval_arg_nil\n" \
     "MOVE LF@res int@0\n" \
+	"JUMP !intval_end\n"\
+	"\n"\
+	"LABEL !intval_end_err\n"\
+	"MOVE LF@res nil@nil\n"\
+	"\n"\
     "LABEL !intval_end\n"\
-    "POPFRAME\n"          \
+    "POPFRAME\n"\
     "RETURN\n" _BFNEND
 /// function strval(term) : string
 #define FUNCTION_STRVAL\
     _BFNBEG("strval")\
     "LABEL !strval\n" \
     "PUSHFRAME\n" \
+	"\n"\
     "DEFVAR LF@type\n"\
-    "TYPE LF@type LF@-0\n"\
-    "JUMPIFNEQ !strval_end LF@type string@null\n"\
     "DEFVAR LF@res\n"\
+	"\n"\
+	"MOVE LF@res LF@-0\n"\
+    "TYPE LF@type LF@-0\n"\
+	"\n"\
+	"JUMPIFEQ !strval_end_err LF@type string@int\n"\
+	"JUMPIFEQ !strval_end_err LF@type string@float\n"\
+	"JUMPIFEQ !strval_end LF@type string@string\n"\
+    "JUMPIFEQ !strval_arg_nil LF@type string@nil\n"\
+	"\n"\
+	"JUMP !*sem_error_eight\n"\
+	"\n"\
+	"LABEL !strval_arg_nil\n"\
     "MOVE LF@res string@\n" \
+	"JUMP !strval_end\n"\
+	"\n"\
+	"LABEL !strval_end_err\n"\
+	"MOVE LF@res nil@nil\n"\
+	"\n"\
     "LABEL !strval_end\n"\
-    "POPFRAME\n"          \
+    "POPFRAME\n"\
     "RETURN\n" _BFNEND
 
 /// function strlen(string $𝑠) : int

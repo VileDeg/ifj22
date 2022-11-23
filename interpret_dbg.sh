@@ -1,8 +1,8 @@
-FILE=code.ifjc22
+FILE=../code.ifjc22
+INT=./../src/ic22int
 
 make
 cd out
-./ifj22 -src > ../code.ifjc22
-cd ..
-./ic22int -v code.ifjc22
-echo $?
+./ifj22 -src > $FILE
+$INT -v $FILE
+echo -e "\n$?"

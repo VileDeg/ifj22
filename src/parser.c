@@ -123,7 +123,7 @@ static int term(ParserData* pd)
 	RULE_OPEN;
 	{
 		if (TOKEN_IS(ID))
-			{ CODEGEN(emit_check_var_defined, TK_STR(pd->token), pd->in_local_scope); }
+		 	{ CODEGEN(emit_check_var_defined, TK_STR(pd->token), pd->in_local_scope); }
 
 		if (!strcmp(pd->rhs_func->id, "write")) // if function is "write"
 		{
@@ -148,6 +148,7 @@ static int term(ParserData* pd)
 
 		int func_param = pd->rhs_func->params->ptr[pd->param_index];
 		int sign = '\0';
+		TData* var = NULL;
 		switch (pd->token.type)
 		{
 			//<term> -> INT_VALUE
@@ -176,7 +177,7 @@ static int term(ParserData* pd)
 				if (!IS_VAR_ID)
 					INTERNAL_ERROR_RET("Something strange is going on here...");
 
-				TData* var = FIND_CURRENT_ID;
+				var = FIND_CURRENT_ID;
 				if (!var) 
 					PRINT_ERROR_RET(ERROR_SEM_UNDEF_VAR, "undefined variable passed as parameter.");
 				switch (var->type)
@@ -409,6 +410,33 @@ static int func_type(ParserData* pd)
 	RULE_CLOSE;
 }
 
+static int param_type(ParserData* pd)
+{
+	RULE_OPEN;
+	{
+		NEXT_TK_CHECK_VAR_ID;
+
+		if (FIND_CURRENT_ID)
+			PRINT_ERROR_RET(ERROR_SEM_ID_DEF, "parameter already defined.");
+		TData* data = NULL;
+		ADD_CURRENT_ID(data); //pd->lhs_var
+		int pnum = pd->current_func->params->len;
+		int sign = pd->current_func->params->ptr[pd->param_index]; //pnum
+		if (sign == 'i' || sign == LETTFLIP('i'))
+			data->type = TYPE_INT;
+		else if (sign == 'f' || sign == LETTFLIP('f'))
+			data->type = TYPE_FLOAT;
+		else if (sign == 's' || sign == LETTFLIP('s'))
+			data->type = TYPE_STRING;
+		else
+			INTERNAL_ERROR_RET();
+
+		{ CODEGEN(emit_function_param_declare, TK_STR(pd->token), pd->param_index); }
+		pd->param_index++;
+	}
+	RULE_CLOSE;
+}
+
 static int param_n(ParserData* pd)
 {
 	RULE_OPEN;
@@ -420,15 +448,10 @@ static int param_n(ParserData* pd)
 
 			NEXT_TK_CHECK_RULE(type);
 
-			NEXT_TK_CHECK_VAR_ID;
-			{ //Add var to local table
-				if (FIND_CURRENT_ID)
-					PRINT_ERROR_RET(ERROR_SEM_ID_DEF, "parameter already defined.");
-				ADD_CURRENT_ID(pd->lhs_var);
-			}
-			
-			pd->param_index++;
-			{ CODEGEN(emit_function_param_declare, TK_STR(pd->token), pd->param_index); }
+			CHECK_RULE(param_type);
+
+			// pd->param_index++;
+			// { CODEGEN(emit_function_param_declare, TK_STR(pd->token), pd->param_index); }
 
 			NEXT_TK_CHECK_RULE(param_n);
 		}
@@ -455,25 +478,10 @@ static int params(ParserData* pd)
 			_DPRNR(0);
 
 			CHECK_RULE(type);
-			NEXT_TK_CHECK_VAR_ID;
-			{ //Add var to local table
-				if (FIND_CURRENT_ID)
-					PRINT_ERROR_RET(ERROR_SEM_ID_DEF, "parameter redefinition.");
-				TData* data = NULL;
-				ADD_CURRENT_ID(data); //pd->lhs_var
-				int pnum = pd->current_func->params->len;
-				int sign = pd->current_func->params->ptr[pnum-1];
-				if (sign == 'i' || sign == LETTFLIP('i'))
-					data->type = TYPE_INT;
-				else if (sign == 'f' || sign == LETTFLIP('f'))
-					data->type = TYPE_FLOAT;
-				else if (sign == 's' || sign == LETTFLIP('s'))
-					data->type = TYPE_STRING;
-				else
-					INTERNAL_ERROR_RET();
-			}
-			
-			{ CODEGEN(emit_function_param_declare, TK_STR(pd->token), pd->param_index); }
+
+			CHECK_RULE(param_type);
+
+			//{ CODEGEN(emit_function_param_declare, TK_STR(pd->token), pd->param_index); }
 
 			NEXT_TK_CHECK_RULE(param_n);
 		}
@@ -489,6 +497,76 @@ static int params(ParserData* pd)
 	RULE_CLOSE;
 }
 
+static int if_pass(ParserData* pd)
+{
+	RULE_OPEN;
+	{
+		Token next;
+		int rcbr_count = 0;
+		bool else_found = false;
+
+		while (rcbr_count < 2 || !else_found)
+		{
+			GET_NEXT_TOKEN;
+
+			VILE_ASSERT(pd->front_ptr, "whatever...");
+			next = pd->front_ptr->data;
+			if (IS_VAR_ID && next.type == token_equal_sign)
+			{
+				if (!(pd->lhs_var = FIND_CURRENT_ID))
+				{
+					ADD_CURRENT_ID(pd->lhs_var);
+					{ CODEGEN(emit_define_var, pd->lhs_var->id, pd->in_local_scope); }
+				}
+			}
+
+			if (TOKEN_IS(right_curly_bracket))
+				++rcbr_count;
+
+			if (KEYWORD_IS(else))
+				else_found = true;
+		}
+	}
+	RULE_CLOSE;
+}
+
+static int while_pass(ParserData* pd)
+{
+	RULE_OPEN;
+	{
+		Token next;
+		//bool rdbr_found = false;
+		int rcbr_count = 0;
+		int rcbr_need = 1;
+
+		while (rcbr_count < rcbr_need)
+		{
+			GET_NEXT_TOKEN;
+
+			VILE_ASSERT(pd->front_ptr, "whatever...");
+			next = pd->front_ptr->data;
+			if (IS_VAR_ID && next.type == token_equal_sign)
+			{
+				if (!(pd->lhs_var = FIND_CURRENT_ID))
+				{
+					ADD_CURRENT_ID(pd->lhs_var);
+					{ CODEGEN(emit_define_var, pd->lhs_var->id, pd->in_local_scope); }
+				}
+			}
+
+			if (TOKEN_IS(right_curly_bracket))
+				++rcbr_count;
+			
+			if (KEYWORD_IS(if))
+				rcbr_need += 2;
+			else if KEYWORD_IS(while)
+				++rcbr_need;
+		}
+	}
+	RULE_CLOSE;
+}
+
+
 static int statement(ParserData* pd)
 {
 	RULE_OPEN;
@@ -503,11 +581,16 @@ static int statement(ParserData* pd)
 			_DPRNR(0);
 
 			{
-				if (!(pd->lhs_var = FIND_CURRENT_ID))
+				if (!pd->in_if_while)
 				{
-					ADD_CURRENT_ID(pd->lhs_var);
-					{ CODEGEN(emit_define_var, pd->lhs_var->id, pd->in_local_scope); }
+					if (!(pd->lhs_var = FIND_CURRENT_ID))
+					{
+						ADD_CURRENT_ID(pd->lhs_var);
+						{ CODEGEN(emit_define_var, pd->lhs_var->id, pd->in_local_scope); }
+					}
 				}
+				else 
+					pd->lhs_var = FIND_CURRENT_ID;
 
 				NEXT_TK_CHECK_TOKEN(equal_sign);
 
@@ -527,19 +610,30 @@ static int statement(ParserData* pd)
 		{
 			_DPRNR(1);
 
+			//bool was_in_if_while = pd->in_if_while;
+			pd->in_if_while = true;
+
+			tkelem_t* main_front = pd->front_ptr;
+			CHECK_RULE(if_pass);
+			pd->front_ptr = main_front;
+
 			NEXT_TK_CHECK_TOKEN(left_bracket);
+
 			if (!(pd->lhs_var = symtable_find(&pd->globalTable, "EXPR_VAL")))
 				INTERNAL_ERROR_RET();
 
 			pd->label_deep++;
+			int curr_lb_index = pd->label_index;
+			pd->label_index += 2;
 			const char* func_name = pd->current_func ? pd->current_func->id : "";
 			{ CODEGEN(emit_if_head); }
 
-			pd->in_if_while = true;
-			CHECK_RULE(expression_parsing);
-			pd->in_if_while = false;
-
-			{ CODEGEN(emit_if_open, func_name, pd->label_deep, pd->label_index); }
+			{
+				CHECK_RULE(expression_parsing);
+				{ CODEGEN(emit_expression_bool_convert); }
+			}
+			
+			{ CODEGEN(emit_if_open, func_name, pd->label_deep, curr_lb_index); }
 
 			NEXT_TK_CHECK_TOKEN(left_curly_bracket);
 			{
@@ -549,7 +643,7 @@ static int statement(ParserData* pd)
 
 			NEXT_TK_CHECK_KEYWORD(else);
 
-			{ CODEGEN(emit_else, func_name, pd->label_deep, pd->label_index); }
+			{ CODEGEN(emit_else, func_name, pd->label_deep, curr_lb_index); }
 
 			NEXT_TK_CHECK_TOKEN(left_curly_bracket);
 			{
@@ -557,10 +651,13 @@ static int statement(ParserData* pd)
 			}
 			NEXT_TK_CHECK_TOKEN(right_curly_bracket);
 
-			{ CODEGEN(emit_if_close, func_name, pd->label_deep, pd->label_index + 1); }
+			{ CODEGEN(emit_if_close, func_name, pd->label_deep, curr_lb_index + 1); }
 
-			pd->label_index += 2;
+			
 			pd->label_deep--;
+			// if (was_in_if_while)
+			// 	pd->label_index -= 2;
+			pd->in_if_while = false;
 
 			NEXT_TK_CHECK_RULE(program);
 		}
@@ -568,21 +665,31 @@ static int statement(ParserData* pd)
 		else if (KEYWORD_IS(while))
 		{
 			_DPRNR(2);
-			
+
+			//bool was_in_if_while = pd->in_if_while;
+			pd->in_if_while = true;
+
+			tkelem_t* main_front = pd->front_ptr;
+			CHECK_RULE(while_pass);
+			pd->front_ptr = main_front;
+
 			NEXT_TK_CHECK_TOKEN(left_bracket);
 			pd->lhs_var = symtable_find(&pd->globalTable, "EXPR_VAL");
 			if (!pd->lhs_var)
 				INTERNAL_ERROR_RET();
 
 			pd->label_deep++;
+			int curr_lb_index = pd->label_index;
+			pd->label_index += 2;
 			const char* func_name = pd->current_func ? pd->current_func->id : "";
-			{ CODEGEN(emit_while_head, func_name, pd->label_deep, pd->label_index); }
+			{ CODEGEN(emit_while_head, func_name, pd->label_deep, curr_lb_index); }
 
-			pd->in_if_while = true;
-			CHECK_RULE(expression_parsing);
-			pd->in_if_while = false;
-
-			{ CODEGEN(emit_while_open, func_name, pd->label_deep, pd->label_index + 1); }
+			{
+				CHECK_RULE(expression_parsing);
+				{ CODEGEN(emit_expression_bool_convert); }
+			}
+			
+			{ CODEGEN(emit_while_open, func_name, pd->label_deep, curr_lb_index + 1); }
 
 			NEXT_TK_CHECK_TOKEN(left_curly_bracket);
 			{
@@ -590,10 +697,12 @@ static int statement(ParserData* pd)
 			}
 			NEXT_TK_CHECK_TOKEN(right_curly_bracket);
 
-			{ CODEGEN(emit_while_close, func_name, pd->label_deep, pd->label_index + 1); }
+			{ CODEGEN(emit_while_close, func_name, pd->label_deep, curr_lb_index + 1); }
 
-			pd->label_index += 2;
 			pd->label_deep--;
+			// if (was_in_if_while)
+			// 	pd->label_index -= 2;
+			pd->in_if_while = false;
 
 			NEXT_TK_CHECK_RULE(program);
 		}
@@ -602,44 +711,55 @@ static int statement(ParserData* pd)
 		{
 			_DPRNR(3);
 
+			pd->return_found = true;
 			GET_NEXT_TOKEN;
-			{
-				if (!pd->in_local_scope) 
-				{
-					if (TOKEN_IS(semicolon))
-						goto no_retcode;
-				}
-				else
-				{
-					if (pd->current_func->type == TYPE_NULL)
-					{
-						if (TOKEN_IS(semicolon))
-							goto no_retcode;
-						else
-						 	PRINT_ERROR_RET(ERROR_SEM_RETURN, "invalid function return type (function is 'void').");
-
-					}
-					else if (TOKEN_IS(semicolon))
-					 	PRINT_ERROR_RET(ERROR_SEM_RETURN, "invalid function return type (return value is missing).");
-					
-					if (!(pd->lhs_var = symtable_find(&pd->globalTable, "EXPR_VAL")))
-						INTERNAL_ERROR_RET();
-				}
-			}
-			CHECK_RULE(expression_parsing);
-
+			bool no_retcode = false;
+			
 			if (pd->in_local_scope)
 			{
-				pd->return_found = true;
+				bool is_void = pd->current_func->type == TYPE_NULL;
+				if (is_void)
+				{
+					if (TOKEN_IS(semicolon))
+					{
+						no_retcode = true;
+						BLOCK_NEXT_TOKEN;
+					}
+					else
+						PRINT_ERROR_RET(ERROR_SEM_RETURN, "invalid function return type (function is 'void').");
 
-				{ CODEGEN(emit_call_return_sem_check); }
-				{ CODEGEN(emit_function_return, pd->current_func->id); }
+				}
+				else if (TOKEN_IS(semicolon))
+					PRINT_ERROR_RET(ERROR_SEM_RETURN, "invalid function return type (return value is missing).");
+				
+				if (!(pd->lhs_var = symtable_find(&pd->globalTable, "EXPR_VAL")))
+					INTERNAL_ERROR_RET();
+				
+				if (!no_retcode)
+				{
+					CHECK_RULE(expression_parsing);
+
+					{ CODEGEN(emit_call_return_sem_check); }
+				}
+				
+				{ CODEGEN(emit_function_return, pd->current_func->id, is_void); }
 			}
 			else
-				{ CODEGEN(emit_clear_stack); }
+			{	
+				if (TOKEN_IS(semicolon))
+				{
+					no_retcode = true;
+					BLOCK_NEXT_TOKEN;
+				}
 
+				if (!no_retcode)
+					CHECK_RULE(expression_parsing);
+				
+				{ CODEGEN(emit_clear_stack); }
+			}
+			
 			NEXT_TK_CHECK_TOKEN(semicolon);
-no_retcode:
+
 			NEXT_TK_CHECK_RULE(program);
 		}
 		//<statement> -> <rvalue> ; <program>
@@ -702,13 +822,16 @@ static int program(ParserData* pd)
 				NEXT_TK_CHECK_RULE(statement);
 			}
 			NEXT_TK_CHECK_TOKEN(right_curly_bracket);
-			if (pd->current_func->type != TYPE_NULL && !pd->return_found)
-				PRINT_ERROR_RET(ERROR_SEM_TYPE_COMPAT, 
-					"function is not 'void' but 'return' is missing.");
+			if (pd->in_local_scope && pd->current_func->type != TYPE_NULL 
+				&& !pd->return_found)
+			{	PRINT_ERROR_RET(ERROR_SEM_TYPE_COMPAT, 
+					"function is not 'void' but 'return' is missing."); 
+			}
 			
 			{ CODEGEN(emit_function_close, pd->current_func->id); }
 			
 			pd->in_local_scope = false;
+			pd->current_func = NULL;
 			symtable_dest(&pd->localTable);
 			NEXT_TK_CHECK_RULE(program);
 		}
@@ -774,7 +897,7 @@ static int function_pass(ParserData* pd)
 
 			pd->in_local_scope = false;
 			symtable_dest(&pd->localTable);
-		} while (!TOKEN_IS(end) && !TOKEN_IS(EOF));
+		} while (!TOKEN_IS(EOF)); //!TOKEN_IS(end) && 
 	}
     RULE_CLOSE;
 }

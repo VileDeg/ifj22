@@ -45,7 +45,7 @@
 #define RULE_OPEN  DEF_RES 
 #define RULE_CLOSE return RES
 
-#ifdef IFJ22_DEBUG
+#ifdef VILE_DEBUG
 	#define _DPRNR(_n)\
 		do{\
 			if (g_DebugOn)\

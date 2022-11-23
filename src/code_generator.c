@@ -327,8 +327,11 @@ bool emit_function_pass_param_count(int64_t count)
     return true;
 }
 
-bool emit_function_return(const char* name) {
-    EMIT_NL("MOVE LF@res GF@EXPR_VAL");
+bool emit_function_return(const char* name, bool is_void) 
+{
+    EMIT("MOVE LF@res ");
+    EMIT(!is_void ? "GF@EXPR_VAL" : "nil@nil");
+    EMIT_NL();
 
     EMIT("JUMP !");
     EMIT(name);
@@ -361,7 +364,7 @@ bool emit_push(Token token, bool local_frame) {
 bool emit_check_var_defined(const char* id, bool local)
 {
     EMIT("TYPE GF@EXPR_TYPE "); EMIT(local ? "LF@" : "GF@"); EMIT(id); EMIT_NL();
-    EMIT_NL("JUMPIFEQ !sem_error_four GF@EXPR_TYPE string@");
+    EMIT_NL("JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@");
 
     return true;
 }

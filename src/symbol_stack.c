@@ -39,7 +39,7 @@ static const char* opstr[NUMFOPT] = {
     "E"       
 };
 
-#ifdef IFJ22_DEBUG
+#ifdef VILE_DEBUG
 static int s_Iter = 0;
 void stack_print(SymbolStack* stack, const char* func)
 {
@@ -55,7 +55,7 @@ void stack_print(SymbolStack* stack, const char* func)
 }
 #else
 void stack_print(SymbolStack* stack, const char* func) {}
-#endif // IFJ22_DEBUG
+#endif // VILE_DEBUG
 
 
 void stack_init(SymbolStack* stack) 

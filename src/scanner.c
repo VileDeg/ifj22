@@ -896,11 +896,11 @@ int scanner_get_next_token(Token* tk)
                     current_state = STATE_STRING_START;
                     str_add_sign(&tk->string, '\\');
                 }
-                // else if (sign == '$') //???
-                // {
-                //     current_state = STATE_STRING_START;
-                //     str_add_sign(&tk->string, '$');    
-                // }
+                else if (sign == '$') //???
+                {
+                    current_state = STATE_STRING_START;
+                    str_add_sign(&tk->string, '$');    
+                }
                 else if (sign == '0')
                 {
                     current_state = STATE_STRING_BACKSLASH_ZERO;

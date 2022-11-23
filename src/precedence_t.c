@@ -280,7 +280,7 @@ DataType type_info(ParserData* pd, int* errcode)
 
         if (!data || (pd->var_not_yet_def && pd->lhs_var == data))
         {
-            VILE_ASSERT(false, "");
+            //VILE_ASSERT(false, "");
             *errcode = ERROR_SEM_UNDEF_VAR;
             return TYPE_UNDEF;
         }
@@ -374,11 +374,6 @@ int64_t expression_parsing(ParserData* pd)
             pd->lhs_var->type = type;
 
             { CODEGEN(emit_stack_pop_res, pd->lhs_var->id, pd->lhs_var->global ? "GF" : "LF"); }
-
-            if (pd->in_if_while)
-            {
-                { CODEGEN(emit_expression_bool_convert); }
-            }
         }
 
         stack_clear(&stack);

@@ -218,13 +218,17 @@
 		"JUMP !*op_eq_neq_end\n"\
 	"\n"\
 	"LABEL !*op_eq_neq_noteq\n"\
-		"JUMPIFEQ !*op_eq_neq_false LF@op1type LF@op2type\n"\
+		"JUMPIFNEQ !*op_eq_neq_true LF@op1type LF@op2type\n"\
 		"EQS\n"\
 		"NOTS\n"\
 		"JUMP !*op_eq_neq_end\n"\
 	"\n"\
 	"LABEL !*op_eq_neq_false\n"\
 	"PUSHS bool@false\n"\
+	"JUMP !*op_eq_neq_end\n"\
+	"\n"\
+	"LABEL !*op_eq_neq_true\n"\
+	"PUSHS bool@true\n"\
 	"\n"\
 	"LABEL !*op_eq_neq_end\n"\
 	"POPFRAME\n"\
