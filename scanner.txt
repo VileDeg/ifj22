@@ -1637,6 +1637,459 @@ int  deci string       keyword      type
                        else         keyword         
                                     left_curly_brack
                                     right_curly_brac
+                       if           keyword         
+                                    left_bracket    
+          $newByte                  ID              
+                                    less            
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $newByte                  ID              
+                                    equal_sign      
+255                                 integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+          $data                     ID              
+                                    equal_sign      
+          setData                   ID              
+                                    left_bracket    
+          $data                     ID              
+                                    comma           
+          $ptr                      ID              
+                                    comma           
+          $newByte                  ID              
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          -                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $ptrPlusOne               ID              
+                                    equal_sign      
+          $ptr                      ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $oldByte                  ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $data                     ID              
+                                    comma           
+          $ptr                      ID              
+                                    comma           
+          $ptrPlusOne               ID              
+                                    right_bracket   
+                                    semicolon       
+          $newByte                  ID              
+                                    equal_sign      
+          ord                       ID              
+                                    left_bracket    
+          $oldByte                  ID              
+                                    right_bracket   
+                                    semicolon       
+          $newByte                  ID              
+                                    equal_sign      
+          $newByte                  ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $newByte                  ID              
+                                    greater         
+255                                 integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $newByte                  ID              
+                                    equal_sign      
+0                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                       if           keyword         
+                                    left_bracket    
+          $newByte                  ID              
+                                    less            
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $newByte                  ID              
+                                    equal_sign      
+255                                 integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+          $data                     ID              
+                                    equal_sign      
+          setData                   ID              
+                                    left_bracket    
+          $data                     ID              
+                                    comma           
+          $ptr                      ID              
+                                    comma           
+          $newByte                  ID              
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          >                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $ptr                      ID              
+                                    equal_sign      
+          $ptr                      ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          <                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $ptr                      ID              
+                                    equal_sign      
+          $ptr                      ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          .                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $ptrPlusOne               ID              
+                                    equal_sign      
+          $ptr                      ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $out                      ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $data                     ID              
+                                    comma           
+          $ptr                      ID              
+                                    comma           
+          $ptrPlusOne               ID              
+                                    right_bracket   
+                                    semicolon       
+          write                     ID              
+                                    left_bracket    
+          $out                      ID              
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $ptrPlusOne               ID              
+                                    equal_sign      
+          $ptr                      ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $oldByte                  ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $data                     ID              
+                                    comma           
+          $ptr                      ID              
+                                    comma           
+          $ptrPlusOne               ID              
+                                    right_bracket   
+                                    semicolon       
+          $newByte                  ID              
+                                    equal_sign      
+          ord                       ID              
+                                    left_bracket    
+          $oldByte                  ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $newByte                  ID              
+                                    equal           
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $nesting                  ID              
+                                    equal_sign      
+1                                   integer         
+                                    semicolon       
+                       while        keyword         
+                                    left_bracket    
+          $nesting                  ID              
+                                    greater         
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $pcPlusOne                ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $c                        ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $program                  ID              
+                                    comma           
+          $pc                       ID              
+                                    comma           
+          $pcPlusOne                ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $c                        ID              
+                                    equal_sign      
+          chr                       ID              
+                                    left_bracket    
+0                                   integer         
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $ptrPlusOne               ID              
+                                    equal_sign      
+          $ptr                      ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $oldByte                  ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $data                     ID              
+                                    comma           
+          $ptr                      ID              
+                                    comma           
+          $ptrPlusOne               ID              
+                                    right_bracket   
+                                    semicolon       
+          $newByte                  ID              
+                                    equal_sign      
+          ord                       ID              
+                                    left_bracket    
+          $oldByte                  ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $newByte                  ID              
+                                    equal           
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+          $nesting                  ID              
+                                    equal_sign      
+1                                   integer         
+                                    semicolon       
+                       while        keyword         
+                                    left_bracket    
+          $nesting                  ID              
+                                    greater         
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $pcPlusOne                ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $c                        ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $program                  ID              
+                                    comma           
+          $pc                       ID              
+                                    comma           
+          $pcPlusOne                ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $c                        ID              
+                                    equal_sign      
+          chr                       ID              
+                                    left_bracket    
+0                                   integer         
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
                                     left_bracket    
           $c                        ID              
                                     equal           
@@ -1797,6 +2250,377 @@ int  deci string       keyword      type
                        else         keyword         
                                     left_curly_brack
                                     right_curly_brac
+                       if           keyword         
+                                    left_bracket    
+          $newByte                  ID              
+                                    less            
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $newByte                  ID              
+                                    equal_sign      
+255                                 integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+          $data                     ID              
+                                    equal_sign      
+          setData                   ID              
+                                    left_bracket    
+          $data                     ID              
+                                    comma           
+          $ptr                      ID              
+                                    comma           
+          $newByte                  ID              
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          >                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $ptr                      ID              
+                                    equal_sign      
+          $ptr                      ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          <                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $ptr                      ID              
+                                    equal_sign      
+          $ptr                      ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          .                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $ptrPlusOne               ID              
+                                    equal_sign      
+          $ptr                      ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $out                      ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $data                     ID              
+                                    comma           
+          $ptr                      ID              
+                                    comma           
+          $ptrPlusOne               ID              
+                                    right_bracket   
+                                    semicolon       
+          write                     ID              
+                                    left_bracket    
+          $out                      ID              
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $ptrPlusOne               ID              
+                                    equal_sign      
+          $ptr                      ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $oldByte                  ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $data                     ID              
+                                    comma           
+          $ptr                      ID              
+                                    comma           
+          $ptrPlusOne               ID              
+                                    right_bracket   
+                                    semicolon       
+          $newByte                  ID              
+                                    equal_sign      
+          ord                       ID              
+                                    left_bracket    
+          $oldByte                  ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $newByte                  ID              
+                                    equal           
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $nesting                  ID              
+                                    equal_sign      
+1                                   integer         
+                                    semicolon       
+                       while        keyword         
+                                    left_bracket    
+          $nesting                  ID              
+                                    greater         
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $pcPlusOne                ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $c                        ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $program                  ID              
+                                    comma           
+          $pc                       ID              
+                                    comma           
+          $pcPlusOne                ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $c                        ID              
+                                    equal_sign      
+          chr                       ID              
+                                    left_bracket    
+0                                   integer         
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $ptrPlusOne               ID              
+                                    equal_sign      
+          $ptr                      ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $oldByte                  ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $data                     ID              
+                                    comma           
+          $ptr                      ID              
+                                    comma           
+          $ptrPlusOne               ID              
+                                    right_bracket   
+                                    semicolon       
+          $newByte                  ID              
+                                    equal_sign      
+          ord                       ID              
+                                    left_bracket    
+          $oldByte                  ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $newByte                  ID              
+                                    equal           
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+          $nesting                  ID              
+                                    equal_sign      
+1                                   integer         
+                                    semicolon       
+                       while        keyword         
+                                    left_bracket    
+          $nesting                  ID              
+                                    greater         
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $pcPlusOne                ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $c                        ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $program                  ID              
+                                    comma           
+          $pc                       ID              
+                                    comma           
+          $pcPlusOne                ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $c                        ID              
+                                    equal_sign      
+          chr                       ID              
+                                    left_bracket    
+0                                   integer         
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
                                     left_bracket    
           $c                        ID              
                                     equal           
@@ -1935,6 +2759,317 @@ int  deci string       keyword      type
 1                                   integer         
                                     semicolon       
                                     right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          .                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $ptrPlusOne               ID              
+                                    equal_sign      
+          $ptr                      ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $out                      ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $data                     ID              
+                                    comma           
+          $ptr                      ID              
+                                    comma           
+          $ptrPlusOne               ID              
+                                    right_bracket   
+                                    semicolon       
+          write                     ID              
+                                    left_bracket    
+          $out                      ID              
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $ptrPlusOne               ID              
+                                    equal_sign      
+          $ptr                      ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $oldByte                  ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $data                     ID              
+                                    comma           
+          $ptr                      ID              
+                                    comma           
+          $ptrPlusOne               ID              
+                                    right_bracket   
+                                    semicolon       
+          $newByte                  ID              
+                                    equal_sign      
+          ord                       ID              
+                                    left_bracket    
+          $oldByte                  ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $newByte                  ID              
+                                    equal           
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $nesting                  ID              
+                                    equal_sign      
+1                                   integer         
+                                    semicolon       
+                       while        keyword         
+                                    left_bracket    
+          $nesting                  ID              
+                                    greater         
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $pcPlusOne                ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $c                        ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $program                  ID              
+                                    comma           
+          $pc                       ID              
+                                    comma           
+          $pcPlusOne                ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $c                        ID              
+                                    equal_sign      
+          chr                       ID              
+                                    left_bracket    
+0                                   integer         
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $ptrPlusOne               ID              
+                                    equal_sign      
+          $ptr                      ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $oldByte                  ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $data                     ID              
+                                    comma           
+          $ptr                      ID              
+                                    comma           
+          $ptrPlusOne               ID              
+                                    right_bracket   
+                                    semicolon       
+          $newByte                  ID              
+                                    equal_sign      
+          ord                       ID              
+                                    left_bracket    
+          $oldByte                  ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $newByte                  ID              
+                                    equal           
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+          $nesting                  ID              
+                                    equal_sign      
+1                                   integer         
+                                    semicolon       
+                       while        keyword         
+                                    left_bracket    
+          $nesting                  ID              
+                                    greater         
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $pcPlusOne                ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $c                        ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $program                  ID              
+                                    comma           
+          $pc                       ID              
+                                    comma           
+          $pcPlusOne                ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $c                        ID              
+                                    equal_sign      
+          chr                       ID              
+                                    left_bracket    
+0                                   integer         
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
                                     left_bracket    
           $c                        ID              
                                     equal           
@@ -1996,6 +3131,284 @@ int  deci string       keyword      type
                                     right_bracket   
                                     semicolon       
                                     right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $ptrPlusOne               ID              
+                                    equal_sign      
+          $ptr                      ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $oldByte                  ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $data                     ID              
+                                    comma           
+          $ptr                      ID              
+                                    comma           
+          $ptrPlusOne               ID              
+                                    right_bracket   
+                                    semicolon       
+          $newByte                  ID              
+                                    equal_sign      
+          ord                       ID              
+                                    left_bracket    
+          $oldByte                  ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $newByte                  ID              
+                                    equal           
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $nesting                  ID              
+                                    equal_sign      
+1                                   integer         
+                                    semicolon       
+                       while        keyword         
+                                    left_bracket    
+          $nesting                  ID              
+                                    greater         
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $pcPlusOne                ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $c                        ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $program                  ID              
+                                    comma           
+          $pc                       ID              
+                                    comma           
+          $pcPlusOne                ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $c                        ID              
+                                    equal_sign      
+          chr                       ID              
+                                    left_bracket    
+0                                   integer         
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $ptrPlusOne               ID              
+                                    equal_sign      
+          $ptr                      ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $oldByte                  ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $data                     ID              
+                                    comma           
+          $ptr                      ID              
+                                    comma           
+          $ptrPlusOne               ID              
+                                    right_bracket   
+                                    semicolon       
+          $newByte                  ID              
+                                    equal_sign      
+          ord                       ID              
+                                    left_bracket    
+          $oldByte                  ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $newByte                  ID              
+                                    equal           
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+          $nesting                  ID              
+                                    equal_sign      
+1                                   integer         
+                                    semicolon       
+                       while        keyword         
+                                    left_bracket    
+          $nesting                  ID              
+                                    greater         
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $pcPlusOne                ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $c                        ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $program                  ID              
+                                    comma           
+          $pc                       ID              
+                                    comma           
+          $pcPlusOne                ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $c                        ID              
+                                    equal_sign      
+          chr                       ID              
+                                    left_bracket    
+0                                   integer         
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
                                     left_bracket    
           $c                        ID              
                                     equal           
@@ -2121,6 +3534,203 @@ int  deci string       keyword      type
                                     right_bracket   
                                     left_curly_brack
                                     right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $c                        ID              
+                                    equal_sign      
+          chr                       ID              
+                                    left_bracket    
+0                                   integer         
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $ptrPlusOne               ID              
+                                    equal_sign      
+          $ptr                      ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $oldByte                  ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $data                     ID              
+                                    comma           
+          $ptr                      ID              
+                                    comma           
+          $ptrPlusOne               ID              
+                                    right_bracket   
+                                    semicolon       
+          $newByte                  ID              
+                                    equal_sign      
+          ord                       ID              
+                                    left_bracket    
+          $oldByte                  ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $newByte                  ID              
+                                    equal           
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+          $nesting                  ID              
+                                    equal_sign      
+1                                   integer         
+                                    semicolon       
+                       while        keyword         
+                                    left_bracket    
+          $nesting                  ID              
+                                    greater         
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $pcPlusOne                ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $c                        ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $program                  ID              
+                                    comma           
+          $pc                       ID              
+                                    comma           
+          $pcPlusOne                ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $c                        ID              
+                                    equal_sign      
+          chr                       ID              
+                                    left_bracket    
+0                                   integer         
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
                                     left_bracket    
           $c                        ID              
                                     equal           
@@ -2240,149 +3850,6 @@ int  deci string       keyword      type
                                     right_bracket   
                                     semicolon       
                                     right_curly_brac
-                                    left_bracket    
-          $c                        ID              
-                                    equal           
-          [                         string          
-                                    right_bracket   
-                                    left_curly_brack
-          $ptrPlusOne               ID              
-                                    equal_sign      
-          $ptr                      ID              
-                                    plus            
-1                                   integer         
-                                    semicolon       
-          $oldByte                  ID              
-                                    equal_sign      
-          ssubstr                   ID              
-                                    left_bracket    
-          $data                     ID              
-                                    comma           
-          $ptr                      ID              
-                                    comma           
-          $ptrPlusOne               ID              
-                                    right_bracket   
-                                    semicolon       
-          $newByte                  ID              
-                                    equal_sign      
-          ord                       ID              
-                                    left_bracket    
-          $oldByte                  ID              
-                                    right_bracket   
-                                    semicolon       
-                       if           keyword         
-                                    left_bracket    
-          $newByte                  ID              
-                                    equal           
-0                                   integer         
-                                    right_bracket   
-                                    left_curly_brack
-          $pc                       ID              
-                                    equal_sign      
-          $pc                       ID              
-                                    plus            
-1                                   integer         
-                                    semicolon       
-          $nesting                  ID              
-                                    equal_sign      
-1                                   integer         
-                                    semicolon       
-                       while        keyword         
-                                    left_bracket    
-          $nesting                  ID              
-                                    greater         
-0                                   integer         
-                                    right_bracket   
-                                    left_curly_brack
-          $pcPlusOne                ID              
-                                    equal_sign      
-          $pc                       ID              
-                                    plus            
-1                                   integer         
-                                    semicolon       
-          $c                        ID              
-                                    equal_sign      
-          ssubstr                   ID              
-                                    left_bracket    
-          $program                  ID              
-                                    comma           
-          $pc                       ID              
-                                    comma           
-          $pcPlusOne                ID              
-                                    right_bracket   
-                                    semicolon       
-                       if           keyword         
-                                    left_bracket    
-          $c                        ID              
-                                    right_bracket   
-                                    left_curly_brack
-                                    right_curly_brac
-                       else         keyword         
-                                    left_curly_brack
-          $c                        ID              
-                                    equal_sign      
-          chr                       ID              
-                                    left_bracket    
-0                                   integer         
-                                    right_bracket   
-                                    semicolon       
-                                    right_curly_brac
-                                    left_bracket    
-          $newByte                  ID              
-                                    equal           
-0                                   integer         
-                                    right_bracket   
-                                    left_curly_brack
-          $pc                       ID              
-                                    equal_sign      
-          $pc                       ID              
-                                    plus            
-1                                   integer         
-                                    semicolon       
-          $nesting                  ID              
-                                    equal_sign      
-1                                   integer         
-                                    semicolon       
-                       while        keyword         
-                                    left_bracket    
-          $nesting                  ID              
-                                    greater         
-0                                   integer         
-                                    right_bracket   
-                                    left_curly_brack
-          $pcPlusOne                ID              
-                                    equal_sign      
-          $pc                       ID              
-                                    plus            
-1                                   integer         
-                                    semicolon       
-          $c                        ID              
-                                    equal_sign      
-          ssubstr                   ID              
-                                    left_bracket    
-          $program                  ID              
-                                    comma           
-          $pc                       ID              
-                                    comma           
-          $pcPlusOne                ID              
-                                    right_bracket   
-                                    semicolon       
-                       if           keyword         
-                                    left_bracket    
-          $c                        ID              
-                                    right_bracket   
-                                    left_curly_brack
-                                    right_curly_brac
-                       else         keyword         
-                                    left_curly_brack
-          $c                        ID              
-                                    equal_sign      
-          chr                       ID              
-                                    left_bracket    
-0                                   integer         
-                                    right_bracket   
-                                    semicolon       
-                                    right_curly_brac
                        if           keyword         
                                     left_bracket    
           $c                        ID              
@@ -2400,146 +3867,6 @@ int  deci string       keyword      type
                        else         keyword         
                                     left_curly_brack
                        if           keyword         
-                                    left_bracket    
-          $c                        ID              
-                                    equal           
-          ]                         string          
-                                    right_bracket   
-                                    left_curly_brack
-          $nesting                  ID              
-                                    equal_sign      
-          $nesting                  ID              
-                                    minus           
-1                                   integer         
-                                    semicolon       
-                                    right_curly_brac
-                       else         keyword         
-                                    left_curly_brack
-                                    right_curly_brac
-                                    right_curly_brac
-          $pc                       ID              
-                                    equal_sign      
-          $pc                       ID              
-                                    plus            
-1                                   integer         
-                                    semicolon       
-                                    right_curly_brac
-                                    left_bracket    
-          $nesting                  ID              
-                                    greater         
-0                                   integer         
-                                    right_bracket   
-                                    left_curly_brack
-          $pcPlusOne                ID              
-                                    equal_sign      
-          $pc                       ID              
-                                    plus            
-1                                   integer         
-                                    semicolon       
-          $c                        ID              
-                                    equal_sign      
-          ssubstr                   ID              
-                                    left_bracket    
-          $program                  ID              
-                                    comma           
-          $pc                       ID              
-                                    comma           
-          $pcPlusOne                ID              
-                                    right_bracket   
-                                    semicolon       
-                       if           keyword         
-                                    left_bracket    
-          $c                        ID              
-                                    right_bracket   
-                                    left_curly_brack
-                                    right_curly_brac
-                       else         keyword         
-                                    left_curly_brack
-          $c                        ID              
-                                    equal_sign      
-          chr                       ID              
-                                    left_bracket    
-0                                   integer         
-                                    right_bracket   
-                                    semicolon       
-                                    right_curly_brac
-                                    left_bracket    
-          $c                        ID              
-                                    right_bracket   
-                                    left_curly_brack
-                                    right_curly_brac
-                       else         keyword         
-                                    left_curly_brack
-          $c                        ID              
-                                    equal_sign      
-          chr                       ID              
-                                    left_bracket    
-0                                   integer         
-                                    right_bracket   
-                                    semicolon       
-                                    right_curly_brac
-                       if           keyword         
-                                    left_bracket    
-          $c                        ID              
-                                    equal           
-          [                         string          
-                                    right_bracket   
-                                    left_curly_brack
-          $nesting                  ID              
-                                    equal_sign      
-          $nesting                  ID              
-                                    plus            
-1                                   integer         
-                                    semicolon       
-                                    right_curly_brac
-                       else         keyword         
-                                    left_curly_brack
-                       if           keyword         
-                                    left_bracket    
-          $c                        ID              
-                                    equal           
-          ]                         string          
-                                    right_bracket   
-                                    left_curly_brack
-          $nesting                  ID              
-                                    equal_sign      
-          $nesting                  ID              
-                                    minus           
-1                                   integer         
-                                    semicolon       
-                                    right_curly_brac
-                                    left_bracket    
-          $c                        ID              
-                                    equal           
-          [                         string          
-                                    right_bracket   
-                                    left_curly_brack
-          $nesting                  ID              
-                                    equal_sign      
-          $nesting                  ID              
-                                    plus            
-1                                   integer         
-                                    semicolon       
-                                    right_curly_brac
-                       else         keyword         
-                                    left_curly_brack
-                       if           keyword         
-                                    left_bracket    
-          $c                        ID              
-                                    equal           
-          ]                         string          
-                                    right_bracket   
-                                    left_curly_brack
-          $nesting                  ID              
-                                    equal_sign      
-          $nesting                  ID              
-                                    minus           
-1                                   integer         
-                                    semicolon       
-                                    right_curly_brac
-                       else         keyword         
-                                    left_curly_brack
-                                    right_curly_brac
                                     left_bracket    
           $c                        ID              
                                     equal           
@@ -2652,6 +3979,444 @@ int  deci string       keyword      type
                                     right_bracket   
                                     left_curly_brack
                                     right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $c                        ID              
+                                    equal_sign      
+          chr                       ID              
+                                    left_bracket    
+0                                   integer         
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $ptrPlusOne               ID              
+                                    equal_sign      
+          $ptr                      ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $oldByte                  ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $data                     ID              
+                                    comma           
+          $ptr                      ID              
+                                    comma           
+          $ptrPlusOne               ID              
+                                    right_bracket   
+                                    semicolon       
+          $newByte                  ID              
+                                    equal_sign      
+          ord                       ID              
+                                    left_bracket    
+          $oldByte                  ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $newByte                  ID              
+                                    equal           
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $nesting                  ID              
+                                    equal_sign      
+1                                   integer         
+                                    semicolon       
+                       while        keyword         
+                                    left_bracket    
+          $nesting                  ID              
+                                    greater         
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $pcPlusOne                ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $c                        ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $program                  ID              
+                                    comma           
+          $pc                       ID              
+                                    comma           
+          $pcPlusOne                ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $c                        ID              
+                                    equal_sign      
+          chr                       ID              
+                                    left_bracket    
+0                                   integer         
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    left_bracket    
+          $newByte                  ID              
+                                    equal           
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $nesting                  ID              
+                                    equal_sign      
+1                                   integer         
+                                    semicolon       
+                       while        keyword         
+                                    left_bracket    
+          $nesting                  ID              
+                                    greater         
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $pcPlusOne                ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $c                        ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $program                  ID              
+                                    comma           
+          $pc                       ID              
+                                    comma           
+          $pcPlusOne                ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $c                        ID              
+                                    equal_sign      
+          chr                       ID              
+                                    left_bracket    
+0                                   integer         
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                                    left_bracket    
+          $nesting                  ID              
+                                    greater         
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $pcPlusOne                ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $c                        ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $program                  ID              
+                                    comma           
+          $pc                       ID              
+                                    comma           
+          $pcPlusOne                ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $c                        ID              
+                                    equal_sign      
+          chr                       ID              
+                                    left_bracket    
+0                                   integer         
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                                    left_bracket    
+          $c                        ID              
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $c                        ID              
+                                    equal_sign      
+          chr                       ID              
+                                    left_bracket    
+0                                   integer         
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
                                     left_bracket    
           $c                        ID              
                                     equal           
@@ -2732,6 +4497,194 @@ int  deci string       keyword      type
                                     right_bracket   
                                     left_curly_brack
                                     right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $c                        ID              
+                                    equal_sign      
+          chr                       ID              
+                                    left_bracket    
+0                                   integer         
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                                    right_curly_brac
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $ptrPlusOne               ID              
+                                    equal_sign      
+          $ptr                      ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $oldByte                  ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $data                     ID              
+                                    comma           
+          $ptr                      ID              
+                                    comma           
+          $ptrPlusOne               ID              
+                                    right_bracket   
+                                    semicolon       
+          $newByte                  ID              
+                                    equal_sign      
+          ord                       ID              
+                                    left_bracket    
+          $oldByte                  ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $newByte                  ID              
+                                    equal           
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+          $nesting                  ID              
+                                    equal_sign      
+1                                   integer         
+                                    semicolon       
+                       while        keyword         
+                                    left_bracket    
+          $nesting                  ID              
+                                    greater         
+0                                   integer         
+                                    right_bracket   
+                                    left_curly_brack
+          $pcPlusOne                ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+          $c                        ID              
+                                    equal_sign      
+          ssubstr                   ID              
+                                    left_bracket    
+          $program                  ID              
+                                    comma           
+          $pc                       ID              
+                                    comma           
+          $pcPlusOne                ID              
+                                    right_bracket   
+                                    semicolon       
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    right_bracket   
+                                    left_curly_brack
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+          $c                        ID              
+                                    equal_sign      
+          chr                       ID              
+                                    left_bracket    
+0                                   integer         
+                                    right_bracket   
+                                    semicolon       
+                                    right_curly_brac
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          [                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                       if           keyword         
+                                    left_bracket    
+          $c                        ID              
+                                    equal           
+          ]                         string          
+                                    right_bracket   
+                                    left_curly_brack
+          $nesting                  ID              
+                                    equal_sign      
+          $nesting                  ID              
+                                    plus            
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
+                                    right_curly_brac
+          $pc                       ID              
+                                    equal_sign      
+          $pc                       ID              
+                                    minus           
+1                                   integer         
+                                    semicolon       
+                                    right_curly_brac
+                                    right_curly_brac
                                     left_bracket    
           $newByte                  ID              
                                     equal           
@@ -2915,6 +4868,10 @@ int  deci string       keyword      type
                                     plus            
 1                                   integer         
                                     semicolon       
+                                    right_curly_brac
+                       else         keyword         
+                                    left_curly_brack
+                                    right_curly_brac
                                     right_curly_brac
                                     left_bracket    
           $c                        ID              

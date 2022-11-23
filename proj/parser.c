@@ -4,8 +4,8 @@
 #include "errors.h"
 #include "scanner.h"
 #include "symtable.h"
-#include "precedence_t.h"
-#include "code_generator.h"
+#include "expression.h"
+#include "codegen.h"
 
 GENERATE_VECTOR_DEFINITION(Token, tk);
 
@@ -356,7 +356,7 @@ static int rvalue(ParserData* pd)
 				if (pd->lhs_var)
 						pd->lhs_var->type = pd->rhs_func->type;
 
-				{ CODEGEN(emit_function_before_pass_params); }
+				{ CODEGEN(emit_function_before_params); }
 
 				NEXT_TK_CHECK_TOKEN(left_bracket);
 				{
@@ -372,7 +372,7 @@ static int rvalue(ParserData* pd)
 				
 				//If function is called as part of variable definition
 				if (pd->lhs_var)
-					{ CODEGEN(emit_function_res_assign, pd->lhs_var->id, pd->in_local_scope); }
+					{ CODEGEN(emit_function_result_assign, pd->lhs_var->id, pd->in_local_scope); }
 			}
 
 			pd->rhs_func = NULL;
@@ -382,7 +382,7 @@ static int rvalue(ParserData* pd)
 		{
 			_DPRNR(1);
 
-			CHECK_RULE(expression_parsing);
+			CHECK_RULE(expression);
 		}
 	}
 	RULE_CLOSE;
@@ -495,47 +495,16 @@ static int params(ParserData* pd)
 	RULE_CLOSE;
 }
 
-static int if_pass(ParserData* pd)
+static int conditional_pass(ParserData* pd)
 {
 	RULE_OPEN;
 	{
 		Token next;
-		int rcbr_count = 0;
-		bool else_found = false;
-
-		while (rcbr_count < 2 || !else_found)
-		{
-			GET_NEXT_TOKEN;
-
-			VILE_ASSERT(pd->front_ptr, "whatever...");
-			next = pd->front_ptr->data;
-			if (IS_VAR_ID && next.type == token_equal_sign)
-			{
-				if (!(pd->lhs_var = FIND_CURRENT_ID))
-				{
-					ADD_CURRENT_ID(pd->lhs_var);
-					{ CODEGEN(emit_define_var, pd->lhs_var->id, pd->in_local_scope); }
-				}
-			}
-
-			if (TOKEN_IS(right_curly_bracket))
-				++rcbr_count;
-
-			if (KEYWORD_IS(else))
-				else_found = true;
-		}
-	}
-	RULE_CLOSE;
-}
-
-static int while_pass(ParserData* pd)
-{
-	RULE_OPEN;
-	{
-		Token next;
-		//bool rdbr_found = false;
 		int rcbr_count = 0;
 		int rcbr_need = 1;
+		if (KEYWORD_IS(if))
+			++rcbr_need;
+		//bool else_found = false;
 
 		while (rcbr_count < rcbr_need)
 		{
@@ -554,7 +523,7 @@ static int while_pass(ParserData* pd)
 
 			if (TOKEN_IS(right_curly_bracket))
 				++rcbr_count;
-			
+
 			if (KEYWORD_IS(if))
 				rcbr_need += 2;
 			else if KEYWORD_IS(while)
@@ -563,7 +532,6 @@ static int while_pass(ParserData* pd)
 	}
 	RULE_CLOSE;
 }
-
 
 static int statement(ParserData* pd)
 {
@@ -612,7 +580,7 @@ static int statement(ParserData* pd)
 			pd->in_if_while = true;
 
 			tkelem_t* main_front = pd->front_ptr;
-			CHECK_RULE(if_pass);
+			CHECK_RULE(conditional_pass);
 			pd->front_ptr = main_front;
 
 			NEXT_TK_CHECK_TOKEN(left_bracket);
@@ -624,10 +592,10 @@ static int statement(ParserData* pd)
 			int curr_lb_index = pd->label_index;
 			pd->label_index += 2;
 			const char* func_name = pd->current_func ? pd->current_func->id : "";
-			{ CODEGEN(emit_if_head); }
+			{ CODEGEN(emit_if_header); }
 
 			{
-				CHECK_RULE(expression_parsing);
+				CHECK_RULE(expression);
 				{ CODEGEN(emit_expression_bool_convert); }
 			}
 			
@@ -668,7 +636,7 @@ static int statement(ParserData* pd)
 			pd->in_if_while = true;
 
 			tkelem_t* main_front = pd->front_ptr;
-			CHECK_RULE(while_pass);
+			CHECK_RULE(conditional_pass);
 			pd->front_ptr = main_front;
 
 			NEXT_TK_CHECK_TOKEN(left_bracket);
@@ -680,10 +648,10 @@ static int statement(ParserData* pd)
 			int curr_lb_index = pd->label_index;
 			pd->label_index += 2;
 			const char* func_name = pd->current_func ? pd->current_func->id : "";
-			{ CODEGEN(emit_while_head, func_name, pd->label_deep, curr_lb_index); }
+			{ CODEGEN(emit_while_header, func_name, pd->label_deep, curr_lb_index); }
 
 			{
-				CHECK_RULE(expression_parsing);
+				CHECK_RULE(expression);
 				{ CODEGEN(emit_expression_bool_convert); }
 			}
 			
@@ -735,12 +703,12 @@ static int statement(ParserData* pd)
 				
 				if (!no_retcode)
 				{
-					CHECK_RULE(expression_parsing);
+					CHECK_RULE(expression);
 
 					{ CODEGEN(emit_call_return_sem_check); }
 				}
 				
-				{ CODEGEN(emit_function_return, pd->current_func->id, is_void); }
+				{ CODEGEN(emit_function_return_statement, pd->current_func->id, is_void); }
 			}
 			else
 			{	
@@ -751,7 +719,7 @@ static int statement(ParserData* pd)
 				}
 
 				if (!no_retcode)
-					CHECK_RULE(expression_parsing);
+					CHECK_RULE(expression);
 				
 				{ CODEGEN(emit_clear_stack); }
 			}
@@ -947,7 +915,7 @@ int parse_file(FILE* fptr)
 	scanner_set_file(fptr);
 
     int result = begin(&pd);
-	code_generator_flush(g_CodegenOut);
+	code_generator_flush();
 	code_generator_terminate();
 
 	goto free;

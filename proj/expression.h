@@ -11,7 +11,7 @@
 /*
  * Expression parsing.
  */
-int64_t expression_parsing(ParserData* pd);
+int64_t expression(ParserData* pd);
 
 /**
  * @enum Operators of the precedence table.

@@ -3,7 +3,7 @@
 #include "debug.h"
 #include "errors.h"
 #include "parser.h"
-#include "code_generator.h"
+#include "codegen.h"
 
 #define MAX_FILES 16
 static FILE* open_files[MAX_FILES];
@@ -48,7 +48,7 @@ int main(int argc, char** argv)
         }
         else
         {
-            g_CodegenOut = stdout;
+            set_codegen_out(stdout);
             ret = parse_file(stdin);
         }
     }

@@ -1,5 +1,5 @@
-#ifndef __CODE_GENERATOR__
-#define __CODE_GENERATOR__
+#ifndef __CODEGEN_H__
+#define __CODEGEN_H__
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -8,25 +8,22 @@
 #include "symtable.h"
 #include "string_t.h"
 #include "scanner.h"
-#include "precedence_t.h"
+#include "expression.h"
 #include "macros.h"
 
-extern FILE* g_CodegenOut;
 #ifdef VILE_DEBUG
 	#define CODEGEN(_funcptr, ...) do {\
 		if (pd->mode == MODE_MAIN_PASS)\
 		{\
 			if (!_funcptr(__VA_ARGS__)) INTERNAL_ERROR_RET();\
-			VILE_ASSERT(g_CodegenOut, "Code generator output file not found");\
 		}\
 	}while(0)
 #else
 	#define CODEGEN(_funcptr, ...) if (!_funcptr(__VA_ARGS__)) return ERROR_INTERNAL
 #endif //VILE_DEBUG
- 
-extern str_t g_Code;
 
 
+void set_codegen_out(FILE* out);
 
 /**
  * Generation of header code.
@@ -60,15 +57,9 @@ bool emit_expression_bool_convert();
  * Extract code into file.
  * @param file
  */
-void code_generator_flush(FILE* file);
-
-bool emit_push_bool_literal(bool value);
-
-bool emit_pop();
+void code_generator_flush();
 
 bool emit_clear_stack();
-
-//inline bool emit_data_type
 
 bool emit_function_type(DataType type, bool questionmark);
 
@@ -128,8 +119,8 @@ bool emit_var_default_value(DataType type, const char* var);
 bool emit_function_call(const char* name);
 
 
-//bool emit_function_res_assign(const char* var, DataType var_type, DataType res_type);
-bool emit_function_res_assign(const char* var_name, bool local_frame);
+//bool emit_function_result_assign(const char* var, DataType var_type, DataType res_type);
+bool emit_function_result_assign(const char* var_name, bool local_frame);
 
 /**
  * Generation of local variables from parameters.
@@ -150,7 +141,7 @@ bool emit_value_from_token(Token token, bool local_frame);
  * Generation of part before passing parameters into function.
  * @return true if success.
  */
-bool emit_function_before_pass_params();
+bool emit_function_before_params();
 
 // /**
 //  * Generation of parameter type conversion.
@@ -189,41 +180,21 @@ bool emit_function_pass_param_count(int64_t count);
  * @param name
  * @return true if success.
  */
-bool emit_function_return(const char* name, bool is_void);
-
-// /**
-//  * Generation of input.
-//  * @param name
-//  * @param type
-//  * @return true if success.
-//  */
-// bool emit_input(const char* var, DataType type);
-
-/**
- * Generation of writing expression result.
- * @return true if success.
- */
-bool emit_exp_res();
+bool emit_function_return_statement(const char* name, bool is_void);
 
 /**
  * Generation of pushing data to data stack.
  * @param token
  * @return true if success.
  */
-bool emit_push(Token token, bool local_frame);
+bool emit_push_token(Token token, bool local_frame);
 
 /**
  * Generation of code for stack operation.
  * @param rule
  * @return true if success.
  */
-bool emit_stack_operation(Rule_type rule);
-
-/**
- * Generation of stack elements concatenation.
- * @return true if success.
- */
-bool emit_stack_concat();
+bool emit_operator_call(Rule_type rule);
 
 /**
  * Generation of popping result from stack.
@@ -231,7 +202,7 @@ bool emit_stack_concat();
  * @param frame
  * @return true if success.
  */
-bool emit_stack_pop_res(const char* var, const char* frame);
+bool emit_pop_expr_result(const char* var, const char* frame);
 
 /**
  * Generation of converting top element
@@ -268,9 +239,9 @@ bool emit_stack_sec_float2int();
  * @param index
  * @return true if success.
  */
-bool emit_label(const char* name, int64_t deep, int64_t index);
+bool emit_condition_label(const char* name, int64_t deep, int64_t index);
 
-bool emit_if_head();
+bool emit_if_header();
 
 /**
  * Generation of if start.
@@ -306,7 +277,7 @@ bool emit_if_close(const char* name, int64_t deep, int64_t index);
  * @param index
  * @return true if success.
  */
-bool emit_while_head(const char* name, int64_t deep, int64_t index);
+bool emit_while_header(const char* name, int64_t deep, int64_t index);
 
 /**
  * Generation of while start.
@@ -326,4 +297,4 @@ bool emit_while_open(const char* name, int64_t deep, int64_t index);
  */
 bool emit_while_close(const char* name, int64_t deep, int64_t index);
 
-#endif //__CODE_GENERATOR__
+#endif //__CODEGEN_H__

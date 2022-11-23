@@ -401,7 +401,7 @@
 
 #define EXPR_RES_BOOL_CHECK_CODE\
 	"# Expression result bool convert" _OPSEP"\n"\
-	"LABEL !*expr_res_bool_check\n"\
+	"LABEL !*expr_res_bool_convert\n"\
 	"PUSHFRAME\n"\
 	"\n"\
 	"DEFVAR LF@expr_type\n"\

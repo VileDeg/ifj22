@@ -5,7 +5,7 @@
 #include "scanner.h"
 #include "parser.h"
 #include "errors.h"
-#include "code_generator.h"
+#include "codegen.h"
 
 bool g_DebugOn = false;
 FILE* g_DebugOut = NULL;
@@ -138,7 +138,7 @@ void debug_setup(FILE* source, bool show_source_contents,
     s_ScanOut = scan_out;
     s_ParsOut = pars_out;
     s_ExprOut = expr_out;
-    g_CodegenOut = codegen_out;
+    set_codegen_out(codegen_out);
 
     if (show_source_contents && source != stdin)
     {

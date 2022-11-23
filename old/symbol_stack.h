@@ -1,7 +1,7 @@
 #ifndef __SYMBOL_STACK__
 #define __SYMBOL_STACK__
 
-#include "precedence_t.h"
+#include "expression.h"
 #include "symtable.h"
 
 /*

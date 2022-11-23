@@ -48,8 +48,7 @@ clean_pack:
 	rm -f $(PACK).tgz
 
 .PHONY: unpack
-unpack:
-	clean_unpack
+unpack: clean_unpack
 	mkdir $(PACK)
 	tar -xf $(PACK).tgz -C $(PACK)
 
