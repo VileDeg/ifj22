@@ -1,0 +1,3 @@
+[submodule "proj/ifj-tester"]
+	path = proj/ifj-tester
+	url = https://github.com/galloj/IFJ22_Tester.git
