@@ -14,7 +14,22 @@ bool SUFF##vec_valid_at(SUFF##vec_t* vec, int64_t ind)\
 
 
 
-
+\
+TDATA SUFF##vec_extract(SUFF##vec_t* vec, SUFF##elem_t* elem)\
+{\
+    if (elem->prev)\
+        elem->prev->next = elem->next;\
+    else\
+        vec->back = elem->next;\
+    if (elem->next)\
+        elem->next->prev = elem->prev;\
+    else\
+        vec->front = elem->prev;\
+    TDATA _data = elem->data;\
+    free(elem);\
+    vec->len--;\
+    return _data;\
+}\
 
 
 

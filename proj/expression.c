@@ -5,21 +5,19 @@
 #include "codegen.h"
 #include "parser.h"
 #include "expression.h"
-
 #include "macros.h"
 
-typedef struct symbol 
-{
+typedef struct {
     Oper_type oper;
-    //struct symbol *next;
-    DataType type;
+    DataType  type;
 } Symbol;
 
 GENERATE_VECTOR_DECLARATION(Symbol, sym);
-GENERATE_VECTOR_DEFINITION(Symbol, sym);
+GENERATE_VECTOR_DEFINITION (Symbol, sym);
 
+#define TABLE_SIZE 8
 // Precedence table.
-int64_t precedence_table[TAB_SIZE][TAB_SIZE] = {
+int64_t precedence_table[TABLE_SIZE][TABLE_SIZE] = {
     {REDUCE, SHIFT , REDUCE, REDUCE, SHIFT, REDUCE, SHIFT, REDUCE},
     {REDUCE, REDUCE, REDUCE, REDUCE, SHIFT, REDUCE, SHIFT, REDUCE},
     {SHIFT , SHIFT , REDUCE, SHIFT , SHIFT, REDUCE, SHIFT, REDUCE},
@@ -30,7 +28,8 @@ int64_t precedence_table[TAB_SIZE][TAB_SIZE] = {
     {SHIFT , SHIFT , SHIFT , SHIFT , SHIFT, NONE  , SHIFT, NONE  }
 };
 
-Index_num index_info(Oper_type item) {
+Index_num index_info(Oper_type item) 
+{
     switch(item) {
         case OPER_ADD:       // +
         case OPER_SUB:       // -
@@ -62,7 +61,8 @@ Index_num index_info(Oper_type item) {
     }
 }
 
-Oper_type term_info(Token* token) {
+Oper_type term_info(Token* token) 
+{
     Token_type tokenType = token->type;
     switch(tokenType) {
         case token_minus:
@@ -144,9 +144,9 @@ Rule_type rule_info(Symbol* oper1, Symbol* oper2, Symbol* oper3)
         return RULE_N;
 }
 
-uint32_t implicit_conversion(Rule_type rule, DataType* dataType, Symbol* oper1, Symbol* oper2, Symbol* oper3) 
+int64_t implicit_conversion(Rule_type rule, DataType* dataType, Symbol* oper1, Symbol* oper2, Symbol* oper3) 
 {
-    (void) oper3;
+    (void) oper3; // 'oper3' unused in this context.
 
     switch(rule) 
     {
@@ -192,12 +192,13 @@ uint32_t implicit_conversion(Rule_type rule, DataType* dataType, Symbol* oper1, 
     return SUCCESS;
 }
 
-uint32_t num_of_symbols_to_reduce(bool* reduceFound, symvec_t* stack)
+int64_t count_to_reduce(bool* reduceFound, symvec_t* stack)
 {
     symelem_t* curr = stack->front;
     uint32_t cnt = 0;
     *reduceFound = false;
-    for(; curr != NULL; cnt++) 
+
+    while (curr)
     {
         if (curr->data.oper == OPER_REDUCE) 
         {
@@ -206,13 +207,14 @@ uint32_t num_of_symbols_to_reduce(bool* reduceFound, symvec_t* stack)
         }
             
         curr = curr->prev;
+        ++cnt;
     }
     return cnt;
 }
 
-uint64_t reduce(ParserData* pd, symvec_t* stack) 
+int64_t reduce(ParserData* pd, symvec_t* stack) 
 {
-    (void) pd;
+    (void) pd; // 'pd' unused, passed for compatibility.
 
     Rule_type RuleType;
     
@@ -220,15 +222,13 @@ uint64_t reduce(ParserData* pd, symvec_t* stack)
 
     bool reduceFound = false;
 
-    int64_t symbolCnt = num_of_symbols_to_reduce(&reduceFound, stack);
+    int64_t symbolCnt = count_to_reduce(&reduceFound, stack);
 
-    Symbol* oper1 = NULL;
-    Symbol* oper2 = NULL;
-    Symbol* oper3 = NULL;
+    Symbol *oper1 = NULL, *oper2 = NULL, *oper3 = NULL;
     if (symbolCnt == 1 && reduceFound) 
     {   
         oper1 = &stack->front->data;
-        if ((oper1->oper == DATA_ID)     || (oper1->oper == DATA_INT) || (oper1->oper == DATA_FLOAT) || 
+        if ((oper1->oper == DATA_ID    ) || (oper1->oper == DATA_INT ) || (oper1->oper == DATA_FLOAT) || 
             (oper1->oper == DATA_STRING) || (oper1->oper == DATA_NULL))
             RuleType = RULE_ID;
         else
@@ -247,14 +247,14 @@ uint64_t reduce(ParserData* pd, symvec_t* stack)
     if (RuleType == RULE_N)
         return ERROR_SYNTAX;
 
-    int res = SUCCESS;
+    int64_t res = SUCCESS;
     if ((res = implicit_conversion(RuleType, &dataType, oper1, oper2, oper3)) != SUCCESS)
         return res;
 
     { CODEGEN(emit_operator_call, RuleType); }
     
     ++symbolCnt;
-    while(symbolCnt-- != 0) 
+    while(symbolCnt--) 
         symvec_pop_front(stack);
 
     Symbol symbol = { OPER_E, dataType };
@@ -263,23 +263,7 @@ uint64_t reduce(ParserData* pd, symvec_t* stack)
     return SUCCESS;
 }
 
-#if 1
-#define RES result
-
-#define ERROR_RET(_retcode, ...) \
-    do { \
-		symvec_dispose(&stack, NULL);\
-        PRINT_ERROR_RET(_retcode, __VA_ARGS__);\
-		return _retcode; \
-	} while(0)
-
-#define RESULT(_funccall, ...) \
-    if ((RES = _funccall)) \
-        ERROR_RET(RES, __VA_ARGS__); \
-    else {} 
-#endif
-
-DataType type_info(ParserData* pd, int* errcode)
+DataType type_info(ParserData* pd, int64_t* errcode)
 {
     TData* data = NULL;
     if (pd->token.type == token_ID)
@@ -298,7 +282,6 @@ DataType type_info(ParserData* pd, int* errcode)
 
         if (!data || (pd->var_not_yet_def && pd->lhs_var == data))
         {
-            //VILE_ASSERT(false, "");
             *errcode = ERROR_SEM_UNDEF_VAR;
             return TYPE_UNDEF;
         }
@@ -307,11 +290,11 @@ DataType type_info(ParserData* pd, int* errcode)
     {
         switch(pd->token.type)
         {
-            case token_integer: return TYPE_INT;    
-            case token_float:   return TYPE_FLOAT;  
-            case token_string:  return TYPE_STRING; 
-            case token_null:    return TYPE_NULL;   
-            default:            return TYPE_UNDEF;
+            case token_integer: return TYPE_INT   ;    
+            case token_float  : return TYPE_FLOAT ;  
+            case token_string : return TYPE_STRING; 
+            case token_null   : return TYPE_NULL  ;   
+            default:            return TYPE_UNDEF ;
         }
     }
     return TYPE_UNDEF;
@@ -353,15 +336,23 @@ bool stack_push_after_top_term(symvec_t* stack, Symbol sym)
 				new->prev = prev->prev;
 				prev->prev = new;
 			}
-
 			return true;
 		}
-
 		prev = curr;
 	}
-    
 	return false;
 }
+
+#define RES result
+
+#define ERROR_RET(_retcode, ...) do {\
+		symvec_dispose(&stack, NULL);\
+        PRINT_ERROR_RET(_retcode, __VA_ARGS__);\
+		return _retcode;\
+	} while(0)
+
+#define RESULT(_funccall, ...)\
+    if ((RES = _funccall)) ERROR_RET(RES, __VA_ARGS__); else {} 
 
 int64_t expression(ParserData* pd) 
 {
@@ -374,12 +365,11 @@ int64_t expression(ParserData* pd)
         INTERNAL(symvec_push_front(&stack, symbol));
         
         // [x,y] = indices for precedence table
-        Oper_type currSymbol;
-        Oper_type stackSymbol;
+        Oper_type currSymbol, stackSymbol;
         Symbol* stackTerm;
 
         bool success = false;
-        int type_info_errcode = SUCCESS;
+        int64_t type_info_errcode = SUCCESS;
 
         do
         {
@@ -406,7 +396,7 @@ int64_t expression(ParserData* pd)
                     symbol.type = symbolDataType;
                     INTERNAL(symvec_push_front(&stack, symbol));
 
-                    if (currSymbol == DATA_ID || currSymbol == DATA_INT || currSymbol == DATA_FLOAT || 
+                    if (currSymbol == DATA_ID     || currSymbol == DATA_INT  || currSymbol == DATA_FLOAT || 
                         currSymbol == DATA_STRING || currSymbol == DATA_NULL)
                     {
                         if (currSymbol == DATA_ID)
@@ -436,23 +426,19 @@ int64_t expression(ParserData* pd)
 
         Symbol* lastNonterm = &stack.front->data;
 
-        INTERNAL(lastNonterm);
+        VILE_ASSERT(lastNonterm, "Unexpected.");
         if (lastNonterm->oper != OPER_E)
             ERROR_RET(ERROR_SYNTAX, "last nonterm is not E.");
 
         if (pd->lhs_var)
         {
-            DataType type = lastNonterm->type;
-
-            pd->lhs_var->type = type;
-
+            pd->lhs_var->type = lastNonterm->type;
             { CODEGEN(emit_pop_expr_result, pd->lhs_var->id, pd->lhs_var->global ? "GF" : "LF"); }
         }
 
-        //stack_clear(&stack);
         symvec_dispose(&stack, NULL);
 
-        pd->block_next_token = true; // <-- we use this to avoid reading next token
+        BLOCK_NEXT_TOKEN; //We use this to avoid reading next token.
     }
     RULE_CLOSE;
 }

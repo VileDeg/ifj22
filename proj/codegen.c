@@ -14,11 +14,10 @@ static FILE* s_CodegenOut = NULL;
 
 #define MAX_DIGITS 64
 
-#define EMIT_INT(_number)                \
-    do {                                \
-        char _str[MAX_DIGITS];           \
-        sprintf(_str, "%ld", (_number));  \
-        EMIT(_str);                      \
+#define EMIT_INT(_number) do {\
+        char _str[MAX_DIGITS];\
+        sprintf(_str, "%ld", (_number));\
+        EMIT(_str);\
     } while (0)
 
 #define _FLBEXT ""

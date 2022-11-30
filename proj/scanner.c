@@ -18,23 +18,11 @@ void scanner_set_file(FILE* fptr)
     s_Fptr = fptr;
 }
 
-FILE* scanner_get_file()
-{
-    return s_Fptr;
-}
-
 //Comparing string we've gotten and compares with KW. In case it isn't a KW -> it's an ID.
 bool determine_type(Token* tk)
 {
-    //Whether an identifier has been set.
     bool flag_id = false;
     bool flag_null = false;
-    //str_t* str = tk->string;
-    // if (str[0] == '?')
-    // {
-    //     tk->type = token_keyword;
-    //     return 0;
-    // }
 
     if (str_cmp(&tk->string, "else"))
         tk->keyword = keyword_else;

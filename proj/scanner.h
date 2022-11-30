@@ -2,6 +2,7 @@
 #define _SCANNER
 
 #include <stdio.h>
+
 #include "string_t.h"
 
 //FSM states.
@@ -49,7 +50,7 @@
 
 //Enumeration of keywords.
 typedef enum {
-    keyword_else=0,
+    keyword_else = 0,
     keyword_float,
     keyword_function,
     keyword_if,
@@ -64,11 +65,10 @@ typedef enum {
 //Enumeration of Token_types.
 typedef enum {
     token_EOF = 0,             // End of file.
-    token_ID,                  //Identificator.           
-    token_keyword,             //Keyword.
+    token_ID,                  // Identificator.           
+    token_keyword,             // Keyword.
     token_integer,             // Number (type integer).
     token_float,               // Number (type float).
-    //token_exponent,            // Number (type exponent).
     token_string,              // String.
     token_null,                // null
     token_minus,               // "-"
@@ -90,12 +90,14 @@ typedef enum {
     token_left_curly_bracket,  // "{"
     token_right_curly_bracket, // "}"
     token_dot,                 // "."
-    token_prologue,              // "<?php"
+    token_prologue,            // "<?php"
     token_dollar,              // "$"
     token_end                  // "?<"
 } Token_type;
 
-//Structure of token characteristics.
+/**
+ * Struct with token attributes
+ */
 typedef struct 
 {
     unsigned integer;      //Value for processing integer value.
@@ -108,22 +110,44 @@ typedef struct
 } Token;
 
 
-
+/**
+ * Clears token contents.
+ * @param tk token
+ */
 void token_clear(Token *tk);
 
+/**
+ * Destructs token.
+ * @param tk token
+ */
 void token_dest(Token* tk);
 
+/**
+ * Constructs token.
+ * @param tk token
+ * @return True if success.
+ */
 bool token_const(Token* tk);
 
+/**
+ * Creates deep copy of token.
+ * @param dst destination
+ * @param src source
+ * @return True if success.
+ */
 bool token_cpy(Token* dst, Token* src);
 
+/**
+ * Sets input file for scanner.
+ * @param fptr file pointer
+ */
 void scanner_set_file(FILE* fptr);
 
-FILE* scanner_get_file();
-
-void scanner_set_string(str_t* str);
-
-//Function for reading string from stdin and converting into token.
-int scanner_get_next_token(Token *token);
+/**
+ * Gets next token from input stream.
+ * @param tk token
+ * @return Error code.
+ */
+int scanner_get_next_token(Token* tk);
 
 #endif

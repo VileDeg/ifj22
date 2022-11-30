@@ -7,8 +7,17 @@
 #include "errors.h"
 #include "codegen.h"
 
+#define DEBUGPR(...) do { VILE_ASSERT(g_DebugOut != NULL, "Output file not found");\
+    fprintf(g_DebugOut, __VA_ARGS__); fflush(g_DebugOut); } while(0)
+
+#define EXPRDBGPR(...) do {\
+    set_debug_out(get_expr_out());\
+    DEBUGPR(__VA_ARGS__);\
+} while(0)
+
 bool g_DebugOn = false;
 FILE* g_DebugOut = NULL;
+
 static FILE* s_ScanOut  = NULL;
 static FILE* s_ParsOut  = NULL;
 static FILE* s_ExprOut  = NULL;
@@ -18,9 +27,8 @@ FILE* get_scan_out() { return s_ScanOut; }
 FILE* get_pars_out() { return s_ParsOut; }
 FILE* get_expr_out() { return s_ExprOut; }
 
-static int max_kw = 10;
-static const char* kw_str[] =
-{
+static int64_t max_kw = 10;
+static const char* kw_str[] = {
     "else",
     "float",
     "function",
@@ -33,14 +41,13 @@ static const char* kw_str[] =
     "while"
 };
 
-static int max_kw_type = 30;
+static int64_t max_kw_type = 30;
 static const char* tk_types_str[] = {
     "EOF                ",
     "ID                 ",
     "keyword            ",
     "integer            ",
     "double             ",
-    //"exponent           ",
     "string             ",
     "null               ",
     "minus              ",
@@ -68,12 +75,12 @@ static const char* tk_types_str[] = {
 
 const char* debug_kw(Keyword kw)
 {
-    return (int)kw < max_kw ? kw_str[kw] : "**NIL**";
+    return (int64_t)kw < max_kw ? kw_str[kw] : "**NIL**";
 }
 
 const char* debug_tk_type(Token_type tt)
 {
-   return (int)tt < max_kw_type ? tk_types_str[tt] : "**NIL**";
+   return (int64_t)tt < max_kw_type ? tk_types_str[tt] : "**NIL**";
 }
 
 static const char* s_TokenDebugFormat = "%-4.4s %-4.4s %-12.12s %-12.12s %-16.16s\n";
@@ -183,8 +190,10 @@ void debug_terminate(FILE* scan_out, FILE* pars_out)
 }
 
 static const char* s_RulesFilepath = "../LL-grammar.txt";
+
 #define RULE_EXP_MXLEN 256
 #define NUM_RULES 35
+
 static struct {
     char rule_name [NUM_RULES][RULE_EXP_MXLEN];
     char exp_string[NUM_RULES][RULE_EXP_MXLEN];
@@ -197,7 +206,7 @@ void populate_rule_definitions()
 
     for (uint64_t rule = 0; rule < NUM_RULES; rule++)
     {
-        int c = fgetc(fptr); //skip <
+        int64_t c = fgetc(fptr); //skip <
         uint64_t letter = 0;
         //Read rule name
         while ((c = fgetc(fptr)) != '>')
@@ -243,7 +252,7 @@ void print_rule_definitions()
     }
 }
 
-const char* get_rule_expansion_by_name(const char* rulename, int expnum)
+const char* get_rule_expansion_by_name(const char* rulename, int64_t expnum)
 {
     for (uint64_t i = 0; i < NUM_RULES; i++)
     {

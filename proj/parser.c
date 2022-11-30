@@ -6,14 +6,13 @@
 #include "symtable.h"
 #include "expression.h"
 #include "codegen.h"
+#include "macros.h"
 
 GENERATE_VECTOR_DEFINITION(Token, tk);
 
-#include "macros.h"
-
-int _get_next_token(ParserData* pd)
+int64_t parser_get_token(ParserData* pd)
 {
-	int RES = SUCCESS;
+	int64_t RES = SUCCESS;
 	if (!pd->block_next_token) 
 	{
 		switch (pd->mode)
@@ -43,38 +42,43 @@ int _get_next_token(ParserData* pd)
 	return SUCCESS;
 }
 
-static int type		(ParserData* pd);
-static int term		(ParserData* pd);
-static int rvalue	(ParserData* pd);
-static int statement(ParserData* pd);
-static int func_type(ParserData* pd);
-static int args		(ParserData* pd);
-static int arg_n	(ParserData* pd);
-static int params	(ParserData* pd);
-static int param_n	(ParserData* pd);
-static int program	(ParserData* pd);
-static int end		(ParserData* pd);
-static int begin	(ParserData* pd);
+/////////////////////////////////////////////////////////////////////////
 
-static int function_pass(ParserData* pd);
+static int64_t type		(ParserData* pd);
+static int64_t term		(ParserData* pd);
+static int64_t rvalue	(ParserData* pd);
+static int64_t statement(ParserData* pd);
+static int64_t func_type(ParserData* pd);
+static int64_t args		(ParserData* pd);
+static int64_t arg_n	(ParserData* pd);
+static int64_t params	(ParserData* pd);
+static int64_t param_n	(ParserData* pd);
+static int64_t program	(ParserData* pd);
+static int64_t end		(ParserData* pd);
+static int64_t begin	(ParserData* pd);
+
+static int64_t function_pass   (ParserData* pd);
+static int64_t conditional_pass(ParserData* pd);
+
+/////////////////////////////////////////////////////////////////////////
 
 static bool init_data(ParserData* pd)
 {
     symtable_init(&pd->globalTable);
 
-	pd->mode = MODE_FUNCTION_PASS;
+	pd->mode = MODE_MAIN_PASS;
 	pd->front_ptr = NULL;
 
 	pd->in_param_list   = pd->block_next_token = 
 	pd->in_local_scope  = pd->return_found 	   =
-	pd->var_not_yet_def = 
-	pd->in_if_while 	= false;
+	pd->var_not_yet_def = pd->in_if_while 	   = false;
 
 	pd->rhs_func = pd->current_func = pd->lhs_var = NULL;
 
 	pd->param_index = 0;
-	pd->label_deep = -1;
+
 	pd->label_index = 0;
+	pd->label_deep = -1;
 
 	tkvec_init(&pd->tk_vec);
 
@@ -117,7 +121,83 @@ static void free_data(ParserData* pd)
 	VILE_ASSERT(tkvec_empty(&pd->tk_vec), "");
 }
 
-static int term(ParserData* pd)
+static int64_t function_pass(ParserData* pd)
+{
+	RULE_OPEN;
+	{
+		do {
+			GET_NEXT_TOKEN;
+
+			if (!KEYWORD_IS(function))
+				continue;
+
+			NEXT_TK_CHECK_FUNC_ID;
+			{ //Add func id to global table
+				if (FIND_CURRENT_ID) //Function already defined
+					PRINT_ERROR_RET(ERROR_SEM_ID_DEF, "function is already defined.");
+				ADD_FUNC_ID;
+			}		
+
+			pd->in_local_scope = true;
+			symtable_init(&pd->localTable);
+
+			NEXT_TK_CHECK_TOKEN(left_bracket);
+			{
+				NEXT_TK_CHECK_RULE(params);
+			}
+			NEXT_TK_CHECK_TOKEN(right_bracket);
+			NEXT_TK_CHECK_TOKEN(colon);
+			
+			NEXT_TK_CHECK_RULE(func_type);
+
+			pd->in_local_scope = false;
+			symtable_dest(&pd->localTable);
+		} 
+		while (!TOKEN_IS(EOF)); //!TOKEN_IS(end) && 
+	}
+    RULE_CLOSE;
+}
+
+static int64_t conditional_pass(ParserData* pd)
+{
+	RULE_OPEN;
+	{
+		Token next;
+		int64_t rcbr_count = 0;
+		int64_t rcbr_need = 1;
+		if (KEYWORD_IS(if))
+			++rcbr_need;
+
+		while (rcbr_count < rcbr_need && !TOKEN_IS(EOF))
+		{
+			GET_NEXT_TOKEN;
+
+			VILE_ASSERT(pd->front_ptr, "front_ptr null.");
+			next = pd->front_ptr->data;
+			if (IS_VAR_ID && next.type == token_equal_sign)
+			{
+				if (!(pd->lhs_var = FIND_CURRENT_ID))
+				{
+					ADD_CURRENT_ID(pd->lhs_var);
+					{ CODEGEN(emit_define_var, pd->lhs_var->id, pd->in_local_scope); }
+				}
+			}
+
+			if (TOKEN_IS(right_curly_bracket))
+				++rcbr_count;
+
+			if (KEYWORD_IS(if))
+				rcbr_need += 2;
+			else if KEYWORD_IS(while)
+				++rcbr_need;
+		}
+	}
+	RULE_CLOSE;
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+static int64_t term(ParserData* pd)
 {
 	RULE_OPEN;
 	{
@@ -145,8 +225,8 @@ static int term(ParserData* pd)
 			!strcmp(pd->rhs_func->id, "strval"  ))
 			goto end;
 
-		int func_param = pd->rhs_func->params->ptr[pd->param_index];
-		int sign = '\0';
+		int64_t func_param = pd->rhs_func->params->ptr[pd->param_index];
+		int64_t sign = '\0';
 		TData* var = NULL;
 		switch (pd->token.type)
 		{
@@ -173,9 +253,6 @@ static int term(ParserData* pd)
 			case token_ID:
 				_DPRNR(4);
 
-				if (!IS_VAR_ID)
-					INTERNAL_ERROR_RET("Something strange is going on here...");
-
 				var = FIND_CURRENT_ID;
 				if (!var) 
 					PRINT_ERROR_RET(ERROR_SEM_UNDEF_VAR, "undefined variable passed as parameter.");
@@ -193,11 +270,11 @@ static int term(ParserData* pd)
 					case TYPE_NULL:
 						goto null;
 					default: // Unsupported or unspecified type, shouldn't get here
-						INTERNAL_ERROR_RET("Where am I?");
+						INTERNAL_ERROR_RET("Unsupported.");
 				}
 				break;
 			default:
-				INTERNAL_ERROR_RET("No way...");
+				INTERNAL_ERROR_RET("Unsupported.");
 		}
 		
 		if (func_param != sign && func_param != LETTFLIP(sign))
@@ -212,7 +289,7 @@ end:
 	RULE_CLOSE;
 }
 
-static int args(ParserData* pd)
+static int64_t args(ParserData* pd)
 {
 	RULE_OPEN;
 	{
@@ -228,8 +305,8 @@ static int args(ParserData* pd)
 
 			if (!strcmp(pd->rhs_func->id, "write"))
 			{
-				PUSH_TOKEN_FRONT;  //<-- save last token to then continue from where we stopped
-				int i = 0;
+				PUSH_TOKEN_FRONT; //Save last token to then continue from where we stopped.
+				int64_t i = 0;
 				while (i < pd->param_index)
 				{
 					VILE_ASSERT(!tkvec_empty(&pd->tk_vec), "Do you think that's funny?");
@@ -238,9 +315,10 @@ static int args(ParserData* pd)
 					{ CODEGEN(emit_function_pass_param_push, pd->token, pd->in_local_scope); }
 					++i;
 				}
-				// We need to define argument count for variable number of arguments
+				
+				//We need to define argument count for variable number of arguments.
 				{ CODEGEN(emit_function_pass_param_count, pd->param_index); }
-				POP_TOKEN_FRONT;
+				POP_TOKEN_FRONT; //Continue with the last token
 			}
 		}
 		//<args> -> ε
@@ -253,7 +331,7 @@ static int args(ParserData* pd)
 	RULE_CLOSE;
 }
 
-static int arg_n(ParserData* pd)
+static int64_t arg_n(ParserData* pd)
 {
 	RULE_OPEN;
 	{
@@ -274,21 +352,17 @@ static int arg_n(ParserData* pd)
 	RULE_CLOSE;
 }
 
-static int type(ParserData* pd)
+static int64_t type(ParserData* pd)
 {
 	#define NUM_F_TYPES 3
 	RULE_OPEN;
 	{
-		//<type> -> float
-		//<type> -> int
-		//<type> -> string
-		//<type> -> ? float
-		//<type> -> ? int
-		//<type> -> ? string
+		/*<type> ->  float / <type> ->  int / <type> ->  string
+		  <type> -> ?float / <type> -> ?int / <type> -> ?string*/
 
-		static const int type_macro[NUM_F_TYPES] = { TYPE_FLOAT, TYPE_INT, TYPE_STRING };
+		static const int64_t type_macro[NUM_F_TYPES] = { TYPE_FLOAT, TYPE_INT, TYPE_STRING };
 		
-		int _rulenr = 0; // for debugging
+		int64_t _rulenr = 0; // for debugging
 
 		if (pd->token.questionmark)
 		{
@@ -303,7 +377,7 @@ static int type(ParserData* pd)
 				pd->current_func->qmark_type = false;
 		}
 
-		int  tnum = 0;
+		int64_t  tnum = 0;
 		if (KEYWORD_IS(float))
 		{
 			_DPRNR(_rulenr);
@@ -333,7 +407,7 @@ static int type(ParserData* pd)
 	RULE_CLOSE;
 }
 
-static int rvalue(ParserData* pd)
+static int64_t rvalue(ParserData* pd)
 {
 	RULE_OPEN;
 	{
@@ -343,17 +417,16 @@ static int rvalue(ParserData* pd)
 			_DPRNR(0);
 
 			{ 
-				//If next token is not '(' then it's not a function call so we return syntax error
-					//NEXT_TK_CHECK_TOKEN(left_bracket);
-				//Check if function was defined
-				if (!FIND_FUNC_ID)
-				{
-					if (!FIND_FUNC_ID)
-						PRINT_ERROR_RET(ERROR_SEM_ID_DEF, "undefined function.");
-				}
+				Token next;
+				if (pd->front_ptr)
+					next = pd->front_ptr->data;
+				if (next.type != token_left_bracket) //If next token is not '(' then it's not a function call,
+					return ERROR_SYNTAX;			 //so we return syntax error.
+				
+				if (!FIND_FUNC_ID) //Check if function was defined.
+					PRINT_ERROR_RET(ERROR_SEM_ID_DEF, "undefined function.");
 
-				//If function is called as part of variable definition
-				if (pd->lhs_var)
+				if (pd->lhs_var) //If function is called as part of variable definition.
 						pd->lhs_var->type = pd->rhs_func->type;
 
 				{ CODEGEN(emit_function_before_params); }
@@ -370,7 +443,7 @@ static int rvalue(ParserData* pd)
 				
 				{ CODEGEN(emit_function_call, pd->rhs_func->id); }
 				
-				//If function is called as part of variable definition
+				//If function is called as part of variable definition.
 				if (pd->lhs_var)
 					{ CODEGEN(emit_function_result_assign, pd->lhs_var->id, pd->in_local_scope); }
 			}
@@ -388,7 +461,7 @@ static int rvalue(ParserData* pd)
 	RULE_CLOSE;
 }
 
-static int func_type(ParserData* pd)
+static int64_t func_type(ParserData* pd)
 {
 	RULE_OPEN;
 	{
@@ -409,7 +482,7 @@ static int func_type(ParserData* pd)
 	RULE_CLOSE;
 }
 
-static int param_type(ParserData* pd)
+static int64_t param_type(ParserData* pd)
 {
 	RULE_OPEN;
 	{
@@ -418,8 +491,9 @@ static int param_type(ParserData* pd)
 		if (FIND_CURRENT_ID)
 			PRINT_ERROR_RET(ERROR_SEM_ID_DEF, "parameter already defined.");
 		TData* data = NULL;
-		ADD_CURRENT_ID(data); //pd->lhs_var
-		int sign = pd->current_func->params->ptr[pd->param_index]; //pnum
+		ADD_CURRENT_ID(data);
+		int64_t sign = pd->current_func->params->ptr[pd->param_index];
+
 		if (sign == 'i' || sign == LETTFLIP('i'))
 			data->type = TYPE_INT;
 		else if (sign == 'f' || sign == LETTFLIP('f'))
@@ -435,7 +509,7 @@ static int param_type(ParserData* pd)
 	RULE_CLOSE;
 }
 
-static int param_n(ParserData* pd)
+static int64_t param_n(ParserData* pd)
 {
 	RULE_OPEN;
 	{
@@ -447,9 +521,6 @@ static int param_n(ParserData* pd)
 			NEXT_TK_CHECK_RULE(type);
 
 			CHECK_RULE(param_type);
-
-			// pd->param_index++;
-			// { CODEGEN(emit_function_param_declare, TK_STR(pd->token), pd->param_index); }
 
 			NEXT_TK_CHECK_RULE(param_n);
 		}
@@ -463,11 +534,11 @@ static int param_n(ParserData* pd)
 	RULE_CLOSE;
 }
 
-static int params(ParserData* pd)
+static int64_t params(ParserData* pd)
 {
 	RULE_OPEN;
 	{
-		pd->in_param_list = true; // <-- referenced in 'type' rule
+		pd->in_param_list = true; //referenced in 'type' rule.
 		pd->param_index = 0;
 
 		//<params> -> <type> $ ID <param_n>
@@ -478,8 +549,6 @@ static int params(ParserData* pd)
 			CHECK_RULE(type);
 
 			CHECK_RULE(param_type);
-
-			//{ CODEGEN(emit_function_param_declare, TK_STR(pd->token), pd->param_index); }
 
 			NEXT_TK_CHECK_RULE(param_n);
 		}
@@ -495,45 +564,7 @@ static int params(ParserData* pd)
 	RULE_CLOSE;
 }
 
-static int conditional_pass(ParserData* pd)
-{
-	RULE_OPEN;
-	{
-		Token next;
-		int rcbr_count = 0;
-		int rcbr_need = 1;
-		if (KEYWORD_IS(if))
-			++rcbr_need;
-		//bool else_found = false;
-
-		while (rcbr_count < rcbr_need)
-		{
-			GET_NEXT_TOKEN;
-
-			VILE_ASSERT(pd->front_ptr, "whatever...");
-			next = pd->front_ptr->data;
-			if (IS_VAR_ID && next.type == token_equal_sign)
-			{
-				if (!(pd->lhs_var = FIND_CURRENT_ID))
-				{
-					ADD_CURRENT_ID(pd->lhs_var);
-					{ CODEGEN(emit_define_var, pd->lhs_var->id, pd->in_local_scope); }
-				}
-			}
-
-			if (TOKEN_IS(right_curly_bracket))
-				++rcbr_count;
-
-			if (KEYWORD_IS(if))
-				rcbr_need += 2;
-			else if KEYWORD_IS(while)
-				++rcbr_need;
-		}
-	}
-	RULE_CLOSE;
-}
-
-static int statement(ParserData* pd)
+static int64_t statement(ParserData* pd)
 {
 	RULE_OPEN;
 	{
@@ -576,7 +607,6 @@ static int statement(ParserData* pd)
 		{
 			_DPRNR(1);
 
-			//bool was_in_if_while = pd->in_if_while;
 			pd->in_if_while = true;
 
 			tkelem_t* main_front = pd->front_ptr;
@@ -589,7 +619,7 @@ static int statement(ParserData* pd)
 				INTERNAL_ERROR_RET();
 
 			pd->label_deep++;
-			int curr_lb_index = pd->label_index;
+			int64_t curr_lb_index = pd->label_index;
 			pd->label_index += 2;
 			const char* func_name = pd->current_func ? pd->current_func->id : "";
 			{ CODEGEN(emit_if_header); }
@@ -619,10 +649,7 @@ static int statement(ParserData* pd)
 
 			{ CODEGEN(emit_if_close, func_name, pd->label_deep, curr_lb_index + 1); }
 
-			
 			pd->label_deep--;
-			// if (was_in_if_while)
-			// 	pd->label_index -= 2;
 			pd->in_if_while = false;
 
 			NEXT_TK_CHECK_RULE(program);
@@ -632,7 +659,6 @@ static int statement(ParserData* pd)
 		{
 			_DPRNR(2);
 
-			//bool was_in_if_while = pd->in_if_while;
 			pd->in_if_while = true;
 
 			tkelem_t* main_front = pd->front_ptr;
@@ -645,7 +671,7 @@ static int statement(ParserData* pd)
 				INTERNAL_ERROR_RET();
 
 			pd->label_deep++;
-			int curr_lb_index = pd->label_index;
+			int64_t curr_lb_index = pd->label_index;
 			pd->label_index += 2;
 			const char* func_name = pd->current_func ? pd->current_func->id : "";
 			{ CODEGEN(emit_while_header, func_name, pd->label_deep, curr_lb_index); }
@@ -666,8 +692,6 @@ static int statement(ParserData* pd)
 			{ CODEGEN(emit_while_close, func_name, pd->label_deep, curr_lb_index + 1); }
 
 			pd->label_deep--;
-			// if (was_in_if_while)
-			// 	pd->label_index -= 2;
 			pd->in_if_while = false;
 
 			NEXT_TK_CHECK_RULE(program);
@@ -747,7 +771,7 @@ static int statement(ParserData* pd)
 	RULE_CLOSE;
 }
 
-static int program(ParserData* pd)
+static int64_t program(ParserData* pd)
 {
 	RULE_OPEN;
 	{
@@ -812,7 +836,7 @@ static int program(ParserData* pd)
     RULE_CLOSE;
 }
 
-static int end(ParserData* pd)
+static int64_t end(ParserData* pd)
 {
 	RULE_OPEN;
 	{
@@ -834,41 +858,7 @@ static int end(ParserData* pd)
     RULE_CLOSE;
 }
 
-static int function_pass(ParserData* pd)
-{
-	RULE_OPEN;
-	{
-		do {
-			GET_NEXT_TOKEN;
-			if (!KEYWORD_IS(function))
-				continue;
-			NEXT_TK_CHECK_FUNC_ID;
-			{ //Add func id to global table
-				if (FIND_CURRENT_ID) //Function already defined
-					PRINT_ERROR_RET(ERROR_SEM_ID_DEF, "function is already defined.");
-				ADD_FUNC_ID;
-			}		
-
-			pd->in_local_scope = true;
-			symtable_init(&pd->localTable);
-
-			NEXT_TK_CHECK_TOKEN(left_bracket);
-			{
-				NEXT_TK_CHECK_RULE(params);
-			}
-			NEXT_TK_CHECK_TOKEN(right_bracket);
-			NEXT_TK_CHECK_TOKEN(colon);
-			
-			NEXT_TK_CHECK_RULE(func_type);
-
-			pd->in_local_scope = false;
-			symtable_dest(&pd->localTable);
-		} while (!TOKEN_IS(EOF)); //!TOKEN_IS(end) && 
-	}
-    RULE_CLOSE;
-}
-
-static int begin(ParserData* pd)
+static int64_t begin(ParserData* pd)
 {
 	//<begin> -> <?php declare ( strict_types = 1 ) ; <program>
 	RULE_OPEN;
@@ -877,6 +867,7 @@ static int begin(ParserData* pd)
 		CHECK_RULE(function_pass);
 		pd->mode = MODE_MAIN_PASS;
 		pd->front_ptr = pd->tk_vec.front;
+
 		{
 			_DPRNR(0);
 			NEXT_TK_CHECK_TOKEN(prologue);
@@ -906,15 +897,15 @@ static int begin(ParserData* pd)
     RULE_CLOSE;
 }
 
-int parse_file(FILE* fptr)
+int64_t parse_file(FILE* fptr)
 {
     ParserData pd;
-    if (!init_data(&pd) || !code_generator_init()) //!str_const(&string) || 
+    if (!init_data(&pd) || !code_generator_init())
 		goto error;
 
 	scanner_set_file(fptr);
 
-    int result = begin(&pd);
+    int64_t result = begin(&pd);
 	code_generator_flush();
 	code_generator_terminate();
 

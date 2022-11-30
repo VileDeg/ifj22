@@ -1,11 +1,10 @@
 #ifndef __BUILTINS_H__
 #define __BUILTINS_H__
 
-/**
-* BUILT-IN FUNCTIONS
-*/
 #define _BFNBEG(_name) "# Function " _name " <builtin> ===================================\n"
 #define _BFNEND "\n"
+
+/*Built-in function code macros*/
 
 /// function reads() : ?string
 #define FUNCTION_READS              \

@@ -3,10 +3,12 @@
 
 #define _IFLBEXT "*"
 
-#define _OPSEP " ==========================="
+#define _OPSEP " ===========================\n"
+
+/*Internal function code macros*/
 
 #define OP_ASM_CODE\
-	"# Operators '+', '-', '*'" _OPSEP"\n"\
+	"# Operators '+', '-', '*'" _OPSEP\
 	"LABEL !*op_asm\n"\
 	"PUSHFRAME\n"\
 	"\n"\
@@ -56,8 +58,8 @@
 	"	JUMP !*op_asm_do\n"\
 	"\n"\
 	"LABEL !*op_asm_do\n"\
-	"PUSHS LF@op1\n"\
-	"PUSHS LF@op2\n"\
+	"	PUSHS LF@op1\n"\
+	"	PUSHS LF@op2\n"\
 	"\n"\
 	"JUMPIFEQ !*op_asm_add LF@rule string@add\n"\
 	"JUMPIFEQ !*op_asm_sub LF@rule string@sub\n"\
@@ -66,22 +68,22 @@
 	"JUMP !*sem_error_eight\n"\
 	"\n"\
 	"LABEL !*op_asm_add\n"\
-	"ADDS\n"\
-	"JUMP !*op_asm_end\n"\
+	"	ADDS\n"\
+	"	JUMP !*op_asm_end\n"\
 	"\n"\
 	"LABEL !*op_asm_sub\n"\
-	"SUBS\n"\
-	"JUMP !*op_asm_end\n"\
+	"	SUBS\n"\
+	"	JUMP !*op_asm_end\n"\
 	"\n"\
 	"LABEL !*op_asm_mul\n"\
-	"MULS\n"\
+	"	MULS\n"\
 	"\n"\
 	"LABEL !*op_asm_end\n"\
 	"POPFRAME\n"\
 	"RETURN\n" _BFNEND
 
 #define OP_DIV_CODE\
-	"# Operator '/'" _OPSEP"\n"\
+	"# Operator '/'" _OPSEP\
 	"LABEL !*op_div\n"\
 	"PUSHFRAME\n"\
 	"\n"\
@@ -129,17 +131,16 @@
 	"	JUMP !*op_div_do\n"\
 	"\n"\
 	"LABEL !*op_div_do\n"\
-	"PUSHS LF@op1\n"\
-	"PUSHS LF@op2\n"\
-	"\n"\
-	"DIVS\n"\
+	"	PUSHS LF@op1\n"\
+	"	PUSHS LF@op2\n"\
+	"	DIVS\n"\
 	"\n"\
 	"LABEL !*op_div_end\n"\
 	"POPFRAME\n"\
 	"RETURN\n" _BFNEND
 
 #define OP_DOT_CODE\
-	"# Operator '.'" _OPSEP"\n"\
+	"# Operator '.'" _OPSEP\
 	"LABEL !*op_dot\n"\
 	"PUSHFRAME\n"\
 	"\n"\
@@ -176,18 +177,17 @@
 	"	JUMP !*op_dot_check_op1_string\n"\
 	"\n"\
 	"LABEL !*op_dot_do\n"\
-	"PUSHS LF@op1\n"\
-	"PUSHS LF@op2\n"\
-	"\n"\
-	"CONCAT LF@res LF@op1 LF@op2\n"\
-	"PUSHS LF@res\n"\
+	"	PUSHS LF@op1\n"\
+	"	PUSHS LF@op2\n"\
+	"	CONCAT LF@res LF@op1 LF@op2\n"\
+	"	PUSHS LF@res\n"\
 	"\n"\
 	"LABEL !*op_dot_end\n"\
 	"POPFRAME\n"\
 	"RETURN\n" _BFNEND
 
 #define OP_EQ_NEQ_CODE\
-	"# Operators '===', '!=='" _OPSEP"\n"\
+	"# Operators '===', '!=='" _OPSEP\
 	"LABEL !*op_eq_neq\n"\
 	"PUSHFRAME\n"\
 	"\n"\
@@ -224,18 +224,18 @@
 		"JUMP !*op_eq_neq_end\n"\
 	"\n"\
 	"LABEL !*op_eq_neq_false\n"\
-	"PUSHS bool@false\n"\
-	"JUMP !*op_eq_neq_end\n"\
+	"	PUSHS bool@false\n"\
+	"	JUMP !*op_eq_neq_end\n"\
 	"\n"\
 	"LABEL !*op_eq_neq_true\n"\
-	"PUSHS bool@true\n"\
+	"	PUSHS bool@true\n"\
 	"\n"\
 	"LABEL !*op_eq_neq_end\n"\
 	"POPFRAME\n"\
 	"RETURN\n" _BFNEND
 
 #define OP_COMPARE_CODE\
-	"# Operator '>', '<', '>=', '<='" _OPSEP"\n"\
+	"# Operator '>', '<', '>=', '<='" _OPSEP\
 	"LABEL !*op_rel\n"\
 	"PUSHFRAME\n"\
 	"\n"\
@@ -385,7 +385,7 @@
 	"RETURN\n" _BFNEND
 
 #define ERROR_LABELS_CODE\
-	"# Runtime error labels" _OPSEP"\n"\
+	"# Runtime error labels" _OPSEP\
 	"LABEL !*sem_error_three\n"\
 	"EXIT int@3\n"\
 	"LABEL !*sem_error_four\n"\
@@ -400,7 +400,7 @@
 	"EXIT int@8\n" _BFNEND
 
 #define EXPR_RES_BOOL_CHECK_CODE\
-	"# Expression result bool convert" _OPSEP"\n"\
+	"# Expression result bool convert" _OPSEP\
 	"LABEL !*expr_res_bool_convert\n"\
 	"PUSHFRAME\n"\
 	"\n"\
@@ -415,39 +415,44 @@
 	"JUMP !*sem_error_seven\n"\
 	"\n"\
 	"LABEL !*erbc_type_string\n"\
-	"JUMPIFEQ !*erbc_false GF@EXPR_VAL string@\n"\
-	"JUMPIFEQ !*erbc_false GF@EXPR_VAL string@0\n"\
-	"JUMP !*erbc_true\n"\
+	"	JUMPIFEQ !*erbc_false GF@EXPR_VAL string@\n"\
+	"	JUMPIFEQ !*erbc_false GF@EXPR_VAL string@0\n"\
+	"	JUMP !*erbc_true\n"\
 	"\n"\
 	"LABEL !*erbc_type_int\n"\
-	"JUMPIFEQ !*erbc_false GF@EXPR_VAL int@0\n"\
-	"JUMP !*erbc_true\n"\
+	"	JUMPIFEQ !*erbc_false GF@EXPR_VAL int@0\n"\
+	"	JUMP !*erbc_true\n"\
 	"\n"\
 	"LABEL !*erbc_type_float\n"\
-	"JUMPIFEQ !*erbc_false GF@EXPR_VAL float@0x0.0p+0\n"\
-	"JUMP !*erbc_true\n"\
+	"	JUMPIFEQ !*erbc_false GF@EXPR_VAL float@0x0.0p+0\n"\
+	"	JUMP !*erbc_true\n"\
 	"\n"\
 	"LABEL !*erbc_false\n"\
-	"MOVE GF@EXPR_VAL bool@false\n"\
-	"JUMP !*erbc_end\n"\
+	"	MOVE GF@EXPR_VAL bool@false\n"\
+	"   JUMP !*erbc_end\n"\
+	"\n"\
 	"LABEL !*erbc_true\n"\
-	"MOVE GF@EXPR_VAL bool@true\n"\
+	"	MOVE GF@EXPR_VAL bool@true\n"\
+	"\n"\
 	"LABEL !*erbc_end\n"\
 	"POPFRAME\n"\
 	"RETURN\n" _BFNEND
 
 #define RETURN_SEMANTIC_CHECK\
-	"# Return semantic check" _OPSEP"\n"\
+	"# Return semantic check" _OPSEP\
 	"LABEL !*return_semantic_check\n"\
 	"PUSHFRAME\n"\
+	"\n"\
 	"DEFVAR LF@func_type\n"\
 	"POPS LF@func_type\n"\
 	"DEFVAR LF@func_qmark\n"\
 	"POPS LF@func_qmark\n"\
 	"TYPE GF@EXPR_TYPE GF@EXPR_VAL\n"\
+	"\n"\
 	"JUMPIFEQ !*rs_ok GF@EXPR_TYPE LF@func_type\n"\
 	"JUMPIFNEQ !*sem_error_four LF@func_qmark bool@true\n"\
 	"JUMPIFNEQ !*sem_error_four GF@EXPR_TYPE string@nil\n"\
+	"\n"\
 	"LABEL !*rs_ok\n"\
 	"POPFRAME\n"\
 	"RETURN\n" _BFNEND

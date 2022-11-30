@@ -6,15 +6,14 @@
 #include <stdlib.h>
 #include "parser.h"
 
-#define TAB_SIZE 8
-
-/*
- * Expression parsing.
+/**
+ * Expression rule.
+ * @param pd
  */
 int64_t expression(ParserData* pd);
 
 /**
- * @enum Operators of the precedence table.
+ * Operators of the precedence table.
  */
 typedef enum {
     OPER_ADD,       // +
@@ -38,20 +37,23 @@ typedef enum {
     DATA_NULL,      // null
     
     OPER_DOLLAR,    // $
-    OPER_REDUCE,   // reduce (Must be < OPER_EXPR !!)
-    OPER_E       // E
+    OPER_REDUCE,    // reduce (Must be < OPER_EXPR !!)
+    OPER_E          // E
 } Oper_type;
 
 /**
- * @enum Sign types.
+ * Sign types.
  */
 typedef enum {
     SHIFT,         // <
-    REDUCE,         // >
+    REDUCE,        // >
     EQUAL,         // =
-    NONE          // None
+    NONE           // None
 } Sign_type;
 
+/**
+ * Precedence table index.
+ */
 typedef enum {
     INDEX_0,
     INDEX_1,
@@ -64,9 +66,9 @@ typedef enum {
 } Index_num;
 
 /**
- * @enum Expression rules.
+ * Expression rules.
  */
-typedef enum { //<-- assembler code depends on order of those
+typedef enum { //<-- generated code depends on order of these
     RULE_ID,        // E -> id
     RULE_BR,        // E -> (E)
     RULE_ADD,       // E -> E + E

@@ -4,7 +4,9 @@
 #include <stdbool.h>
 #include <inttypes.h>
 
-//Struct of the allocation for string.
+/**
+ * Dynamic string struct.
+ */
 typedef struct
 {
   	char*    ptr;                 // String. 
@@ -12,24 +14,61 @@ typedef struct
 	int64_t cap;  // Size of the allocated memory.
 } str_t;
 
-//Free memory that was allocated for the string.
+/**
+ * Destructs dynamic string.
+ * @param str string
+ */
 void str_dest(str_t* str);
 
+/**
+ * Concatenates dynamic string with C-string.
+ * @param dst destination
+ * @param src source 'C-string'
+ * @return True if success.
+ */
 bool str_concat(str_t* dst, const char* src);
 
-//Preparing to write data.
+/**
+ * Clears contents of dynamic string.
+ * @param str string
+ */
 void str_clear(str_t* str);
 
-//Initialization of string.
+/**
+ * Constructs dynamic string.
+ * @param str string
+ * @return True if success.
+ */
 bool str_const(str_t* str);
 
-//Add char to end of string.
-bool str_add_sign(str_t* str, char new_char); 
+/**
+ * Appends character to dynamic string.
+ * @param str string
+ * @param sign sign
+ * @return True if success.
+ */
+bool str_add_sign(str_t* str, char sign); 
 
-bool str_cmp(str_t* first, const char* second);
+/**
+ * Compares dynamic string to C-string
+ * @param dst destination
+ * @param src source 'C-string'
+ * @return True if success.
+ */
+bool str_cmp(str_t* dst, const char* src);
 
+/**
+ * Creates deep copy of dynamic string.
+ * @param dst destination
+ * @param src source
+ */
 void str_cpy(str_t* dst, str_t* src);
 
+/**
+ * Returns last sign of dynamic string.
+ * @param str string
+ * @return Last sign.
+ */
 char str_last_sign(str_t* str);
 
 #endif //__STRING_T__

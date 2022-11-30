@@ -1,7 +1,8 @@
 #ifndef __MACROS_H__
 #define __MACROS_H__
 
-/////////////////////////////////////////////////////////////////////////
+/*Helper macros for use in different parts of compiler*/
+
 
 #define INTERNAL(_expr) if (!(_expr)) { INTERNAL_ERROR_RET(); } else {}
 
@@ -29,9 +30,8 @@
 
 /////////////////////////////////////////////////////////////////////////
 
-#define GET_NEXT_TOKEN\
-	do {\
-		if ((RES = _get_next_token(pd)) != SUCCESS)\
+#define GET_NEXT_TOKEN do {\
+		if ((RES = parser_get_token(pd)) != SUCCESS)\
 			return RES;\
 	} while(0)
 
@@ -67,8 +67,8 @@
 
 /////////////////////////////////////////////////////////////////////////
 
-#define MODE_FUNCTION_PASS 0
-#define MODE_MAIN_PASS 1
+#define MODE_MAIN_PASS 	   0
+#define MODE_FUNCTION_PASS 1
 
 /////////////////////////////////////////////////////////////////////////
 #define TK_STR(_tk) _tk.string.ptr
@@ -131,8 +131,7 @@
 #define FIND_ID(_id) symtable_find(pd->in_local_scope ? &pd->localTable : &pd->globalTable, _id)
 #define FIND_CURRENT_ID FIND_ID(TK_STR(pd->token))
 
-#define ADD_ID(_dst, _id, _table)\
-	do {\
+#define ADD_ID(_dst, _id, _table) do {\
 		bool _err = false;\
 		_dst = symtable_add_symbol(_table, _id, &_err);\
 		if (_err || !_dst)\

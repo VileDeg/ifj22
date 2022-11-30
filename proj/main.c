@@ -5,9 +5,11 @@
 #include "parser.h"
 #include "codegen.h"
 
+/*Helper functions for debugging*/
+
 #define MAX_FILES 16
 static FILE* open_files[MAX_FILES];
-static int filesopened = 0;
+static int64_t filesopened = 0;
 
 #define FILE_PREF "../"
 
@@ -23,19 +25,23 @@ static FILE* open_file(const char* filepath, const char* modes)
 
 static void close_all_files()
 {
-    for (int i = 0; i < filesopened; i++)
+    for (int64_t i = 0; i < filesopened; i++)
         fclose(open_files[i]);
 }
 
-int main(int argc, char** argv)
+/*Program start*/
+
+int64_t main(int64_t argc, char** argv)
 {
-    int ret = 0;
+    int64_t ret = 0;
     {
+        /*In case of debugging, program is executed with '-src' flag.
+          It takes input from a file and outputs various debug information
+          to different files.*/
         if (argc > 1 && !strcmp(argv[1], "-src"))
-        {
+        {   
             populate_rule_definitions();
             FILE* source  = open_file(FILE_PREF "input.php", "r");
-            //FILE* codegenout = open_file(FILE_PREF "code.ifjc22", "w");
             FILE* scanout = open_file(FILE_PREF "scanner.txt", "w");
             FILE* parsout = open_file(FILE_PREF "parser.txt", "w");
             FILE* exprout = open_file(FILE_PREF "expr.txt", "w");
@@ -46,7 +52,7 @@ int main(int argc, char** argv)
             }
             debug_terminate(scanout, parsout);
         }
-        else
+        else //Normal (non-debug) mode.
         {
             set_codegen_out(stdout);
             ret = parse_file(stdin);

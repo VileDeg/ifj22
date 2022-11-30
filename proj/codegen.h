@@ -22,12 +22,15 @@
 	#define CODEGEN(_funcptr, ...) if (!_funcptr(__VA_ARGS__)) return ERROR_INTERNAL
 #endif //VILE_DEBUG
 
-
+/**
+ * Code generator output(for debug).
+ * @param out
+ */
 void set_codegen_out(FILE* out);
 
 /**
  * Generation of header code.
- * @return
+ * @return true if success.
  */
 bool emit_header();
 
@@ -81,11 +84,11 @@ bool emit_function_open(const char* name);
  */
 bool emit_function_close(const char* name);
 
-// /**
-//  * Generation of default variable value.
-//  * @param type
-//  * @return true if success.
-//  */
+/**
+ * Generation of default variable value.
+ * @param type
+ * @return true if success.
+ */
 bool emit_default_value(DataType type);
 
 /**
@@ -103,12 +106,12 @@ bool emit_function_result_declaration(DataType type);
  */
 bool emit_define_var(const char* var, bool in_local_scope);
 
-// /**
-//  * Giving a variable default value.
-//  * @param type
-//  * @param var
-//  * @return true if success.
-//  */
+/**
+ * Giving a variable default value.
+ * @param type
+ * @param var
+ * @return true if success.
+ */
 bool emit_var_default_value(DataType type, const char* var);
 
 /**
@@ -119,7 +122,6 @@ bool emit_var_default_value(DataType type, const char* var);
 bool emit_function_call(const char* name);
 
 
-//bool emit_function_result_assign(const char* var, DataType var_type, DataType res_type);
 bool emit_function_result_assign(const char* var_name, bool local_frame);
 
 /**
@@ -142,21 +144,6 @@ bool emit_value_from_token(Token token, bool local_frame);
  * @return true if success.
  */
 bool emit_function_before_params();
-
-// /**
-//  * Generation of parameter type conversion.
-//  * @param from
-//  * @param to
-//  * @param index
-//  * @return true if success.
-//  */
-// bool emit_function_convert_passed_param(DataType from, DataType to, int64_t index);
-
-
-// inline bool emit_expr_res_bool_check()
-// {
-// 	EMIT_NL(EXPR_RES_BOOL_CHECK);
-// }
 
 /**
  * Generation of passing parameters into function.

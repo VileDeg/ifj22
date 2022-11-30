@@ -1,6 +1,9 @@
 #ifndef __VECTOR_T__
 #define __VECTOR_T__
 
+/*Vector ADT(Abstract Data Type) for variable type.
+  Implemented as DLL(Doubly-linked list). Is used mostly as stack.*/
+
 #define GENERATE_VECTOR_DECLARATION(TDATA, SUFF)\
 \
 typedef struct SUFF##elem_t\
@@ -14,7 +17,6 @@ typedef struct\
 {\
     SUFF##elem_t* front;\
     SUFF##elem_t* back;\
-    int64_t len;\
 } SUFF##vec_t;\
 \
 void SUFF##vec_init(SUFF##vec_t* vec);\
@@ -25,15 +27,14 @@ bool SUFF##vec_push_front(SUFF##vec_t* vec, TDATA data);\
 bool SUFF##vec_push_back(SUFF##vec_t* vec, TDATA data);\
 TDATA SUFF##vec_pop_front(SUFF##vec_t* vec);\
 TDATA SUFF##vec_pop_back(SUFF##vec_t* vec);\
-TDATA SUFF##vec_extract(SUFF##vec_t* vec, SUFF##elem_t* elem);\
 void SUFF##vec_dispose(SUFF##vec_t* vec, void(*dest)(TDATA*));
+
 
 #define GENERATE_VECTOR_DEFINITION(TDATA, SUFF)\
 \
 void SUFF##vec_init(SUFF##vec_t* vec)\
 {\
     vec->front = vec->back = NULL;\
-    vec->len = 0;\
 }\
 TDATA SUFF##vec_front(SUFF##vec_t* vec)\
 {\
@@ -62,7 +63,6 @@ bool SUFF##vec_push_front(SUFF##vec_t* vec, TDATA data)\
     vec->front = _new;\
     if (!vec->back)\
         vec->back = vec->front;\
-    vec->len++;\
     return true;\
 }\
 \
@@ -78,7 +78,6 @@ bool SUFF##vec_push_back(SUFF##vec_t* vec, TDATA data)\
     vec->back = _new;\
     if (!vec->front)\
         vec->front = vec->back;\
-    vec->len++;\
     return true;\
 }\
 \
@@ -92,7 +91,6 @@ TDATA SUFF##vec_pop_front(SUFF##vec_t* vec)\
         vec->back = NULL;\
     vec->front = vec->front->prev;\
     free(_tofree);\
-    vec->len--;\
     return data;\
 }\
 \
@@ -106,24 +104,7 @@ TDATA SUFF##vec_pop_back(SUFF##vec_t* vec)\
         vec->front = NULL;\
     vec->back = vec->back->next;\
     free(_tofree);\
-    vec->len--;\
     return data;\
-}\
-\
-TDATA SUFF##vec_extract(SUFF##vec_t* vec, SUFF##elem_t* elem)\
-{\
-    if (elem->prev)\
-        elem->prev->next = elem->next;\
-    else\
-        vec->back = elem->next;\
-    if (elem->next)\
-        elem->next->prev = elem->prev;\
-    else\
-        vec->front = elem->prev;\
-    TDATA _data = elem->data;\
-    free(elem);\
-    vec->len--;\
-    return _data;\
 }\
 \
 void SUFF##vec_dispose(SUFF##vec_t* vec, void(*dest)(TDATA*))\
