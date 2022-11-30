@@ -8,6 +8,9 @@
 
 GENERATE_VECTOR_DECLARATION(Token, tk);
 
+/**
+ * Data for source code parsing.
+ */
 typedef struct
 {
     TSymtable globalTable;
@@ -21,23 +24,33 @@ typedef struct
 
     tkvec_t tk_vec;
     tkelem_t* front_ptr;
-
-    bool in_param_list;
-    bool block_next_token;
-    bool in_local_scope;
-    bool return_found;
-    bool var_not_yet_def;
+    
     int mode;
 
+    bool in_param_list;
+    bool in_local_scope;
     bool in_if_while;
+    bool block_next_token;
+    bool return_found;
+    bool var_not_yet_def;
     
-    int64_t  param_index;
-    int64_t  label_index;
-    int64_t  label_deep;
+    int64_t param_index;
+    int64_t label_index;
+    int64_t label_deep;
 } ParserData;
 
-int parse_file(FILE* fptr);
+/**
+ * Entry point for code parsing.
+ * @param fptr file pointer
+ * @return Error code.
+ */
+int64_t parse_file(FILE* fptr);
 
-int _get_next_token(ParserData* pd);
+/**
+ * Encapsulates scanner function to get next token.
+ * @param pd parser data
+ * @return Error code.
+ */
+int64_t parser_get_token(ParserData* pd);
 
 #endif // __PARSER_H__
