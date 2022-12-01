@@ -343,16 +343,16 @@ bool stack_push_after_top_term(symvec_t* stack, Symbol sym)
 	return false;
 }
 
-#define RES result
+#if 1
+    #define ERROR_RET(_retcode, ...) do {\
+            symvec_dispose(&stack, NULL);\
+            PRINT_ERROR_RET(_retcode, __VA_ARGS__);\
+            return _retcode;\
+        } while(0)
 
-#define ERROR_RET(_retcode, ...) do {\
-		symvec_dispose(&stack, NULL);\
-        PRINT_ERROR_RET(_retcode, __VA_ARGS__);\
-		return _retcode;\
-	} while(0)
-
-#define RESULT(_funccall, ...)\
-    if ((RES = _funccall)) ERROR_RET(RES, __VA_ARGS__); else {} 
+    #define RESULT(_funccall, ...)\
+        if ((RES = _funccall)) ERROR_RET(RES, __VA_ARGS__); else {} 
+#endif
 
 int64_t expression(ParserData* pd) 
 {

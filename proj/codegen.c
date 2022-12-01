@@ -5,21 +5,25 @@
 static str_t s_Code;
 static FILE* s_CodegenOut = NULL;
 
-#define EMIT(_text)\
-    if (!str_concat(&s_Code, (_text))) return false; else {}\
-	code_generator_flush(s_CodegenOut); 
+#if 1 /* Macros printing code to output stream */
+    #define EMIT(_text)\
+        if (!str_concat(&s_Code, (_text))) {\
+            return false; } else {}\
+        code_generator_flush(); 
 
-#define EMIT_NL(_text)\
-        EMIT(_text"\n");
+    #define EMIT_NL(_text)\
+            EMIT(_text"\n");
 
-#define MAX_DIGITS 64
+    #define MAX_DIGITS 64
 
-#define EMIT_INT(_number) do {\
-        char _str[MAX_DIGITS];\
-        sprintf(_str, "%ld", (_number));\
-        EMIT(_str);\
-    } while (0)
+    #define EMIT_INT(_number) do {\
+            char _str[MAX_DIGITS];\
+            sprintf(_str, "%ld", (_number));\
+            EMIT(_str);\
+        } while (0)
+#endif
 
+/* Function label automatic extention */
 #define _FLBEXT ""
 
 void set_codegen_out(FILE* out)
@@ -81,15 +85,16 @@ bool code_generator_init()
     return true;
 }
 
-void code_generator_terminate() 
-{
-    str_dest(&s_Code);
-}
-
 void code_generator_flush() 
 {
     fprintf(s_CodegenOut, "%s", s_Code.ptr);
     str_clear(&s_Code);
+}
+
+void code_generator_terminate() 
+{
+    code_generator_flush();
+    str_dest(&s_Code);
 }
 
 bool emit_clear_stack()

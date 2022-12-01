@@ -4,9 +4,9 @@
 #define _BFNBEG(_name) "# Function " _name " <builtin> ===================================\n"
 #define _BFNEND "\n"
 
-/*Built-in function code macros*/
+/* BUILT-IN FUNCTIONS CODE MACROS */
 
-/// function reads() : ?string
+// function reads() : ?string
 #define FUNCTION_READS              \
 	_BFNBEG("reads")\
 	"LABEL !reads\n"            \
@@ -16,7 +16,7 @@
 	"POPFRAME\n"                \
 	"RETURN\n" _BFNEND
 
-/// function readi() : ?int
+// function readi() : ?int
 #define FUCNTION_READI          \
 	_BFNBEG("readi")\
 	"LABEL !readi\n"        \
@@ -26,7 +26,7 @@
 	"POPFRAME\n"            \
 	"RETURN\n" _BFNEND
 
-/// function readf() : ?float
+// function readf() : ?float
 #define FUNCTION_READF              \
 	_BFNBEG("readf")\
 	"LABEL !readf\n"            \
@@ -36,7 +36,7 @@
 	"POPFRAME\n"                \
 	"RETURN\n" _BFNEND
 
-/// function write ( term1 , term2 , ..., term𝑛 ) : void
+// function write ( term1 , term2 , ..., term𝑛 ) : void
 #define FUNCTION_WRITE                              \
 	_BFNBEG("write")\
 	"LABEL !write\n"                            \
@@ -58,7 +58,7 @@
 	"POPFRAME\n"                                \
 	"RETURN\n" _BFNEND
 
-/// function floatval(term) : float
+// function floatval(term) : float
 #define FUNCTION_FLOATVAL\
     _BFNBEG("floatval")\
     "LABEL !floatval\n" \
@@ -92,7 +92,7 @@
     "POPFRAME\n"\
     "RETURN\n" _BFNEND
 
-/// function intval(term) : int
+// function intval(term) : int
 #define FUNCTION_INTVAL\
     _BFNBEG("intval")\
     "LABEL !intval\n" \
@@ -125,7 +125,7 @@
     "LABEL !intval_end\n"\
     "POPFRAME\n"\
     "RETURN\n" _BFNEND
-/// function strval(term) : string
+// function strval(term) : string
 #define FUNCTION_STRVAL\
     _BFNBEG("strval")\
     "LABEL !strval\n" \
@@ -155,7 +155,7 @@
     "POPFRAME\n"\
     "RETURN\n" _BFNEND
 
-/// function strlen(string $𝑠) : int
+// function strlen(string $𝑠) : int
 #define FUNCTION_STRLEN                 \
 	_BFNBEG("strlen")\
 	"LABEL !strlen\n"               \
@@ -165,7 +165,7 @@
 	"POPFRAME\n"                    \
 	"RETURN\n" _BFNEND
 
-/// function substring(string $𝑠, int $𝑖, int $𝑗) : ?string
+// function substring(string $𝑠, int $𝑖, int $𝑗) : ?string
 #define FUNCTION_SUBSTRING                              \
 	_BFNBEG("substring")\
 	"LABEL !substring\n"                            \
@@ -205,7 +205,7 @@
 	"POPFRAME\n"                                    \
 	"RETURN\n" _BFNEND
 
-/// function ord(string $c) : int
+// function ord(string $c) : int
 #define FUNCTION_ORD                                \
 	_BFNBEG("ord")\
 	"LABEL !ord\n"                              \
@@ -226,7 +226,7 @@
 	"POPFRAME\n"                                \
 	"RETURN\n" _BFNEND
 
-/// function chr(int $i) : string
+// function chr(int $i) : string
 #define FUNCTION_CHR                            \
 	_BFNBEG("chr")\
 	"LABEL !chr\n"                          \

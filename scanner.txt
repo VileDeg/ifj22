@@ -2,7 +2,7 @@
 
 <?php
 declare(strict_types=1);
-function f(int $x) : int {
+function f(?int $x) : ?int {
     if($x === 0) {
         return 0;
     } else {
@@ -17,6 +17,15 @@ function g(int $x) : int {
 }
 $res = g(10);
 write($res, "\n");
+
+2 + 2;
+
+reads();
+4;
+$x;
+0.0;
+return 2 + 4;
+
 
 
 --------------------List of tokens: --------------------
@@ -109,6 +118,25 @@ int  deci string       keyword      type
                          string          
                                     right_bracket   
                                     semicolon       
+2                                   integer         
+                                    plus            
+2                                   integer         
+                                    semicolon       
+          reads                     ID              
+                                    left_bracket    
+                                    right_bracket   
+                                    semicolon       
+4                                   integer         
+                                    semicolon       
+          $x                        ID              
+                                    semicolon       
+     0                              double          
+                                    semicolon       
+                       return       keyword         
+2                                   integer         
+                                    plus            
+4                                   integer         
+                                    semicolon       
                                     EOF             
                                     prolog          
           declare                   ID              
@@ -228,6 +256,16 @@ int  deci string       keyword      type
                          string          
                                     right_bracket   
                                     semicolon       
-                                    EOF             
+2                                   integer         
+                                    plus            
+2                                   integer         
+                                    semicolon       
+          reads                     ID              
+                                    left_bracket    
+                                    right_bracket   
+                                    semicolon       
+4                                   integer         
+                                    semicolon       
+          $x                        ID              
 
 

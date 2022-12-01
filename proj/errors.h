@@ -14,7 +14,7 @@
 
 #define ERROR_INTERNAL        99    //Internal error (allocation fail or other).
 
-#ifdef VILE_DEBUG //Macro for compiling in debug mode.
+#ifdef VILE_DEBUG //Macro for compilation in debug mode.
     #include <signal.h>
 
     #define VILE_DEBUGBRK raise(SIGTRAP)

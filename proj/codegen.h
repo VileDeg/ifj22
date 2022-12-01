@@ -11,7 +11,7 @@
 #include "expression.h"
 #include "macros.h"
 
-#ifdef VILE_DEBUG
+#ifdef VILE_DEBUG /* Helper macro for calling code generator functions */
 	#define CODEGEN(_funcptr, ...) do {\
 		if (pd->mode == MODE_MAIN_PASS)\
 		{\

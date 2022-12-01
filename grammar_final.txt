@@ -13,18 +13,18 @@
 13. <rvalue>    -> <expression>
 14. <params>    -> <type> $ID <param_n>
 15. <params>    -> ε
-16. <param_n>   -> , <type> $ID <param_n>
+16. <param_n>   -> , <params>
 17. <param_n>   -> ε
 18. <func_type> -> void
 19. <func_type> -> <type>
 20. <args>      -> <term> <arg_n>
 21. <args>      -> ε
-22. <arg_n>     -> , <term> <arg_n>
+22. <arg_n>     -> , <args>
 23. <arg_n>     -> ε
-24. <term>      -> INT_VAL
-25. <term>      -> FLOAT_VAL
-26. <term>      -> STRING_VAL
-27. <term>      -> null
+24. <term>      -> INT_LITERAL
+25. <term>      -> FLOAT_LITERAL
+26. <term>      -> STRING_LITERAL
+27. <term>      -> NULL
 28. <term>      -> $ID
 29. <type>      -> int
 30. <type>      -> float

@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-function f(int $x) : int {
+function f(?int $x) : ?int {
     if($x === 0) {
         return 0;
     } else {
@@ -15,3 +15,11 @@ function g(int $x) : int {
 }
 $res = g(10);
 write($res, "\n");
+
+2 + 2;
+
+reads();
+4;
+$x;
+0.0;
+return 2 + 4;

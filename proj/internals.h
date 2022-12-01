@@ -5,7 +5,7 @@
 
 #define _OPSEP " ===========================\n"
 
-/*Internal function code macros*/
+/* INTERNAL FUNCTIONS CODE MACROS */
 
 #define OP_ASM_CODE\
 	"# Operators '+', '-', '*'" _OPSEP\

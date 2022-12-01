@@ -192,7 +192,7 @@ void debug_terminate(FILE* scan_out, FILE* pars_out)
 static const char* s_RulesFilepath = "../LL-grammar.txt";
 
 #define RULE_EXP_MXLEN 256
-#define NUM_RULES 35
+#define NUM_RULES 31
 
 static struct {
     char rule_name [NUM_RULES][RULE_EXP_MXLEN];

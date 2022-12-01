@@ -12,34 +12,36 @@ GENERATE_VECTOR_DEFINITION(Token, tk);
 
 int64_t parser_get_token(ParserData* pd)
 {
-	int64_t RES = SUCCESS;
-	if (!pd->block_next_token) 
+	RULE_OPEN;
 	{
-		switch (pd->mode)
+		if (!pd->block_next_token) 
 		{
-		case MODE_FUNCTION_PASS:
-			if ((RES = scanner_get_next_token(&pd->token)) != SUCCESS)
-				return RES;
-			PUSH_TOKEN_BACK;
-			break;
-		case MODE_MAIN_PASS:
-			VILE_ASSERT(pd->front_ptr, "You better watch your pointers.");
-			VEC_NEXT_TOKEN;
-			break;
-		default:
-			INTERNAL_ERROR_RET("Unsupported mode.");
-			break;
-		}
+			switch (pd->mode)
+			{
+			case MODE_FUNCTION_PASS:
+				if ((RES = scanner_get_next_token(&pd->token)) != SUCCESS)
+					return RES;
+				PUSH_TOKEN_BACK;
+				break;
+			case MODE_MAIN_PASS:
+				VILE_ASSERT(pd->front_ptr, "");
+				VEC_NEXT_TOKEN;
+				break;
+			default:
+				INTERNAL_ERROR_RET("Unsupported mode.");
+				break;
+			}
 
-		if (g_DebugOn) 
-		{ 
-			set_debug_out(get_scan_out());
-			debug_print_token(pd->token); 
-		}
-	} 
-	else
-		pd->block_next_token = false;
-	return SUCCESS;
+			if (g_DebugOn) 
+			{ 
+				set_debug_out(get_scan_out());
+				debug_print_token(pd->token); 
+			}
+		} 
+		else
+			pd->block_next_token = false;
+	}
+	RULE_CLOSE;
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -116,7 +118,6 @@ static bool init_data(ParserData* pd)
 static void free_data(ParserData* pd)
 {
 	symtable_dest(&pd->globalTable);
-
 	tkvec_dispose(&pd->tk_vec, token_dest);
 	VILE_ASSERT(tkvec_empty(&pd->tk_vec), "");
 }
@@ -230,26 +231,27 @@ static int64_t term(ParserData* pd)
 		TData* var = NULL;
 		switch (pd->token.type)
 		{
-			//<term> -> INT_VALUE
+			//<term> -> INT_VAL
 			case token_integer:
 				_DPRNR(0);
 				sign = 'i';	
 				break;
-			//<term> -> FLOAT_VALUE
+			//<term> -> FLOAT_VAL
 			case token_float:
 				_DPRNR(1);
 				sign = 'f';	
 				break;
-			//<term> -> STRING_VALUE
+			//<term> -> STRING_VAL
 			case token_string:
 				_DPRNR(2);
 				sign = 's';	
 				break;
-			//<term> -> NULL
+			//<term> -> null
 			case token_null:
 				_DPRNR(3);
 				goto null;
 				break;
+			//<term> -> $ID
 			case token_ID:
 				_DPRNR(4);
 
@@ -309,7 +311,7 @@ static int64_t args(ParserData* pd)
 				int64_t i = 0;
 				while (i < pd->param_index)
 				{
-					VILE_ASSERT(!tkvec_empty(&pd->tk_vec), "Do you think that's funny?");
+					VILE_ASSERT(!tkvec_empty(&pd->tk_vec), "Tk_vec empty.");
 					POP_TOKEN_BACK;
 					
 					{ CODEGEN(emit_function_pass_param_push, pd->token, pd->in_local_scope); }
@@ -357,8 +359,7 @@ static int64_t type(ParserData* pd)
 	#define NUM_F_TYPES 3
 	RULE_OPEN;
 	{
-		/*<type> ->  float / <type> ->  int / <type> ->  string
-		  <type> -> ?float / <type> -> ?int / <type> -> ?string*/
+		/* <type> -> float // <type> -> int // <type> -> string */
 
 		static const int64_t type_macro[NUM_F_TYPES] = { TYPE_FLOAT, TYPE_INT, TYPE_STRING };
 		
@@ -366,7 +367,7 @@ static int64_t type(ParserData* pd)
 
 		if (pd->token.questionmark)
 		{
-			//Means can be null!
+			//Means it can be null!
 			if (pd->current_func)
 				pd->current_func->qmark_type = true;
 			_rulenr += 3;
@@ -399,7 +400,7 @@ static int64_t type(ParserData* pd)
 		if (pd->in_param_list && pd->mode == MODE_FUNCTION_PASS) // If it's the type for func. parameter
 		{
 			if (!symtable_add_param(pd->current_func, type_macro[tnum], pd->token.questionmark))
-				INTERNAL_ERROR_RET("Not even funny anymore.");
+				INTERNAL_ERROR_RET("Internal error.");
 		}
 		else // If it's the return type of the current func.
 			pd->current_func->type = type_macro[tnum];
@@ -423,8 +424,8 @@ static int64_t rvalue(ParserData* pd)
 				if (next.type != token_left_bracket) //If next token is not '(' then it's not a function call,
 					return ERROR_SYNTAX;			 //so we return syntax error.
 				
-				if (!FIND_FUNC_ID) //Check if function was defined.
-					PRINT_ERROR_RET(ERROR_SEM_ID_DEF, "undefined function.");
+				if (!(pd->rhs_func = FIND_FUNC_ID)) //Check if function was defined.
+					PRINT_ERROR_RET(ERROR_SEM_ID_DEF, "Undefined function.");
 
 				if (pd->lhs_var) //If function is called as part of variable definition.
 						pd->lhs_var->type = pd->rhs_func->type;
@@ -489,7 +490,7 @@ static int64_t param_type(ParserData* pd)
 		NEXT_TK_CHECK_VAR_ID;
 
 		if (FIND_CURRENT_ID)
-			PRINT_ERROR_RET(ERROR_SEM_ID_DEF, "parameter already defined.");
+			PRINT_ERROR_RET(ERROR_SEM_ID_DEF, "Parameter already defined.");
 		TData* data = NULL;
 		ADD_CURRENT_ID(data);
 		int64_t sign = pd->current_func->params->ptr[pd->param_index];
@@ -524,7 +525,7 @@ static int64_t param_n(ParserData* pd)
 
 			NEXT_TK_CHECK_RULE(param_n);
 		}
-		//<param_n> -> eps
+		//<param_n> -> ε
 		else
 		{
 			_DPRNR(0);
@@ -552,7 +553,7 @@ static int64_t params(ParserData* pd)
 
 			NEXT_TK_CHECK_RULE(param_n);
 		}
-		//<params> -> eps
+		//<params> -> ε
 		else
 		{
 			_DPRNR(1);
@@ -814,9 +815,7 @@ static int64_t program(ParserData* pd)
 			NEXT_TK_CHECK_TOKEN(right_curly_bracket);
 			if (pd->in_local_scope && pd->current_func->type != TYPE_NULL 
 				&& !pd->return_found)
-			{	PRINT_ERROR_RET(ERROR_SEM_TYPE_COMPAT, 
-					"function is not 'void' but 'return' is missing."); 
-			}
+				{ PRINT_ERROR_RET(ERROR_SEM_TYPE_COMPAT, "function is not 'void' but 'return' is missing."); }
 			
 			{ CODEGEN(emit_function_close, pd->current_func->id); }
 			
@@ -860,7 +859,7 @@ static int64_t end(ParserData* pd)
 
 static int64_t begin(ParserData* pd)
 {
-	//<begin> -> <?php declare ( strict_types = 1 ) ; <program>
+	//<begin> -> <?php declare ( strict_types = 1 ) ; <program> <end>
 	RULE_OPEN;
 	{
 		pd->mode = MODE_FUNCTION_PASS;
@@ -868,7 +867,7 @@ static int64_t begin(ParserData* pd)
 		pd->mode = MODE_MAIN_PASS;
 		pd->front_ptr = pd->tk_vec.front;
 
-		{
+		{ //Check prologue sequence.
 			_DPRNR(0);
 			NEXT_TK_CHECK_TOKEN(prologue);
 			NEXT_TK_CHECK_TOKEN(ID);
@@ -906,9 +905,8 @@ int64_t parse_file(FILE* fptr)
 	scanner_set_file(fptr);
 
     int64_t result = begin(&pd);
-	code_generator_flush();
-	code_generator_terminate();
 
+	code_generator_terminate();
 	goto free;
 
 error:
