@@ -9,7 +9,7 @@
 GENERATE_VECTOR_DECLARATION(Token, tk);
 
 /**
- * Data for source code parsing.
+ * @struct Data for source code parsing.
  */
 typedef struct
 {
@@ -22,8 +22,8 @@ typedef struct
     TData* lhs_var;
     TData* current_func;
 
-    tkvec_t tk_vec;
-    tkelem_t* front_ptr;
+    tkvec_t tk_vec;      /* List of all tokens. Filled in 'function pass'. */
+    tkelem_t* front_ptr; /* Pointer to next token in list. */
     
     int mode;
 
@@ -32,7 +32,7 @@ typedef struct
     bool in_if_while;
     bool block_next_token;
     bool return_found;
-    bool var_not_yet_def;
+    bool var_not_yet_def; /* Used to prevent variable from being used in it's own definition. */
     
     int64_t param_index;
     int64_t label_index;

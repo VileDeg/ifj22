@@ -35,7 +35,7 @@ bool emit_header()
 {
     EMIT_NL(".IFJcode22\n"
            "DEFVAR GF@TMP_REG1\n"
-           "DEFVAR GF@TMP_REG\n"
+           "DEFVAR GF@TMP_REG2\n"
            "DEFVAR GF@TMP_REG3\n"
            "DEFVAR GF@EXPR_VAL\n"
            "DEFVAR GF@EXPR_TYPE\n"

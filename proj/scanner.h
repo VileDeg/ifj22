@@ -96,7 +96,7 @@ typedef enum {
 } Token_type;
 
 /**
- * Struct with token attributes
+ * @struct Struct with token attributes
  */
 typedef struct 
 {

@@ -5,7 +5,7 @@
 #include "parser.h"
 #include "codegen.h"
 
-/*Helper functions for debugging*/
+/* Helper functions for debugging */
 
 #define MAX_FILES 16
 static FILE* open_files[MAX_FILES];
@@ -29,7 +29,7 @@ static void close_all_files()
         fclose(open_files[i]);
 }
 
-/*Program start*/
+/* Program body */
 
 int64_t main(int64_t argc, char** argv)
 {
@@ -41,10 +41,10 @@ int64_t main(int64_t argc, char** argv)
         if (argc > 1 && !strcmp(argv[1], "-src"))
         {   
             populate_rule_definitions();
-            FILE* source  = open_file(FILE_PREF "input.php", "r");
+            FILE* source  = open_file(FILE_PREF "input.php"  , "r");
             FILE* scanout = open_file(FILE_PREF "scanner.txt", "w");
-            FILE* parsout = open_file(FILE_PREF "parser.txt", "w");
-            FILE* exprout = open_file(FILE_PREF "expr.txt", "w");
+            FILE* parsout = open_file(FILE_PREF "parser.txt" , "w");
+            FILE* exprout = open_file(FILE_PREF "expr.txt"   , "w");
 
             debug_setup(source, true, scanout, parsout, exprout, stdout);
             {
