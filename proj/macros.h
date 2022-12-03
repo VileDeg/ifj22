@@ -35,7 +35,7 @@
 	#define VEC_NEXT_TOKEN do {\
 			INTERNAL(!tkvec_empty(&pd->tk_vec));\
 			pd->token = pd->front_ptr->data;\
-			pd->front_ptr = pd->front_ptr->prev;\
+			pd->front_ptr = pd->front_ptr->next;\
 		} while (0)
 
 	/* Macro used in epsilon rules to avoid reading next token */

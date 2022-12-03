@@ -206,7 +206,7 @@ int64_t number_to_reduce(bool* reduceFound, symvec_t* stack)
             break;
         }
             
-        curr = curr->prev;
+        curr = curr->next;
         ++cnt;
     }
     return cnt;
@@ -236,8 +236,8 @@ int64_t reduce(ParserData* pd, symvec_t* stack)
     }
     else if (symbolCnt == 3 && reduceFound)
     {
-        oper1 = &stack->front->prev->prev->data;
-        oper2 = &stack->front->prev->data;
+        oper1 = &stack->front->next->next->data;
+        oper2 = &stack->front->next->data;
         oper3 = &stack->front->data;
         RuleType = rule_info(oper1, oper2, oper3);
     } 
@@ -302,7 +302,7 @@ DataType type_info(ParserData* pd, int64_t* errcode)
 
 Symbol* stack_get_top_term(symvec_t* stack) 
 {
-    for(symelem_t *tmp = stack->front; tmp != NULL; tmp = tmp->prev) 
+    for(symelem_t *tmp = stack->front; tmp != NULL; tmp = tmp->next) 
     {
         if(tmp->data.oper < OPER_REDUCE)
             return &tmp->data;
@@ -314,7 +314,7 @@ bool stack_push_after_top_term(symvec_t* stack, Symbol sym)
 {
     symelem_t* prev = NULL;
 
-	for (symelem_t* curr = stack->front; curr != NULL; curr = curr->prev)
+	for (symelem_t* curr = stack->front; curr != NULL; curr = curr->next)
 	{
 		if (curr->data.oper < OPER_REDUCE)
 		{
@@ -328,13 +328,13 @@ bool stack_push_after_top_term(symvec_t* stack, Symbol sym)
 
 			if (prev == NULL)
 			{
-				new->prev = stack->front;
+				new->next = stack->front;
 				stack->front = new;
 			}
 			else
 			{
-				new->prev = prev->prev;
-				prev->prev = new;
+				new->next = prev->next;
+				prev->next = new;
 			}
 			return true;
 		}
