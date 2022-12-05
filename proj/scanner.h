@@ -1,3 +1,10 @@
+/**
+ * Project: Implementation of imperative language IFJ22 compiler.
+ * 
+ * @author Vladyslav Kovalets (xkoval21@stud.fit.vutbr.cz)
+ * @author Vadim Goncearenco  (xgonce00@stud.fit.vutbr.cz)
+ */
+
 #ifndef _SCANNER
 #define _SCANNER
 

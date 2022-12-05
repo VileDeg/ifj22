@@ -1,3 +1,9 @@
+/**
+ * Project: Implementation of imperative language IFJ22 compiler.
+ * 
+ * @author Vadim Goncearenco (xgonce00@stud.fit.vutbr.cz)
+ */
+
 #ifndef __PARSER_H__
 #define __PARSER_H__
 

@@ -1,3 +1,10 @@
+/**
+ * Project: Implementation of imperative language IFJ22 compiler.
+ * 
+ * @author Tatiana Fedorova  (xfedor24@stud.fit.vutbr.cz)
+ * @author Vadim Goncearenco (xgonce00@stud.fit.vutbr.cz)
+ */
+
 #ifndef __PRECEDENCE_T__
 #define __PRECEDENCE_T__
 

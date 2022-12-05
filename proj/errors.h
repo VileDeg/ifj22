@@ -1,3 +1,10 @@
+/**
+ * Project: Implementation of imperative language IFJ22 compiler.
+ * 
+ * @author Vadim Goncearenco  (xgonce00@stud.fit.vutbr.cz)
+ * @author Vladyslav Kovalets (xkoval21@stud.fit.vutbr.cz)
+ */
+
 #ifndef __ERRORS_H__
 #define __ERRORS_H__
 

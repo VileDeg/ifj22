@@ -1,3 +1,9 @@
+/**
+ * Project: Implementation of imperative language IFJ22 compiler.
+ * 
+ * @author Vadim Goncearenco (xgonce00@stud.fit.vutbr.cz)
+ */
+
 #ifndef __VECTOR_T__
 #define __VECTOR_T__
 

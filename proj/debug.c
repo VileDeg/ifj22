@@ -1,3 +1,9 @@
+/**
+ * Project: Implementation of imperative language IFJ22 compiler.
+ * 
+ * @author Vadim Goncearenco  (xgonce00@stud.fit.vutbr.cz)
+ */
+
 #include <stdlib.h>
 #include <string.h>
 
