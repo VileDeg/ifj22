@@ -6,11 +6,11 @@
 #include "errors.h"
 #include "parser.h"
 
-// File to read from
-static FILE* s_Fptr;
 
-static unsigned int sign_counter = 0;
-static unsigned int line_counter = 1;
+static FILE* s_Fptr; // File to read from.
+
+static unsigned int sign_counter = 0; 
+static unsigned int line_counter = 1; 
 bool is_correct_file_start = false;
 
 void scanner_set_file(FILE* fptr)
@@ -18,7 +18,11 @@ void scanner_set_file(FILE* fptr)
     s_Fptr = fptr;
 }
 
-//Comparing string we've gotten and compares with KW. In case it isn't a KW -> it's an ID.
+
+/**
+ * Checks if string is keyword.
+ * @param str string
+*/
 bool determine_type(Token* tk)
 {
     bool flag_id = false;
@@ -60,7 +64,11 @@ bool determine_type(Token* tk)
     return 0; //Scanner tk was successful.
 }
 
-//Gets a character from stdin and track location of lines and signs.
+
+/**
+ * Gets a character from stdin and track location of lines and signs.
+ * @return character
+*/
 int getchar_modified()
 {
     int term_sign = getc(s_Fptr);
@@ -76,16 +84,19 @@ int getchar_modified()
     return term_sign;
 }
 
+
 void token_clear(Token *tk)
 {
-    str_clear(&tk->string);
-    tk->integer = tk->type = tk->questionmark = 0;
+    str_clear(&tk->string); 
+    tk->integer = tk->type = tk->questionmark = 0; 
 }
+
 
 void token_dest(Token* tk)
 {
-    str_dest(&tk->string);
+    str_dest(&tk->string); 
 }
+
 
 bool token_const(Token* tk)
 {
@@ -95,7 +106,8 @@ bool token_const(Token* tk)
     return true;
 }
 
-bool token_cpy(Token* dst, Token* src)
+
+bool token_cpy(Token* dst, Token* src) 
 {
     *dst = *src;
     if (!str_const(&dst->string))
@@ -104,22 +116,22 @@ bool token_cpy(Token* dst, Token* src)
     return true;
 }
 
-//Function for reading string from stdin and converting into tk.
+
 int scanner_get_next_token(Token* tk)
 {
     if (!token_const(tk))
         INTERNAL_ERROR_RET("Memory fail.");
     
     int current_state = STATE_START; 
-    int sign;                 //Sign which is taken one by one from the input string.
-    bool is_sign = false;     //For STATE_NUMBER case.
-    bool is_exponent = false; //For STATE_NUMBER_DOUBLE case.
-    char ascii_oct[3];        //For working with octal numbers in escape sequences.
-    char ascii_hex[2];        //For working with hex numbers in escape sequences.
+    int sign;                 // Character which is taken one by one from the input string.
+    bool is_sign = false;     // For STATE_NUMBER case.
+    bool is_exponent = false; // For STATE_NUMBER_DOUBLE case.
+    char ascii_oct[3];        // For working with octal numbers in escape sequences.
+    char ascii_hex[2];        // For working with hex numbers in escape sequences.
     
-    while(true)
+    while(true) 
     {
-        sign = getchar_modified();
+        sign = getchar_modified(); 
         
         if(is_correct_file_start == false)
         {
@@ -133,27 +145,16 @@ int scanner_get_next_token(Token* tk)
 
         switch(current_state)
         {
-            //Handling a situation with a coincidence of signs.
+
+            /* Character processing. */
             case(STATE_START):
-
-                // if (sign == '\n')
-                // {
-                //     tk->type = token_EOL;
-                //     return 0;
-                // }
-
+  
                 if (sign == '_' || isalpha(sign) || sign == '$')
                 {
                     str_add_sign(&tk->string, sign);
                     current_state = STATE_ID_OR_KEYWORD; 
                     break;
                 }
-
-                // if (sign == '$')
-                // {
-                //     current_state = STATE_ID_OR_KEYWORD;
-                //     break;
-                // }
                 
 
                 if (isdigit(sign))
@@ -170,6 +171,7 @@ int scanner_get_next_token(Token* tk)
                     
                     return 0;
                 }
+
 
                 if (sign == '-')
                 {
@@ -225,13 +227,15 @@ int scanner_get_next_token(Token* tk)
 
                     return 0;
                 }
-                    
+
+
                 if (sign == '{')
                 {
                     tk->type = token_left_curly_bracket;
 
                     return 0;
                 }
+
 
                 if (sign == '}')
                 {
@@ -240,19 +244,20 @@ int scanner_get_next_token(Token* tk)
                     return 0;
                 }
 
+
                 if (sign == '.')
                 {
                     tk->type = token_dot;
 
                     return 0;
                 }
-                
+
+
                 if (sign == '?')
                 {
                     int next = getchar_modified();
                     if (next == 'f' || next == 'i' || next == 's')
                         tk->questionmark = true;
-                        //str_add_sign(&tk->string, sign);
                         
                     ungetc(next, s_Fptr);
 
@@ -260,11 +265,13 @@ int scanner_get_next_token(Token* tk)
                     break;
                 }
 
+
                 if (sign == '!')
                 {
                     current_state = STATE_NOT_EQUAL_START;
                     break;
                 }
+
 
                 if (sign == '/')
                 {
@@ -312,57 +319,37 @@ int scanner_get_next_token(Token* tk)
                     return 0;
                 }
 
-                //If there were no signs matches, then a lexical error is written out.
-                //PRINT_ERROR("[LEXICAL ERROR]:%d:%d: invalid sign: \"%c\"\n", line_counter, sign_counter, sign);
                 PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: invalid sign: \"%c\"", line_counter, sign_counter, sign);
-                // fprintf(stderr, "\033[1;31m");  //!! Color of the error message.
-                // fprintf(stderr, "[LEXICAL ERROR]:%d:%d: invalid sign: \"%c\"\n", line_counter, sign_counter, sign);
-                // fprintf(stderr, "\033[0m");
-
                 
-
-            case(STATE_PROLOG_ONE):
+                
+            /* Handling a situation with the prologue. */
+            case(STATE_PROLOG_ONE): 
                 if (sign == 'p')
-                {
                     current_state = STATE_PROLOG_TWO;
-                }
                 else
                 {
-                    //Error handling. 
                     str_add_sign(&tk->string, sign);
                     PRINT_ERROR_RET(ERROR_LEXICAL, "wrong prolog");
-                    
-                     
                 }
                 break;
             
             case(STATE_PROLOG_TWO):
                 if (sign == 'h')
-                {
                     current_state = STATE_PROLOG_THREE;
-                }
                 else
                 {
-                    //Error handling. 
                     str_add_sign(&tk->string, sign);
                     PRINT_ERROR_RET(ERROR_LEXICAL, "wrong prolog");
-                    
-                     
                 }
                 break;
 
             case(STATE_PROLOG_THREE):
                 if (sign == 'p')
-                {
                     current_state = STATE_PROLOG;
-                }
                 else
                 {
-                    //Error handling. 
                     str_add_sign(&tk->string, sign);
                     PRINT_ERROR_RET(ERROR_LEXICAL, "wrong prolog");
-                    
-                     
                 }
                 break;
 
@@ -370,12 +357,12 @@ int scanner_get_next_token(Token* tk)
                 tk->type = token_prologue;
                 ungetc(sign, s_Fptr);
                 return 0;
-                                    
+
+            /* Handling a situation with a ID type or epilogue. */
             case(STATE_QUESTION_MARK):
                 if (sign == '>')
-                {
                     current_state = STATE_END;
-                }
+
                 else if (sign == 'f' || sign == 'i' || sign == 's')
                 {
                     current_state = STATE_ID_OR_KEYWORD;
@@ -384,18 +371,14 @@ int scanner_get_next_token(Token* tk)
                 }
                 else
                 {
-                    //Error handling. 
                     str_add_sign(&tk->string, sign);
-                    PRINT_ERROR_RET(ERROR_LEXICAL, "wrong character after '?'");
-                    
-                     
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "wrong character after '?'");   
                 }
 
                 break;
 
+            /* Epilogue. */
             case(STATE_END):
-
-                //проверка следующего символа(его не должно быть)
                 if (sign == EOF)
                 {
                     tk->type = token_end;
@@ -403,18 +386,13 @@ int scanner_get_next_token(Token* tk)
                 }
                 else
                 {
-                    //Error handling. 
                     str_add_sign(&tk->string, sign);
                     PRINT_ERROR_RET(ERROR_LEXICAL, "Character after the closing squence '?>'");
-                    
-                     
                 }
-                
                 return 0;
 
 
-            
-            //Handle a word and sorting it by ID or keyword.
+            /* Handles a word  */
             case(STATE_ID_OR_KEYWORD):
                 if (str_last_sign(&tk->string) == '$' && isdigit(sign))
                     PRINT_ERROR_RET(ERROR_LEXICAL, "Wrong ID or keyword. (first letter can't be digit)");
@@ -422,26 +400,18 @@ int scanner_get_next_token(Token* tk)
                 {
                     if (isalpha(sign) || isdigit(sign) || sign == '_')
                         str_add_sign(&tk->string, sign);
-                    //  else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t')
-                    //     break;
-                    // else if (sign == '-' ||  sign == '+' || sign == '*' || sign == '/' || sign == '<' || 
-                    //          sign == '>' || sign == '=' || sign == '(' || sign == ')' ||  sign == ';' ) //sign == ',' || sign == '!'
-                    //     break;
                     else
-                    {
                         break;
-                        PRINT_ERROR_RET(ERROR_LEXICAL, "Wrong ID or keyword.");
-                         
-                    }
+                    
                     sign = getchar_modified();
                 }
                 determine_type(tk);
-                //Returns the sign back to stream. 
-                ungetc(sign, s_Fptr);
+                ungetc(sign, s_Fptr); //Returns the sign back to stream. 
 
                 return 0;
 
-            //Handle a number and sorting it by integer, decimal or exponent.
+
+            /* Handles a number and sorts by integer, decimal, or exponent. */
             case(STATE_NUMBER):
                 while(true)
                 {
@@ -467,8 +437,7 @@ int scanner_get_next_token(Token* tk)
                              sign == '~' || sign == '(' || sign == ')' || sign == ',' || sign == ';' || sign == '!' ) 
                         break;
                     else if (!isdigit(sign))
-                    {
-                        //Error handling. 
+                    { 
                         str_add_sign(&tk->string, sign);
                         PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of integer: \"%s\"", line_counter, sign_counter, tk->string.ptr);
                     }
@@ -479,15 +448,15 @@ int scanner_get_next_token(Token* tk)
                 if (is_sign == true)
                     break;
 
-                //Converts string to int. 
-                tk->integer = atoi(tk->string.ptr);
+                tk->integer = atoi(tk->string.ptr); // Converts string to int.
                 tk->type = token_integer;
                 current_state = STATE_START;
                 ungetc(sign, s_Fptr);
                 
                 return 0;
 
-            //Handle an exponent.
+
+            /* Handles an exponent. */
             case(STATE_NUMBER_EXPONENT_START):
                 if ( sign == '+' || sign == '-' )
                 {
@@ -501,21 +470,14 @@ int scanner_get_next_token(Token* tk)
                     current_state = STATE_NUMBER_EXPONENT;
                     break;
                 }
-                // else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t')
-                // {
-                //     current_state = STATE_NUMBER_EXPONENT;
-                //     ungetc(sign, s_Fptr);
-                //     break;
-                // }
                 else 
                 {
                     str_add_sign(&tk->string, sign);
                     PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, tk->string.ptr);
-                    
-                    
                 }
 
-            //Handle an exponent using plus or minus.
+
+            /* Handles an exponent with plus or minus signs. */
             case(STATE_NUMBER_EXPONENT_SIGN):
                 if ( isdigit(sign) )
                 {
@@ -523,45 +485,37 @@ int scanner_get_next_token(Token* tk)
                     current_state = STATE_NUMBER_EXPONENT;
                     break;
                 } 
-                // else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t')  //??
-                // {
-                //     current_state = STATE_NUMBER_EXPONENT;
-                //     ungetc(sign, s_Fptr);
-                //     break;
-                // }
                 else
                 {
                     str_add_sign(&tk->string, sign);
                     PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, tk->string.ptr);
-                    
-                    
                 }
             
-            //The last stage of processing the exponent.
+
+            /* The last stage of processing the exponent. */
             case(STATE_NUMBER_EXPONENT):
                 while(true)
                 {
                     if (isdigit(sign))
                         str_add_sign(&tk->string, sign);
-                    else if (isspace(sign) || sign == EOF || sign == ';' || sign == ')' || sign == ',') // нужно больше исключений? 
+                    else if (isspace(sign) || sign == EOF || sign == ';' || sign == ')' || sign == ',') 
                         break; 
                     else
                     {
                         str_add_sign(&tk->string, sign);
                         PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of exponent: \"%s\"", line_counter, sign_counter, tk->string.ptr);
                     }
-                         
+
                     sign = getchar_modified();                      
                 }
                 tk->type = token_float;
-                //Converts string to a floating-point number (decimal).
-                tk->decimal = atof(tk->string.ptr);
-                //!!printf("%f", atof("83e2"));
+                tk->decimal = atof(tk->string.ptr); // Converts string to double.
                 ungetc(sign, s_Fptr);
                 
                 return 0;
 
-            //First handle a floating-point number.
+
+            /* Handles a floating point number. */
             case(STATE_NUMBER_POINT):
 
                 if (isdigit(sign)) 
@@ -572,72 +526,48 @@ int scanner_get_next_token(Token* tk)
                 else
                 {
                     str_add_sign(&tk->string, sign);
-                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of decimal: \"%s\"", line_counter, sign_counter, tk->string.ptr);
-                    
-                     
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of decimal: \"%s\"", line_counter, sign_counter, tk->string.ptr);   
                 }
                 break;
 
-            //Second handle a floating-point number.
+
+            /* Continues to handle a floating point number. */
             case(STATE_NUMBER_DOUBLE):
-            while(true)
-            {
-                if (isdigit(sign))
-                    str_add_sign(&tk->string, sign);
-                else if (sign == 'E' || sign == 'e')
+                while(true)
                 {
-                    str_add_sign(&tk->string, sign);
-                    current_state = STATE_NUMBER_EXPONENT_START;
-                    is_exponent = true;
-                    break;
-                }
-                else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t')
-                    break;
-                else if (sign == '-' || sign == '+' || sign == '*' || sign == '/' || sign == '<' || sign == '>' || 
-                         sign == '=' || sign == '~' || sign == '(' || sign == ')' || sign == ',' || sign == ';' )
-                    break;
-                else if (!isdigit(sign))
-                {
-                    str_add_sign(&tk->string, sign);
-                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of decimal: \"%s\"", line_counter, sign_counter, tk->string.ptr);
-                    
-                     
-                }
-                
-                sign = getchar_modified();
-            }        
-            if (is_exponent == true) break;
-            tk->decimal = atof(tk->string.ptr);
-            tk->type = token_float;
-
-            current_state = STATE_START;
-            ungetc(sign, s_Fptr);
-            
-            return 0;
-/*    
-            //Handling a situation with division sign '/'.
-            case(STATE_DIVISION):
-                if (sign == '/')
-                    current_state = STATE_DIVISION_INTEGER;
-                else
+                    if (isdigit(sign))
+                        str_add_sign(&tk->string, sign);
+                    else if (sign == 'E' || sign == 'e')
                     {
-                        ungetc(sign, s_Fptr);
-                        tk->type = token_divide;
-                        
-                        return 0;
+                        str_add_sign(&tk->string, sign);
+                        current_state = STATE_NUMBER_EXPONENT_START;
+                        is_exponent = true;
+                        break;
                     }
-                break;
+                    else if (isspace(sign) || sign == '\n' || sign == EOF || sign == '\t')
+                        break;
+                    else if (sign == '-' || sign == '+' || sign == '*' || sign == '/' || sign == '<' || sign == '>' || 
+                            sign == '=' || sign == '~' || sign == '(' || sign == ')' || sign == ',' || sign == ';' )
+                        break;
+                    else if (!isdigit(sign))
+                    {
+                        str_add_sign(&tk->string, sign);
+                        PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong form of decimal: \"%s\"", line_counter, sign_counter, tk->string.ptr);
+                    }
+                    
+                    sign = getchar_modified();
+                }  
 
-            //Handling a situation with division integer "//".
-            case(STATE_DIVISION_INTEGER):
-                tk->type = token_divide_integer;
+                if (is_exponent == true) break;
+                tk->decimal = atof(tk->string.ptr); // Converts string to double.
+                tk->type = token_float;
+                current_state = STATE_START;
                 ungetc(sign, s_Fptr);
                 
                 return 0;
 
-*/
             
-            //Handling a situation with relation operator '<'.
+            /* Handling the situation with relational operator '<'. */
             case(STATE_LESS):
                 if (sign == '=')
                     current_state = STATE_LESS_OR_EQUAL;
@@ -654,7 +584,8 @@ int scanner_get_next_token(Token* tk)
                 }
                 break;
             
-            //Handling a situation with relation operator "<=".
+
+            /* Handling the situation with relational operator '<='. */
             case(STATE_LESS_OR_EQUAL):
                 tk->type = token_less_or_equal;
                 ungetc(sign, s_Fptr);
@@ -662,7 +593,7 @@ int scanner_get_next_token(Token* tk)
                 return 0;
 
             
-            //Handling a situation with relation operator '>'.
+            /* Handling the situation with relational operator '>'. */
             case(STATE_GREATER):
                 if (sign == '=')
                     current_state = STATE_GREATER_OR_EQUAL;
@@ -675,7 +606,8 @@ int scanner_get_next_token(Token* tk)
                     }
                 break;
 
-            //Handling a situation with relation operator ">=".
+
+            /* Handling the situation with relational operator '>='. */
             case(STATE_GREATER_OR_EQUAL):
                 tk->type = token_greater_or_equal;
                 ungetc(sign, s_Fptr);
@@ -683,7 +615,7 @@ int scanner_get_next_token(Token* tk)
                 return 0;
 
 
-            //Handling a situation with equal sign '='.
+            /* Handling the situation with the equals sign '='. */
             case(STATE_EQUAL_SIGN):
                 if (sign == '=')
                     current_state = STATE_IS_EQUAL;
@@ -695,23 +627,22 @@ int scanner_get_next_token(Token* tk)
                     return 0;
                 }
                 break;
-            
-            //Handling a situation with relation operator "==". 
+
+
+            /* Handling the situation with '=='. */
             case(STATE_IS_EQUAL):
                 if(sign == '=')
                     current_state = STATE_IS_EQUAL_END;
                 else
                 {
-                    //Error handling. 
                     str_add_sign(&tk->string, sign);
-                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong сharacter \"%s\"", line_counter, sign_counter, tk->string.ptr);
-                    
-                     
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: wrong сharacter \"%s\"", line_counter, sign_counter, tk->string.ptr);    
                 }
                 
                 break;
 
-            //Handling a situation with relation operator '==='.
+
+            /* Handling the situation with relational operator '==='. */
             case(STATE_IS_EQUAL_END):
                 tk->type = token_equal; 
                 ungetc(sign, s_Fptr);
@@ -719,7 +650,7 @@ int scanner_get_next_token(Token* tk)
                 return 0;
 
             
-            //Handling a situation with start of relation operator "!=".
+            /* Handling the situation with '!'. */
             case(STATE_NOT_EQUAL_START):
                 if (sign == '=')
                     current_state = STATE_NOT_EQUAL;
@@ -728,12 +659,11 @@ int scanner_get_next_token(Token* tk)
                     str_add_sign(&tk->string,'!');
                     str_add_sign(&tk->string,sign);
                     PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: unsuitable combination of characters: \"%s\"", line_counter, sign_counter, tk->string.ptr);
-                    
-                    
                 }
                 break;
             
-            //Handling a situation with relation operator "!=".
+
+            /* Handling the situation with '!='. */
             case(STATE_NOT_EQUAL):
                 if(sign == '=')
                      current_state = STATE_NOT_EQUAL_END;
@@ -742,23 +672,23 @@ int scanner_get_next_token(Token* tk)
                     str_add_sign(&tk->string,'!');
                     str_add_sign(&tk->string,sign);
                     PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: unsuitable combination of characters: \"%s\"", line_counter, sign_counter, tk->string.ptr);
-                    
-                    
                 }
                 break;
 
-            //Handling a situation with relation operator "!==".
+
+            /* Handling the situation with relational operator '!=='. */
             case(STATE_NOT_EQUAL_END):    
                 tk->type = token_not_equal;
                 ungetc(sign, s_Fptr);
                 
                 return 0;
 
-            //Handling a situation with minus sign '/'.    
+
+            /* Handling the situation with division sign '/'. */
             case(STATE_DIVISION):
-                if (sign == '/') //значит это однострочный комментарий 
+                if (sign == '/') // so this is a single line comment.
                     current_state = STATE_COMMENT;
-                else if (sign == '*') //значит это многострочный комментарий
+                else if (sign == '*') // so this is a block comment.
                     current_state = STATE_COMMENT_BLOCK_START;
                 else
                 {
@@ -769,13 +699,9 @@ int scanner_get_next_token(Token* tk)
                 }
                 break;
 
-            //Handling a situation with line comment "//".
+
+            /* Handling the situation with line comment '//'. */
             case(STATE_COMMENT):
-                // if (sign == '[')
-                // {
-                //     current_state = STATE_COMMENT_BLOCK_START;
-                //     break;
-                // }
                 while(true)
                 {
                     if (sign == EOF || sign == '\n')
@@ -792,48 +718,50 @@ int scanner_get_next_token(Token* tk)
                 current_state = STATE_START;
                 break;
 
-            //Handling a situation with start of block comment "/*".
+
+            /* Handling the situation with the start of a block comment '/*'. */
             case(STATE_COMMENT_BLOCK_START): 
                 while(true)
                 {
                     if (sign == EOF)
-                    {
                         return ERROR_LEXICAL;
-                        // current_state = STATE_START;
-                        // ungetc(sign, s_Fptr);
-                        // break;
-                    }
                     else if (sign != '*') 
                         sign = getchar_modified();
                     else if (sign == '*')
                     {
-                        sign = getchar_modified();
-                        if (sign == '/')
-                        {
-                            current_state = STATE_START;
-                            break;
-                        }
-                    }
-                    else
-                    {
+                        ungetc(sign, s_Fptr);
                         current_state = STATE_COMMENT_BLOCK_END;
                         break;
                     }
                 }
                 break;
 
-            //Handling a situation with end of block comment "/**/". 
+
+            /* Handling the situation with a comment at the end of a block '/**\/' */
             case(STATE_COMMENT_BLOCK_END):
-                if (sign == '/')
-                    current_state = STATE_START;
-                else 
+                while(true)
                 {
-                    current_state = STATE_COMMENT_BLOCK_CONTINUE;
-                    ungetc(sign, s_Fptr);
+                    if (sign == '/')
+                    {
+                        current_state = STATE_START;
+                        break;
+                    }
+                    else if (sign == EOF)
+                        return ERROR_LEXICAL;
+                    else if (sign == '*')
+                        sign = getchar_modified();
+                    else
+                    {
+                        current_state = STATE_COMMENT_BLOCK_START;
+                        ungetc(sign, s_Fptr);
+                        break;
+                    }
+                    
                 }
                 break;
 
-            //Handling a situation with start of string '"'.
+
+            /* Handling the situation with the beginning of a line '"' */
             case(STATE_STRING_START):
                 while(true)
                 {
@@ -852,21 +780,16 @@ int scanner_get_next_token(Token* tk)
                         PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: unterminated string", line_counter, sign_counter);
                         
                     }
-                    // else if (sign == '\n') //!! надо чтоб считывало \n знак в строке? 
-                    //     break;
-                    else if (sign == EOF) //(sign == '\n' || sign == EOF)
-                    {
-                        PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: no end of string", line_counter, sign_counter);
+                    else if (sign < 32)
+                        PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: string error", line_counter, sign_counter);
                         
-                        
-                    }
-                    
                     str_add_sign(&tk->string, sign);
                     sign = getchar_modified();
                 }
                 break;
             
-            //Handling a situation with escape sequence in string '\'.
+
+            /* Handling the situation with an escape sequence in a string '\'. */
             case(STATE_STRING_BACKSLASH):
                 if (sign == '\"')
                 {
@@ -888,7 +811,7 @@ int scanner_get_next_token(Token* tk)
                     current_state = STATE_STRING_START;
                     str_add_sign(&tk->string, '\\');
                 }
-                else if (sign == '$') //???
+                else if (sign == '$') 
                 {
                     current_state = STATE_STRING_START;
                     str_add_sign(&tk->string, '$');    
@@ -907,19 +830,18 @@ int scanner_get_next_token(Token* tk)
                 {
                     current_state = STATE_STRING_BACKSLASH_HEX;
                 }    
-                else 
+                else if (sign < 32)
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: string error", line_counter, sign_counter);
+                else
                 {
                     current_state = STATE_STRING_START; 
                     str_add_sign(&tk->string, '\\');
                     str_add_sign(&tk->string, sign);
-                    //PRINT_ERROR_LEX("%d:%d: invalid escape sequence: \"%s\"", line_counter, sign_counter, tk->String->ptr);
-                    
-                    //return ERROR_LEXICAL;
                 }
                 break;
 
 
-            //Handling a situation with escape sequence ascii[d][][].
+            /* Handling the situation with an escape sequence \[oct][][]. */
             case(STATE_STRING_BACKSLASH_ZERO):
                 if (sign >= '1' && sign <= '7')
                 {
@@ -933,6 +855,8 @@ int scanner_get_next_token(Token* tk)
                     ascii_oct[1] = sign;
                     break;
                 }
+                else if (sign < 32)
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: string error", line_counter, sign_counter);
                 else
                 {
                     str_add_sign(&tk->string, '\\');
@@ -940,22 +864,20 @@ int scanner_get_next_token(Token* tk)
                     ungetc(sign, s_Fptr);
                     current_state = STATE_STRING_START;
                     break;
-
-                    // PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
-
-                    // return ERROR_LEXICAL;
                 }
 
+
+            /* Handling the situation with an escape sequence \[oct][oct][]. */
             case(STATE_STRING_BACKSLASH_ZERO_ZERO):
                 if (sign >= '1' && sign <= '7')
                 {
-                    //[d][d][d].
                     current_state = STATE_STRING_START;
                     ascii_oct[2] = sign;
-                    //str_add_sign(&tk->string, atoi(ascii_oct));
                     str_add_sign(&tk->string, strtol(ascii_oct, NULL, 8));
                     break;
                 }
+                else if (sign < 32)
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: string error", line_counter, sign_counter);
                 else
                 {
                     str_add_sign(&tk->string, '\\');
@@ -964,13 +886,10 @@ int scanner_get_next_token(Token* tk)
                     ungetc(sign, s_Fptr);
                     current_state = STATE_STRING_START;
                     break;
-                    // PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
-
-                    // return ERROR_LEXICAL;
                 }
 
 
-            //Handling a situation with escape sequence ascii[d][][].
+            /* Handling the situation with an escape sequence \[oct][][]. */
             case(STATE_STRING_BACKSLASH_ONE_TWO_THREE):
                 if (sign >= '0' && sign <= '7')
                 {
@@ -978,6 +897,8 @@ int scanner_get_next_token(Token* tk)
                     ascii_oct[1] = sign;
                     break;
                 }
+                else if (sign < 32)
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: string error", line_counter, sign_counter);
                 else 
                 {
                     str_add_sign(&tk->string, '\\');
@@ -985,23 +906,20 @@ int scanner_get_next_token(Token* tk)
                     ungetc(sign, s_Fptr);
                     current_state = STATE_STRING_START;
                     break;
-                    // PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
-                    
-                    // return ERROR_LEXICAL;
                 }
                     
 
-            //Handling a situation with escape sequence ascii[d][d][].
+            /* Handling the situation with an escape sequence \[oct][oct][]. */
             case(STATE_STRING_BACKSLASH_ZERO_TO_SEVEN):
                 if (sign >= '0' && sign <= '7')
                 {   
-                    //[d][d][d].
                     current_state = STATE_STRING_START;
                     ascii_oct[2] = sign;
-                    //str_add_sign(&tk->string, atoi(ascii_oct));
                     str_add_sign(&tk->string, strtol(ascii_oct, NULL, 8));
                     break;
                 }
+                else if (sign < 32)
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: string error", line_counter, sign_counter);
                 else 
                 {
                     str_add_sign(&tk->string, '\\');
@@ -1010,13 +928,10 @@ int scanner_get_next_token(Token* tk)
                     ungetc(sign, s_Fptr);
                     current_state = STATE_STRING_START;
                     break;
-                    // PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
-                    
-                    // return ERROR_LEXICAL;
                 }
 
 
-            //Handling a situation with escape sequence ascii[d][].
+            /* Handling the situation with an escape sequence \x[hex][]. */
             case(STATE_STRING_BACKSLASH_HEX):   
                 
                 if (sign == '0')
@@ -1031,6 +946,8 @@ int scanner_get_next_token(Token* tk)
                     ascii_hex[0] = sign;
                     break;
                 }
+                else if (sign < 32)
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: string error", line_counter, sign_counter);
                 else 
                 {
                     str_add_sign(&tk->string, '\\');
@@ -1038,12 +955,10 @@ int scanner_get_next_token(Token* tk)
                     ungetc(sign, s_Fptr);
                     current_state = STATE_STRING_START;
                     break;
-                    // PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
-                    
-                    // return ERROR_LEXICAL;
                 }
 
-            //Handling a situation with escape sequence ascii[d][d].
+
+            /* Handling the situation with an escape sequence \x[hex][hex]. */
             case(STATE_STRING_BACKSLASH_HEX_FIRST):
                 if (sign >= '0' && sign <= '9' || sign >= 'a' && sign <= 'f' || sign >= 'A' && sign <= 'F')
                 {
@@ -1053,6 +968,8 @@ int scanner_get_next_token(Token* tk)
 
                     break;
                 }
+                else if (sign < 32)
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: string error", line_counter, sign_counter);
                 else 
                 {
                     str_add_sign(&tk->string, '\\');
@@ -1061,11 +978,10 @@ int scanner_get_next_token(Token* tk)
                     ungetc(sign, s_Fptr);
                     current_state = STATE_STRING_START;
                     break;
-                    // PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
-                    
-                    // return ERROR_LEXICAL;
                 }
 
+
+            /* Handling the situation with an escape sequence \x[hex][hex]. */
             case(STATE_STRING_BACKSLASH_HEX_ZERO):
                 if (sign >= '1' && sign <= '9' || sign >= 'a' && sign <= 'f' || sign >= 'A' && sign <= 'F')
                 {
@@ -1075,6 +991,8 @@ int scanner_get_next_token(Token* tk)
 
                     break;
                 }
+                else if (sign < 32)
+                    PRINT_ERROR_RET(ERROR_LEXICAL, "%d:%d: string error", line_counter, sign_counter);
                 else 
                 {
                     str_add_sign(&tk->string, '\\');
@@ -1083,20 +1001,16 @@ int scanner_get_next_token(Token* tk)
                     ungetc(sign, s_Fptr);
                     current_state = STATE_STRING_START;
                     break;
-                    // PRINT_ERROR_LEX("%d:%d: invalid escape sequence", line_counter, sign_counter);
-                    
-                    // return ERROR_LEXICAL;
                 }
 
 
-            //Handling a situation with end of string '"'.
+            /* Handling the situation with end of string '"'. */
             case(STATE_STRING):
                 tk->type = token_string;
                 current_state = STATE_START;
                 ungetc(sign, s_Fptr);
                 
                 return 0;
-
         }
     }
 }
