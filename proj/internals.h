@@ -1,7 +1,7 @@
 /**
  * Project: Implementation of imperative language IFJ22 compiler.
  * 
- * @author Vadim Goncearenco   (xgonce00@stud.fit.vutbr.cz)
+ * @author Vadim Goncearenco    (xgonce00@stud.fit.vutbr.cz)
  * @author Aleksandr Shevchenko (xshevc01@stud.fit.vutbr.cz)
  */
 
