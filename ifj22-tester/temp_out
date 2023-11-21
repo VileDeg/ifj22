@@ -1,0 +1,1818 @@
+.IFJcode22
+DEFVAR GF@TMP_REG1
+DEFVAR GF@TMP_REG2
+DEFVAR GF@TMP_REG3
+DEFVAR GF@EXPR_VAL
+DEFVAR GF@EXPR_TYPE
+JUMP !program_body
+
+# Runtime error labels ===========================
+LABEL !*sem_error_three
+EXIT int@3
+LABEL !*sem_error_four
+EXIT int@4
+LABEL !*sem_error_five
+EXIT int@5
+LABEL !*sem_error_six
+EXIT int@6
+LABEL !*sem_error_seven
+EXIT int@7
+LABEL !*sem_error_eight
+EXIT int@8
+
+# Expression result bool convert ===========================
+LABEL !*expr_res_bool_convert
+PUSHFRAME
+
+DEFVAR LF@expr_type
+TYPE LF@expr_type GF@EXPR_VAL
+
+JUMPIFEQ !*erbc_end LF@expr_type string@bool
+JUMPIFEQ !*erbc_type_string LF@expr_type string@string
+JUMPIFEQ !*erbc_type_int LF@expr_type string@int
+JUMPIFEQ !*erbc_type_float LF@expr_type string@float
+JUMPIFEQ !*erbc_false LF@expr_type string@nil
+JUMP !*sem_error_seven
+
+LABEL !*erbc_type_string
+	JUMPIFEQ !*erbc_false GF@EXPR_VAL string@
+	JUMPIFEQ !*erbc_false GF@EXPR_VAL string@0
+	JUMP !*erbc_true
+
+LABEL !*erbc_type_int
+	JUMPIFEQ !*erbc_false GF@EXPR_VAL int@0
+	JUMP !*erbc_true
+
+LABEL !*erbc_type_float
+	JUMPIFEQ !*erbc_false GF@EXPR_VAL float@0x0.0p+0
+	JUMP !*erbc_true
+
+LABEL !*erbc_false
+	MOVE GF@EXPR_VAL bool@false
+   JUMP !*erbc_end
+
+LABEL !*erbc_true
+	MOVE GF@EXPR_VAL bool@true
+
+LABEL !*erbc_end
+POPFRAME
+RETURN
+
+# Return semantic check ===========================
+LABEL !*return_semantic_check
+PUSHFRAME
+
+DEFVAR LF@func_type
+POPS LF@func_type
+DEFVAR LF@func_qmark
+POPS LF@func_qmark
+TYPE GF@EXPR_TYPE GF@EXPR_VAL
+
+JUMPIFEQ !*rs_ok GF@EXPR_TYPE LF@func_type
+JUMPIFNEQ !*sem_error_four LF@func_qmark bool@true
+JUMPIFNEQ !*sem_error_four GF@EXPR_TYPE string@nil
+
+LABEL !*rs_ok
+POPFRAME
+RETURN
+
+# Operators '+', '-', '*' ===========================
+LABEL !*op_asm
+PUSHFRAME
+
+DEFVAR LF@op1
+DEFVAR LF@op2
+DEFVAR LF@op1type
+DEFVAR LF@op2type
+DEFVAR LF@rule
+
+POPS LF@rule
+POPS LF@op2
+POPS LF@op1
+
+TYPE LF@op1type LF@op1
+TYPE LF@op2type LF@op2
+
+JUMPIFEQ !*sem_error_seven LF@op1type string@string
+JUMPIFEQ !*sem_error_seven LF@op2type string@string
+
+JUMPIFEQ !*op_asm_op1_nil LF@op1type string@nil
+LABEL !*op_asm_check_op2_nil
+JUMPIFEQ !*op_asm_op2_nil LF@op2type string@nil
+
+LABEL !*op_asm_check_op1_float
+JUMPIFEQ !*op_asm_op1_float LF@op1type string@float
+JUMPIFEQ !*op_asm_op2_float LF@op2type string@float
+JUMP !*op_asm_do
+
+LABEL !*op_asm_op1_nil
+	MOVE LF@op1 int@0
+	JUMP !*op_asm_check_op2_nil
+
+LABEL !*op_asm_op2_nil
+	MOVE LF@op2 int@0
+	JUMP !*op_asm_check_op1_float
+
+LABEL !*op_asm_op1_float
+	JUMPIFEQ !*op_asm_op1_float_op2_int LF@op2type string@int
+	JUMP !*op_asm_do
+
+	LABEL !*op_asm_op1_float_op2_int
+		INT2FLOAT LF@op2 LF@op2
+		JUMP !*op_asm_do
+
+LABEL !*op_asm_op2_float
+	INT2FLOAT LF@op1 LF@op1
+	JUMP !*op_asm_do
+
+LABEL !*op_asm_do
+	PUSHS LF@op1
+	PUSHS LF@op2
+
+JUMPIFEQ !*op_asm_add LF@rule string@add
+JUMPIFEQ !*op_asm_sub LF@rule string@sub
+JUMPIFEQ !*op_asm_mul LF@rule string@mul
+
+JUMP !*sem_error_eight
+
+LABEL !*op_asm_add
+	ADDS
+	JUMP !*op_asm_end
+
+LABEL !*op_asm_sub
+	SUBS
+	JUMP !*op_asm_end
+
+LABEL !*op_asm_mul
+	MULS
+
+LABEL !*op_asm_end
+POPFRAME
+RETURN
+
+# Operator '/' ===========================
+LABEL !*op_div
+PUSHFRAME
+
+DEFVAR LF@op1
+DEFVAR LF@op2
+DEFVAR LF@op1type
+DEFVAR LF@op2type
+
+POPS LF@op2
+POPS LF@op1
+
+TYPE LF@op1type LF@op1
+TYPE LF@op2type LF@op2
+
+JUMPIFEQ !*sem_error_seven LF@op1type string@string
+JUMPIFEQ !*sem_error_seven LF@op2type string@string
+
+JUMPIFEQ !*op_div_op1_nil LF@op1type string@nil
+LABEL !*op_div_check_op2_nil
+JUMPIFEQ !*op_div_op2_nil LF@op2type string@nil
+
+LABEL !*op_div_check_op1_int
+JUMPIFEQ !*op_div_op1_int LF@op1type string@int
+LABEL !*op_div_check_op2_int
+JUMPIFEQ !*op_div_op2_int LF@op2type string@int
+
+JUMP !*op_div_do
+
+LABEL !*op_div_op1_nil
+	MOVE LF@op1 int@0
+	INT2FLOAT LF@op1 LF@op1
+	JUMP !*op_div_check_op2_nil
+
+LABEL !*op_div_op2_nil
+	MOVE LF@op2 int@0
+	INT2FLOAT LF@op2 LF@op1
+	JUMP !*op_div_check_op1_int
+
+LABEL !*op_div_op1_int
+	INT2FLOAT LF@op1 LF@op1
+	JUMP !*op_div_check_op2_int
+
+LABEL !*op_div_op2_int
+	INT2FLOAT LF@op2 LF@op2
+	JUMP !*op_div_do
+
+LABEL !*op_div_do
+	PUSHS LF@op1
+	PUSHS LF@op2
+	DIVS
+
+LABEL !*op_div_end
+POPFRAME
+RETURN
+
+# Operator '.' ===========================
+LABEL !*op_dot
+PUSHFRAME
+
+DEFVAR LF@op1
+DEFVAR LF@op2
+DEFVAR LF@op1type
+DEFVAR LF@op2type
+DEFVAR LF@res
+
+POPS LF@op2
+POPS LF@op1
+
+TYPE LF@op1type LF@op1
+TYPE LF@op2type LF@op2
+
+JUMPIFEQ !*op_dot_op1_nil LF@op1type string@nil
+LABEL !*op_dot_check_op2_nil
+JUMPIFEQ !*op_dot_op2_nil LF@op2type string@nil
+
+LABEL !*op_dot_check_op1_string
+TYPE LF@op1type LF@op1
+TYPE LF@op2type LF@op2
+
+JUMPIFNEQ !*sem_error_seven LF@op1type string@string
+JUMPIFNEQ !*sem_error_seven LF@op2type string@string
+JUMP !*op_dot_do
+
+LABEL !*op_dot_op1_nil
+	MOVE LF@op1 string@
+	JUMP !*op_dot_check_op2_nil
+
+LABEL !*op_dot_op2_nil
+	MOVE LF@op2 string@
+	JUMP !*op_dot_check_op1_string
+
+LABEL !*op_dot_do
+	PUSHS LF@op1
+	PUSHS LF@op2
+	CONCAT LF@res LF@op1 LF@op2
+	PUSHS LF@res
+
+LABEL !*op_dot_end
+POPFRAME
+RETURN
+
+# Operators '===', '!==' ===========================
+LABEL !*op_eq_neq
+PUSHFRAME
+
+DEFVAR LF@op1
+DEFVAR LF@op2
+DEFVAR LF@op1type
+DEFVAR LF@op2type
+DEFVAR LF@rule
+
+POPS LF@rule
+POPS LF@op2
+POPS LF@op1
+
+TYPE LF@op1type LF@op1
+TYPE LF@op2type LF@op2
+
+PUSHS LF@op1
+PUSHS LF@op2
+
+JUMPIFEQ !*op_eq_neq_equal LF@rule string@equal
+JUMPIFEQ !*op_eq_neq_noteq LF@rule string@noteq
+
+JUMP !*sem_error_eight
+
+LABEL !*op_eq_neq_equal
+JUMPIFNEQ !*op_eq_neq_false LF@op1type LF@op2type
+EQS
+JUMP !*op_eq_neq_end
+
+LABEL !*op_eq_neq_noteq
+JUMPIFNEQ !*op_eq_neq_true LF@op1type LF@op2type
+EQS
+NOTS
+JUMP !*op_eq_neq_end
+
+LABEL !*op_eq_neq_false
+	PUSHS bool@false
+	JUMP !*op_eq_neq_end
+
+LABEL !*op_eq_neq_true
+	PUSHS bool@true
+
+LABEL !*op_eq_neq_end
+POPFRAME
+RETURN
+
+# Operator '>', '<', '>=', '<=' ===========================
+LABEL !*op_rel
+PUSHFRAME
+
+DEFVAR LF@op1
+DEFVAR LF@op2
+DEFVAR LF@op1type
+DEFVAR LF@op2type
+DEFVAR LF@rule
+
+POPS LF@rule
+POPS LF@op2
+POPS LF@op1
+
+TYPE LF@op1type LF@op1
+TYPE LF@op2type LF@op2
+
+JUMPIFEQ !*op_rel_op1_nil LF@op1type string@nil
+JUMPIFEQ !*op_rel_op2_nil LF@op2type string@nil
+
+JUMPIFEQ !*op_rel_op1_int LF@op1type string@int
+JUMPIFEQ !*op_rel_op2_int LF@op2type string@int
+
+JUMPIFEQ !*op_rel_op1_float LF@op1type string@float
+
+JUMPIFEQ !*op_rel_op1_str LF@op1type string@string
+
+LABEL !*op_rel_op1_float
+    JUMPIFNEQ !*sem_error_seven LF@op2type string@float
+    JUMP !*op_rel_do
+
+LABEL !*op_rel_op1_str
+    JUMPIFNEQ !*sem_error_seven LF@op2type string@string
+    JUMP !*op_rel_do
+
+LABEL !*op_rel_op1_int
+    JUMPIFEQ !*op_rel_op1_int_op2_float LF@op2type string@float
+    JUMPIFEQ !*op_rel_do LF@op2type string@int
+    JUMP !*sem_error_seven
+
+LABEL !*op_rel_op1_int_op2_float
+    INT2FLOAT LF@op1 LF@op1
+    JUMP !*op_rel_do
+
+LABEL !*op_rel_op2_int
+    JUMPIFNEQ !*sem_error_seven LF@op1type string@float
+    INT2FLOAT LF@op2 LF@op2
+    JUMP !*op_rel_do
+
+LABEL !*op_rel_op1_nil
+    JUMPIFEQ !*op_rel_op1_nil_op2_nil LF@op2type string@nil
+    JUMPIFEQ !*op_rel_op1_nil_op2_str LF@op2type string@string
+    JUMPIFEQ !*op_rel_op1_nil_op2_int LF@op2type string@int
+    JUMPIFEQ !*op_rel_op1_nil_op2_float LF@op2type string@float
+    JUMP !*sem_error_seven
+
+    LABEL !*op_rel_op1_nil_op2_nil
+        MOVE LF@op1 bool@false
+        MOVE LF@op2 bool@false
+        JUMP !*op_rel_do
+
+    LABEL !*op_rel_op1_nil_op2_str
+        MOVE LF@op1 string@
+        JUMP !*op_rel_do
+
+    LABEL !*op_rel_op1_nil_op2_int
+        MOVE LF@op1 bool@false
+
+        JUMPIFEQ !*op_rel_op1_nil_op2_int_zero LF@op2 int@0
+        MOVE LF@op2 bool@true
+        JUMP !*op_rel_do
+
+        LABEL !*op_rel_op1_nil_op2_int_zero
+            MOVE LF@op2 bool@false
+            JUMP !*op_rel_do
+    
+    LABEL !*op_rel_op1_nil_op2_float
+        MOVE LF@op1 bool@false
+
+        JUMPIFEQ !*op_rel_op1_nil_op2_float_zero LF@op2 float@0x0.0p+0
+        MOVE LF@op2 bool@true
+        JUMP !*op_rel_do
+
+        LABEL !*op_rel_op1_nil_op2_float_zero
+            MOVE LF@op2 bool@false
+            JUMP !*op_rel_do
+
+LABEL !*op_rel_op2_nil
+    JUMPIFEQ !*op_rel_op2_nil_op1_str LF@op1type string@string
+    JUMPIFEQ !*op_rel_op2_nil_op1_int LF@op1type string@int
+    JUMPIFEQ !*op_rel_op2_nil_op1_float LF@op1type string@float
+    JUMP !*sem_error_seven
+
+    LABEL !*op_rel_op2_nil_op1_str
+        MOVE LF@op2 string@
+        JUMP !*op_rel_do
+
+    LABEL !*op_rel_op2_nil_op1_int
+        MOVE LF@op2 bool@false
+
+        JUMPIFEQ !*op_rel_op2_nil_op1_int_zero LF@op1 int@0
+        MOVE LF@op1 bool@true
+        JUMP !*op_rel_do
+
+        LABEL !*op_rel_op2_nil_op1_int_zero
+            MOVE LF@op1 bool@false
+            JUMP !*op_rel_do
+    
+    LABEL !*op_rel_op2_nil_op1_float
+        MOVE LF@op2 bool@false
+
+        JUMPIFEQ !*op_rel_op2_nil_op1_float_zero LF@op1 float@0x0.0p+0
+        MOVE LF@op1 bool@true
+        JUMP !*op_rel_do
+
+        LABEL !*op_rel_op2_nil_op1_float_zero
+            MOVE LF@op1 bool@false
+            JUMP !*op_rel_do
+
+LABEL !*op_rel_do
+PUSHS LF@op1
+PUSHS LF@op2
+
+JUMPIFEQ !*op_rel_gt LF@rule string@gt
+JUMPIFEQ !*op_rel_gt LF@rule string@geq
+JUMPIFEQ !*op_rel_lt LF@rule string@lt
+JUMPIFEQ !*op_rel_lt LF@rule string@leq
+JUMP !*sem_error_eight
+
+LABEL !*op_rel_gt
+    GTS
+    JUMPIFEQ !*op_rel_leq_geq LF@rule string@geq
+    JUMP !*op_rel_end
+
+LABEL !*op_rel_lt
+    LTS
+    JUMPIFEQ !*op_rel_leq_geq LF@rule string@leq
+    JUMP !*op_rel_end
+
+LABEL !*op_rel_leq_geq
+    PUSHS LF@op1
+    PUSHS LF@op2
+    EQS
+    ORS
+
+LABEL !*op_rel_end
+POPFRAME
+RETURN
+
+# Function reads <builtin> ===================================
+LABEL !reads
+PUSHFRAME
+DEFVAR LF@res
+READ LF@res string
+POPFRAME
+RETURN
+
+# Function readi <builtin> ===================================
+LABEL !readi
+PUSHFRAME
+DEFVAR LF@res
+READ LF@res int
+POPFRAME
+RETURN
+
+# Function readf <builtin> ===================================
+LABEL !readf
+PUSHFRAME
+DEFVAR LF@res
+READ LF@res float
+POPFRAME
+RETURN
+
+# Function write <builtin> ===================================
+LABEL !write
+PUSHFRAME
+DEFVAR LF@to_write
+DEFVAR LF@type
+TYPE LF@type LF@arg_count
+JUMPIFNEQ !write_end LF@type string@int
+DEFVAR LF@cond
+LT LF@cond LF@arg_count int@1
+JUMPIFEQ !write_end LF@cond bool@true
+LABEL !write_loop
+POPS LF@to_write
+WRITE LF@to_write
+SUB LF@arg_count LF@arg_count int@1
+GT LF@cond LF@arg_count int@0
+JUMPIFEQ !write_loop LF@cond bool@true
+LABEL !write_end
+POPFRAME
+RETURN
+
+# Function floatval <builtin> ===================================
+LABEL !floatval
+PUSHFRAME
+
+DEFVAR LF@type
+DEFVAR LF@res
+
+MOVE LF@res LF@-0
+TYPE LF@type LF@-0
+
+JUMPIFEQ !floatval_end_err LF@type string@string
+JUMPIFEQ !floatval_end LF@type string@float
+JUMPIFEQ !floatval_arg_nil LF@type string@nil
+JUMPIFEQ !floatval_arg_int LF@type string@int
+
+JUMP !*sem_error_eight
+
+LABEL !floatval_arg_int
+INT2FLOAT LF@res LF@-0
+JUMP !floatval_end
+
+LABEL !floatval_arg_nil
+MOVE LF@res float@0x0.0p+0
+JUMP !floatval_end
+
+LABEL !floatval_end_err
+MOVE LF@res nil@nil
+
+LABEL !floatval_end
+POPFRAME
+RETURN
+
+# Function intval <builtin> ===================================
+LABEL !intval
+PUSHFRAME
+
+DEFVAR LF@type
+DEFVAR LF@res
+
+MOVE LF@res LF@-0
+TYPE LF@type LF@-0
+
+JUMPIFEQ !intval_end_err LF@type string@string
+JUMPIFEQ !intval_end LF@type string@int
+JUMPIFEQ !intval_arg_nil LF@type string@nil
+JUMPIFEQ !intval_arg_float LF@type string@float
+
+JUMP !*sem_error_eight
+
+LABEL !intval_arg_float
+FLOAT2INT LF@res LF@-0
+JUMP !intval_end
+
+LABEL !intval_arg_nil
+MOVE LF@res int@0
+JUMP !intval_end
+
+LABEL !intval_end_err
+MOVE LF@res nil@nil
+
+LABEL !intval_end
+POPFRAME
+RETURN
+
+# Function strval <builtin> ===================================
+LABEL !strval
+PUSHFRAME
+
+DEFVAR LF@type
+DEFVAR LF@res
+
+MOVE LF@res LF@-0
+TYPE LF@type LF@-0
+
+JUMPIFEQ !strval_end_err LF@type string@int
+JUMPIFEQ !strval_end_err LF@type string@float
+JUMPIFEQ !strval_end LF@type string@string
+JUMPIFEQ !strval_arg_nil LF@type string@nil
+
+JUMP !*sem_error_eight
+
+LABEL !strval_arg_nil
+MOVE LF@res string@
+JUMP !strval_end
+
+LABEL !strval_end_err
+MOVE LF@res nil@nil
+
+LABEL !strval_end
+POPFRAME
+RETURN
+
+# Function strlen <builtin> ===================================
+LABEL !strlen
+PUSHFRAME
+DEFVAR LF@res
+STRLEN LF@res LF@-0
+POPFRAME
+RETURN
+
+# Function substring <builtin> ===================================
+LABEL !substring
+PUSHFRAME
+DEFVAR LF@res
+MOVE LF@res string@
+DEFVAR LF@length
+CREATEFRAME
+DEFVAR TF@-0
+MOVE TF@-0 LF@-0
+CALL !strlen
+MOVE LF@length TF@res
+DEFVAR LF@cond
+LT LF@cond LF@-1 int@0
+JUMPIFEQ !substring_end_null LF@cond bool@true
+LT LF@cond LF@-2 int@0
+JUMPIFEQ !substring_end_null LF@cond bool@true
+GT LF@cond LF@-1 LF@-2
+JUMPIFEQ !substring_end_null LF@cond bool@true
+LT LF@cond LF@-1 LF@length
+JUMPIFEQ !substring_end_null LF@cond bool@false
+GT LF@cond LF@-2 LF@length
+JUMPIFEQ !substring_end_null LF@cond bool@true
+DEFVAR LF@index
+MOVE LF@index LF@-1
+DEFVAR LF@char
+LABEL !substring_loop
+LT LF@cond LF@index LF@-2
+JUMPIFEQ !substring_end LF@cond bool@false
+GETCHAR LF@char LF@-0 LF@index
+CONCAT LF@res LF@res LF@char
+ADD LF@index LF@index int@1
+JUMP !substring_loop
+LABEL !substring_end_null
+MOVE LF@res nil@nil
+LABEL !substring_end
+POPFRAME
+RETURN
+
+# Function ord <builtin> ===================================
+LABEL !ord
+PUSHFRAME
+DEFVAR LF@res
+MOVE LF@res int@0
+DEFVAR LF@length
+CREATEFRAME
+DEFVAR TF@-0
+MOVE TF@-0 LF@-0
+CALL !strlen
+MOVE LF@length TF@res
+DEFVAR LF@cond
+GT LF@cond LF@length int@0
+JUMPIFEQ !ord_end LF@cond bool@false
+STRI2INT LF@res LF@-0 int@0
+LABEL !ord_end
+POPFRAME
+RETURN
+
+# Function chr <builtin> ===================================
+LABEL !chr
+PUSHFRAME
+DEFVAR LF@res
+MOVE LF@res string@
+INT2CHAR LF@res LF@-0
+POPFRAME
+RETURN
+
+DEFVAR LF@$in
+MOVE LF@$in LF@-0
+DEFVAR LF@$s
+MOVE LF@$s LF@-1
+DEFVAR LF@$in
+MOVE LF@$in LF@-0
+DEFVAR LF@$id
+MOVE LF@$id LF@-1
+DEFVAR LF@$in
+MOVE LF@$in LF@-0
+DEFVAR LF@$id
+MOVE LF@$id LF@-1
+DEFVAR LF@$s
+MOVE LF@$s LF@-2
+DEFVAR LF@$in
+MOVE LF@$in LF@-0
+DEFVAR LF@$x
+MOVE LF@$x LF@-0
+DEFVAR LF@$y
+MOVE LF@$y LF@-1
+DEFVAR LF@$n
+MOVE LF@$n LF@-0
+LABEL !program_body
+JUMP !append_skip
+
+# Function append
+LABEL !append
+PUSHFRAME
+DEFVAR LF@$in
+MOVE LF@$in LF@-0
+DEFVAR LF@$s
+MOVE LF@$s LF@-1
+DEFVAR LF@res
+MOVE LF@res string@
+# Function type for semantic controls
+DEFVAR LF@func_type
+MOVE LF@func_type string@string
+DEFVAR LF@func_qmark
+MOVE LF@func_qmark bool@false
+TYPE GF@EXPR_TYPE LF@$in
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$in
+TYPE GF@EXPR_TYPE LF@$s
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$s
+CREATEFRAME
+CALL !*op_dot
+PUSHS string@;
+CREATEFRAME
+CALL !*op_dot
+POPS GF@EXPR_VAL
+PUSHS LF@func_qmark
+PUSHS LF@func_type
+CREATEFRAME
+CALL !*return_semantic_check
+MOVE LF@res GF@EXPR_VAL
+JUMP !append_end
+LABEL !append_end
+POPFRAME
+RETURN
+
+LABEL !append_skip
+JUMP !get_skip
+
+# Function get
+LABEL !get
+PUSHFRAME
+DEFVAR LF@$in
+MOVE LF@$in LF@-0
+DEFVAR LF@$id
+MOVE LF@$id LF@-1
+DEFVAR LF@res
+MOVE LF@res string@
+# Function type for semantic controls
+DEFVAR LF@func_type
+MOVE LF@func_type string@string
+DEFVAR LF@func_qmark
+MOVE LF@func_qmark bool@true
+DEFVAR LF@$i
+PUSHS int@0
+POPS LF@$i
+DEFVAR LF@$pos
+PUSHS int@0
+POPS LF@$pos
+DEFVAR LF@$p1
+DEFVAR LF@$ch
+
+# while
+LABEL !get_0_0
+TYPE GF@EXPR_TYPE LF@$i
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$i
+TYPE GF@EXPR_TYPE LF@$id
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$id
+PUSHS string@lt
+CREATEFRAME
+CALL !*op_rel
+POPS GF@EXPR_VAL
+CREATEFRAME
+CALL !*expr_res_bool_convert
+
+JUMPIFEQ !get_0_1 GF@EXPR_VAL bool@false
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$pos
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$p1
+CREATEFRAME
+TYPE GF@EXPR_TYPE LF@$in
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 LF@$in
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-1
+MOVE TF@-1 LF@$pos
+TYPE GF@EXPR_TYPE LF@$p1
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-2
+MOVE TF@-2 LF@$p1
+CALL !substring
+MOVE LF@$ch TF@res
+
+# while
+LABEL !get_1_2
+TYPE GF@EXPR_TYPE LF@$ch
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$ch
+PUSHS string@;
+PUSHS string@noteq
+CREATEFRAME
+CALL !*op_eq_neq
+POPS GF@EXPR_VAL
+CREATEFRAME
+CALL !*expr_res_bool_convert
+
+JUMPIFEQ !get_1_3 GF@EXPR_VAL bool@false
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$pos
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$pos
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$pos
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$p1
+CREATEFRAME
+TYPE GF@EXPR_TYPE LF@$in
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 LF@$in
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-1
+MOVE TF@-1 LF@$pos
+TYPE GF@EXPR_TYPE LF@$p1
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-2
+MOVE TF@-2 LF@$p1
+CALL !substring
+MOVE LF@$ch TF@res
+JUMP !get_1_2
+# loop
+LABEL !get_1_3
+
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$pos
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$pos
+TYPE GF@EXPR_TYPE LF@$i
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$i
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$i
+JUMP !get_0_0
+# loop
+LABEL !get_0_1
+
+DEFVAR LF@$pos_end
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$pos
+POPS LF@$pos_end
+TYPE GF@EXPR_TYPE LF@$pos_end
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$pos_end
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$p1
+CREATEFRAME
+TYPE GF@EXPR_TYPE LF@$in
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 LF@$in
+TYPE GF@EXPR_TYPE LF@$pos_end
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-1
+MOVE TF@-1 LF@$pos_end
+TYPE GF@EXPR_TYPE LF@$p1
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-2
+MOVE TF@-2 LF@$p1
+CALL !substring
+MOVE LF@$ch TF@res
+
+# while
+LABEL !get_0_4
+TYPE GF@EXPR_TYPE LF@$ch
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$ch
+PUSHS string@;
+PUSHS string@noteq
+CREATEFRAME
+CALL !*op_eq_neq
+POPS GF@EXPR_VAL
+CREATEFRAME
+CALL !*expr_res_bool_convert
+
+JUMPIFEQ !get_0_5 GF@EXPR_VAL bool@false
+TYPE GF@EXPR_TYPE LF@$pos_end
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$pos_end
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$pos_end
+TYPE GF@EXPR_TYPE LF@$pos_end
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$pos_end
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$p1
+CREATEFRAME
+TYPE GF@EXPR_TYPE LF@$in
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 LF@$in
+TYPE GF@EXPR_TYPE LF@$pos_end
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-1
+MOVE TF@-1 LF@$pos_end
+TYPE GF@EXPR_TYPE LF@$p1
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-2
+MOVE TF@-2 LF@$p1
+CALL !substring
+MOVE LF@$ch TF@res
+JUMP !get_0_4
+# loop
+LABEL !get_0_5
+
+DEFVAR LF@$ret
+CREATEFRAME
+TYPE GF@EXPR_TYPE LF@$in
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 LF@$in
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-1
+MOVE TF@-1 LF@$pos
+TYPE GF@EXPR_TYPE LF@$pos_end
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-2
+MOVE TF@-2 LF@$pos_end
+CALL !substring
+MOVE LF@$ret TF@res
+TYPE GF@EXPR_TYPE LF@$ret
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$ret
+POPS GF@EXPR_VAL
+PUSHS LF@func_qmark
+PUSHS LF@func_type
+CREATEFRAME
+CALL !*return_semantic_check
+MOVE LF@res GF@EXPR_VAL
+JUMP !get_end
+LABEL !get_end
+POPFRAME
+RETURN
+
+LABEL !get_skip
+JUMP !set_skip
+
+# Function set
+LABEL !set
+PUSHFRAME
+DEFVAR LF@$in
+MOVE LF@$in LF@-0
+DEFVAR LF@$id
+MOVE LF@$id LF@-1
+DEFVAR LF@$s
+MOVE LF@$s LF@-2
+DEFVAR LF@res
+MOVE LF@res string@
+# Function type for semantic controls
+DEFVAR LF@func_type
+MOVE LF@func_type string@string
+DEFVAR LF@func_qmark
+MOVE LF@func_qmark bool@false
+DEFVAR LF@$i
+PUSHS int@0
+POPS LF@$i
+DEFVAR LF@$pos
+PUSHS int@0
+POPS LF@$pos
+DEFVAR LF@$p1
+DEFVAR LF@$ch
+
+# while
+LABEL !set_0_6
+TYPE GF@EXPR_TYPE LF@$i
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$i
+TYPE GF@EXPR_TYPE LF@$id
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$id
+PUSHS string@lt
+CREATEFRAME
+CALL !*op_rel
+POPS GF@EXPR_VAL
+CREATEFRAME
+CALL !*expr_res_bool_convert
+
+JUMPIFEQ !set_0_7 GF@EXPR_VAL bool@false
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$pos
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$p1
+CREATEFRAME
+TYPE GF@EXPR_TYPE LF@$in
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 LF@$in
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-1
+MOVE TF@-1 LF@$pos
+TYPE GF@EXPR_TYPE LF@$p1
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-2
+MOVE TF@-2 LF@$p1
+CALL !substring
+MOVE LF@$ch TF@res
+
+# while
+LABEL !set_1_8
+TYPE GF@EXPR_TYPE LF@$ch
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$ch
+PUSHS string@;
+PUSHS string@noteq
+CREATEFRAME
+CALL !*op_eq_neq
+POPS GF@EXPR_VAL
+CREATEFRAME
+CALL !*expr_res_bool_convert
+
+JUMPIFEQ !set_1_9 GF@EXPR_VAL bool@false
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$pos
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$pos
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$pos
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$p1
+CREATEFRAME
+TYPE GF@EXPR_TYPE LF@$in
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 LF@$in
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-1
+MOVE TF@-1 LF@$pos
+TYPE GF@EXPR_TYPE LF@$p1
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-2
+MOVE TF@-2 LF@$p1
+CALL !substring
+MOVE LF@$ch TF@res
+JUMP !set_1_8
+# loop
+LABEL !set_1_9
+
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$pos
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$pos
+TYPE GF@EXPR_TYPE LF@$i
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$i
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$i
+JUMP !set_0_6
+# loop
+LABEL !set_0_7
+
+DEFVAR LF@$pos_end
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$pos
+POPS LF@$pos_end
+TYPE GF@EXPR_TYPE LF@$pos_end
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$pos_end
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$p1
+CREATEFRAME
+TYPE GF@EXPR_TYPE LF@$in
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 LF@$in
+TYPE GF@EXPR_TYPE LF@$pos_end
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-1
+MOVE TF@-1 LF@$pos_end
+TYPE GF@EXPR_TYPE LF@$p1
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-2
+MOVE TF@-2 LF@$p1
+CALL !substring
+MOVE LF@$ch TF@res
+
+# while
+LABEL !set_0_10
+TYPE GF@EXPR_TYPE LF@$ch
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$ch
+PUSHS string@;
+PUSHS string@noteq
+CREATEFRAME
+CALL !*op_eq_neq
+POPS GF@EXPR_VAL
+CREATEFRAME
+CALL !*expr_res_bool_convert
+
+JUMPIFEQ !set_0_11 GF@EXPR_VAL bool@false
+TYPE GF@EXPR_TYPE LF@$pos_end
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$pos_end
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$pos_end
+TYPE GF@EXPR_TYPE LF@$pos_end
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$pos_end
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$p1
+CREATEFRAME
+TYPE GF@EXPR_TYPE LF@$in
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 LF@$in
+TYPE GF@EXPR_TYPE LF@$pos_end
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-1
+MOVE TF@-1 LF@$pos_end
+TYPE GF@EXPR_TYPE LF@$p1
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-2
+MOVE TF@-2 LF@$p1
+CALL !substring
+MOVE LF@$ch TF@res
+JUMP !set_0_10
+# loop
+LABEL !set_0_11
+
+DEFVAR LF@$before
+CREATEFRAME
+TYPE GF@EXPR_TYPE LF@$in
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 LF@$in
+DEFVAR TF@-1
+MOVE TF@-1 int@0
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-2
+MOVE TF@-2 LF@$pos
+CALL !substring
+MOVE LF@$before TF@res
+DEFVAR LF@$slen
+CREATEFRAME
+TYPE GF@EXPR_TYPE LF@$in
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 LF@$in
+CALL !strlen
+MOVE LF@$slen TF@res
+DEFVAR LF@$after
+CREATEFRAME
+TYPE GF@EXPR_TYPE LF@$in
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 LF@$in
+TYPE GF@EXPR_TYPE LF@$pos_end
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-1
+MOVE TF@-1 LF@$pos_end
+TYPE GF@EXPR_TYPE LF@$slen
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-2
+MOVE TF@-2 LF@$slen
+CALL !substring
+MOVE LF@$after TF@res
+TYPE GF@EXPR_TYPE LF@$before
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$before
+TYPE GF@EXPR_TYPE LF@$s
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$s
+CREATEFRAME
+CALL !*op_dot
+TYPE GF@EXPR_TYPE LF@$after
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$after
+CREATEFRAME
+CALL !*op_dot
+POPS GF@EXPR_VAL
+PUSHS LF@func_qmark
+PUSHS LF@func_type
+CREATEFRAME
+CALL !*return_semantic_check
+MOVE LF@res GF@EXPR_VAL
+JUMP !set_end
+LABEL !set_end
+POPFRAME
+RETURN
+
+LABEL !set_skip
+JUMP !length_skip
+
+# Function length
+LABEL !length
+PUSHFRAME
+DEFVAR LF@$in
+MOVE LF@$in LF@-0
+DEFVAR LF@res
+MOVE LF@res int@0
+# Function type for semantic controls
+DEFVAR LF@func_type
+MOVE LF@func_type string@int
+DEFVAR LF@func_qmark
+MOVE LF@func_qmark bool@false
+DEFVAR LF@$i
+PUSHS int@0
+POPS LF@$i
+DEFVAR LF@$pos
+PUSHS int@0
+POPS LF@$pos
+DEFVAR LF@$p1
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$pos
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$p1
+DEFVAR LF@$ch
+CREATEFRAME
+TYPE GF@EXPR_TYPE LF@$in
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 LF@$in
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-1
+MOVE TF@-1 LF@$pos
+TYPE GF@EXPR_TYPE LF@$p1
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-2
+MOVE TF@-2 LF@$p1
+CALL !substring
+MOVE LF@$ch TF@res
+
+# while
+LABEL !length_0_12
+TYPE GF@EXPR_TYPE LF@$ch
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$ch
+PUSHS nil@nil
+PUSHS string@noteq
+CREATEFRAME
+CALL !*op_eq_neq
+POPS GF@EXPR_VAL
+CREATEFRAME
+CALL !*expr_res_bool_convert
+
+JUMPIFEQ !length_0_13 GF@EXPR_VAL bool@false
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$pos
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$pos
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$pos
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$p1
+CREATEFRAME
+TYPE GF@EXPR_TYPE LF@$in
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 LF@$in
+TYPE GF@EXPR_TYPE LF@$pos
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-1
+MOVE TF@-1 LF@$pos
+TYPE GF@EXPR_TYPE LF@$p1
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-2
+MOVE TF@-2 LF@$p1
+CALL !substring
+MOVE LF@$ch TF@res
+
+# if
+TYPE GF@EXPR_TYPE LF@$ch
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$ch
+PUSHS string@;
+PUSHS string@equal
+CREATEFRAME
+CALL !*op_eq_neq
+POPS GF@EXPR_VAL
+CREATEFRAME
+CALL !*expr_res_bool_convert
+
+JUMPIFEQ !length_1_14 GF@EXPR_VAL bool@false
+TYPE GF@EXPR_TYPE LF@$i
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$i
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$i
+JUMP !length_1_15
+# else
+LABEL !length_1_14
+# if end
+LABEL !length_1_15
+
+JUMP !length_0_12
+# loop
+LABEL !length_0_13
+
+TYPE GF@EXPR_TYPE LF@$i
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$i
+POPS GF@EXPR_VAL
+PUSHS LF@func_qmark
+PUSHS LF@func_type
+CREATEFRAME
+CALL !*return_semantic_check
+MOVE LF@res GF@EXPR_VAL
+JUMP !length_end
+LABEL !length_end
+POPFRAME
+RETURN
+
+LABEL !length_skip
+JUMP !pow_skip
+
+# Function pow
+LABEL !pow
+PUSHFRAME
+DEFVAR LF@$x
+MOVE LF@$x LF@-0
+DEFVAR LF@$y
+MOVE LF@$y LF@-1
+DEFVAR LF@res
+MOVE LF@res int@0
+# Function type for semantic controls
+DEFVAR LF@func_type
+MOVE LF@func_type string@int
+DEFVAR LF@func_qmark
+MOVE LF@func_qmark bool@false
+DEFVAR LF@$i
+PUSHS int@0
+POPS LF@$i
+DEFVAR LF@$ret
+PUSHS int@1
+POPS LF@$ret
+
+# while
+LABEL !pow_0_16
+TYPE GF@EXPR_TYPE LF@$i
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$i
+TYPE GF@EXPR_TYPE LF@$y
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$y
+PUSHS string@lt
+CREATEFRAME
+CALL !*op_rel
+POPS GF@EXPR_VAL
+CREATEFRAME
+CALL !*expr_res_bool_convert
+
+JUMPIFEQ !pow_0_17 GF@EXPR_VAL bool@false
+TYPE GF@EXPR_TYPE LF@$ret
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$ret
+TYPE GF@EXPR_TYPE LF@$x
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$x
+PUSHS string@mul
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$ret
+TYPE GF@EXPR_TYPE LF@$i
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$i
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$i
+JUMP !pow_0_16
+# loop
+LABEL !pow_0_17
+
+TYPE GF@EXPR_TYPE LF@$ret
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$ret
+POPS GF@EXPR_VAL
+PUSHS LF@func_qmark
+PUSHS LF@func_type
+CREATEFRAME
+CALL !*return_semantic_check
+MOVE LF@res GF@EXPR_VAL
+JUMP !pow_end
+LABEL !pow_end
+POPFRAME
+RETURN
+
+LABEL !pow_skip
+JUMP !sierpinski_skip
+
+# Function sierpinski
+LABEL !sierpinski
+PUSHFRAME
+DEFVAR LF@$n
+MOVE LF@$n LF@-0
+DEFVAR LF@res
+MOVE LF@res string@
+# Function type for semantic controls
+DEFVAR LF@func_type
+MOVE LF@func_type string@string
+DEFVAR LF@func_qmark
+MOVE LF@func_qmark bool@false
+DEFVAR LF@$d
+PUSHS string@
+POPS LF@$d
+CREATEFRAME
+TYPE GF@EXPR_TYPE LF@$d
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 LF@$d
+DEFVAR TF@-1
+MOVE TF@-1 string@*
+CALL !append
+MOVE LF@$d TF@res
+DEFVAR LF@$i
+PUSHS int@0
+POPS LF@$i
+DEFVAR LF@$j
+DEFVAR LF@$sp
+DEFVAR LF@$p
+DEFVAR LF@$len
+DEFVAR LF@$d2
+DEFVAR LF@$s
+DEFVAR LF@$t2
+DEFVAR LF@$d3
+DEFVAR LF@$t3
+
+# while
+LABEL !sierpinski_0_18
+TYPE GF@EXPR_TYPE LF@$i
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$i
+TYPE GF@EXPR_TYPE LF@$n
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$n
+PUSHS string@lt
+CREATEFRAME
+CALL !*op_rel
+POPS GF@EXPR_VAL
+CREATEFRAME
+CALL !*expr_res_bool_convert
+
+JUMPIFEQ !sierpinski_0_19 GF@EXPR_VAL bool@false
+PUSHS int@0
+POPS LF@$j
+PUSHS string@
+POPS LF@$sp
+CREATEFRAME
+DEFVAR TF@-0
+MOVE TF@-0 int@2
+TYPE GF@EXPR_TYPE LF@$i
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-1
+MOVE TF@-1 LF@$i
+CALL !pow
+MOVE LF@$p TF@res
+
+# while
+LABEL !sierpinski_1_20
+TYPE GF@EXPR_TYPE LF@$j
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$j
+TYPE GF@EXPR_TYPE LF@$p
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$p
+PUSHS string@lt
+CREATEFRAME
+CALL !*op_rel
+POPS GF@EXPR_VAL
+CREATEFRAME
+CALL !*expr_res_bool_convert
+
+JUMPIFEQ !sierpinski_1_21 GF@EXPR_VAL bool@false
+TYPE GF@EXPR_TYPE LF@$sp
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$sp
+PUSHS string@\032
+CREATEFRAME
+CALL !*op_dot
+POPS LF@$sp
+TYPE GF@EXPR_TYPE LF@$j
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$j
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$j
+JUMP !sierpinski_1_20
+# loop
+LABEL !sierpinski_1_21
+
+PUSHS int@0
+POPS LF@$j
+CREATEFRAME
+TYPE GF@EXPR_TYPE LF@$d
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 LF@$d
+CALL !length
+MOVE LF@$len TF@res
+PUSHS string@
+POPS LF@$d2
+
+# while
+LABEL !sierpinski_1_22
+TYPE GF@EXPR_TYPE LF@$j
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$j
+TYPE GF@EXPR_TYPE LF@$len
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$len
+PUSHS string@lt
+CREATEFRAME
+CALL !*op_rel
+POPS GF@EXPR_VAL
+CREATEFRAME
+CALL !*expr_res_bool_convert
+
+JUMPIFEQ !sierpinski_1_23 GF@EXPR_VAL bool@false
+CREATEFRAME
+TYPE GF@EXPR_TYPE LF@$d
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 LF@$d
+TYPE GF@EXPR_TYPE LF@$j
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-1
+MOVE TF@-1 LF@$j
+CALL !get
+MOVE LF@$s TF@res
+TYPE GF@EXPR_TYPE LF@$sp
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$sp
+TYPE GF@EXPR_TYPE LF@$s
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$s
+CREATEFRAME
+CALL !*op_dot
+TYPE GF@EXPR_TYPE LF@$sp
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$sp
+CREATEFRAME
+CALL !*op_dot
+POPS LF@$t2
+CREATEFRAME
+TYPE GF@EXPR_TYPE LF@$d2
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 LF@$d2
+TYPE GF@EXPR_TYPE LF@$t2
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-1
+MOVE TF@-1 LF@$t2
+CALL !append
+MOVE LF@$d2 TF@res
+TYPE GF@EXPR_TYPE LF@$j
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$j
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$j
+JUMP !sierpinski_1_22
+# loop
+LABEL !sierpinski_1_23
+
+PUSHS int@0
+POPS LF@$j
+PUSHS string@
+POPS LF@$d3
+
+# while
+LABEL !sierpinski_1_24
+TYPE GF@EXPR_TYPE LF@$j
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$j
+TYPE GF@EXPR_TYPE LF@$len
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$len
+PUSHS string@lt
+CREATEFRAME
+CALL !*op_rel
+POPS GF@EXPR_VAL
+CREATEFRAME
+CALL !*expr_res_bool_convert
+
+JUMPIFEQ !sierpinski_1_25 GF@EXPR_VAL bool@false
+CREATEFRAME
+TYPE GF@EXPR_TYPE LF@$d
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 LF@$d
+TYPE GF@EXPR_TYPE LF@$j
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-1
+MOVE TF@-1 LF@$j
+CALL !get
+MOVE LF@$s TF@res
+TYPE GF@EXPR_TYPE LF@$s
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$s
+PUSHS string@\032
+CREATEFRAME
+CALL !*op_dot
+TYPE GF@EXPR_TYPE LF@$s
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$s
+CREATEFRAME
+CALL !*op_dot
+POPS LF@$t3
+CREATEFRAME
+TYPE GF@EXPR_TYPE LF@$d3
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 LF@$d3
+TYPE GF@EXPR_TYPE LF@$t3
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-1
+MOVE TF@-1 LF@$t3
+CALL !append
+MOVE LF@$d3 TF@res
+TYPE GF@EXPR_TYPE LF@$j
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$j
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$j
+JUMP !sierpinski_1_24
+# loop
+LABEL !sierpinski_1_25
+
+TYPE GF@EXPR_TYPE LF@$d2
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$d2
+TYPE GF@EXPR_TYPE LF@$d3
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$d3
+CREATEFRAME
+CALL !*op_dot
+POPS LF@$d
+TYPE GF@EXPR_TYPE LF@$i
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$i
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS LF@$i
+JUMP !sierpinski_0_18
+# loop
+LABEL !sierpinski_0_19
+
+TYPE GF@EXPR_TYPE LF@$d
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS LF@$d
+POPS GF@EXPR_VAL
+PUSHS LF@func_qmark
+PUSHS LF@func_type
+CREATEFRAME
+CALL !*return_semantic_check
+MOVE LF@res GF@EXPR_VAL
+JUMP !sierpinski_end
+LABEL !sierpinski_end
+POPFRAME
+RETURN
+
+LABEL !sierpinski_skip
+DEFVAR GF@$tri
+CREATEFRAME
+DEFVAR TF@-0
+MOVE TF@-0 int@4
+CALL !sierpinski
+MOVE GF@$tri TF@res
+DEFVAR GF@$i
+PUSHS int@0
+POPS GF@$i
+DEFVAR GF@$len
+CREATEFRAME
+TYPE GF@EXPR_TYPE GF@$tri
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 GF@$tri
+CALL !length
+MOVE GF@$len TF@res
+DEFVAR GF@$res
+
+# while
+LABEL !_0_26
+TYPE GF@EXPR_TYPE GF@$i
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS GF@$i
+TYPE GF@EXPR_TYPE GF@$len
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS GF@$len
+PUSHS string@lt
+CREATEFRAME
+CALL !*op_rel
+POPS GF@EXPR_VAL
+CREATEFRAME
+CALL !*expr_res_bool_convert
+
+JUMPIFEQ !_0_27 GF@EXPR_VAL bool@false
+CREATEFRAME
+TYPE GF@EXPR_TYPE GF@$tri
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 GF@$tri
+TYPE GF@EXPR_TYPE GF@$i
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-1
+MOVE TF@-1 GF@$i
+CALL !get
+MOVE GF@$res TF@res
+CREATEFRAME
+TYPE GF@EXPR_TYPE GF@$res
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS GF@$res
+DEFVAR TF@arg_count
+MOVE TF@arg_count int@1
+CALL !write
+CREATEFRAME
+PUSHS string@\010
+DEFVAR TF@arg_count
+MOVE TF@arg_count int@1
+CALL !write
+TYPE GF@EXPR_TYPE GF@$i
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+PUSHS GF@$i
+PUSHS int@1
+PUSHS string@add
+CREATEFRAME
+CALL !*op_asm
+POPS GF@$i
+CREATEFRAME
+TYPE GF@EXPR_TYPE GF@$tri
+JUMPIFEQ !*sem_error_five GF@EXPR_TYPE string@
+DEFVAR TF@-0
+MOVE TF@-0 GF@$tri
+CALL !length
+MOVE GF@$len TF@res
+JUMP !_0_26
+# loop
+LABEL !_0_27
+
+CLEARS
+# End of program
